@@ -3,7 +3,7 @@
 #
 
 install(FILES
-    TraceEventContext.h
+    SSLContextConfig.h
     DESTINATION include/proxygen/lib/ssl
 )
 
