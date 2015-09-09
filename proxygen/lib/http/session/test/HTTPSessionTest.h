@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include <coral/Memory.h>
+#include <folly/Memory.h>
 #include <proxygen/lib/http/codec/HTTP1xCodec.h>
 #include <proxygen/lib/http/codec/experimental/HTTP2Codec.h>
 #include <proxygen/lib/http/codec/SPDYCodec.h>
@@ -22,7 +22,7 @@ typename std::enable_if<
   std::is_enum<Version>::value,
   std::unique_ptr<MyCodec> >::type
 makeClientCodec(Version version) {
-  return coral::make_unique<MyCodec>(
+  return folly::make_unique<MyCodec>(
     proxygen::TransportDirection::UPSTREAM, version);
 }
 
@@ -31,7 +31,7 @@ typename std::enable_if<
   std::is_same<MyCodec, proxygen::HTTP1xCodec>::value,
   std::unique_ptr<MyCodec> >::type
 makeClientCodec(Version version) {
-  return coral::make_unique<MyCodec>(
+  return folly::make_unique<MyCodec>(
     proxygen::TransportDirection::UPSTREAM);
 }
 
@@ -40,7 +40,7 @@ typename std::enable_if<
   std::is_same<MyCodec, proxygen::HTTP2Codec>::value,
   std::unique_ptr<MyCodec> >::type
 makeClientCodec(Version version) {
-  return coral::make_unique<MyCodec>(
+  return folly::make_unique<MyCodec>(
     proxygen::TransportDirection::UPSTREAM);
 }
 
@@ -49,7 +49,7 @@ typename std::enable_if<
   std::is_same<MyCodec, proxygen::MockHTTPCodec>::value,
   std::unique_ptr<MyCodec> >::type
 makeClientCodec(Version version) {
-  return coral::make_unique<MyCodec>();
+  return folly::make_unique<MyCodec>();
 }
 
 template <class MyCodec, class Version>
@@ -57,7 +57,7 @@ typename std::enable_if<
   std::is_enum<Version>::value,
   std::unique_ptr<MyCodec> >::type
 makeServerCodec(Version version) {
-  return coral::make_unique<MyCodec>(
+  return folly::make_unique<MyCodec>(
     proxygen::TransportDirection::DOWNSTREAM,
     (Version)version);
 }
@@ -67,7 +67,7 @@ typename std::enable_if<
   std::is_same<MyCodec, proxygen::HTTP1xCodec>::value,
   std::unique_ptr<MyCodec> >::type
 makeServerCodec(Version version) {
-  return coral::make_unique<MyCodec>(
+  return folly::make_unique<MyCodec>(
     proxygen::TransportDirection::DOWNSTREAM);
 }
 
@@ -76,7 +76,7 @@ typename std::enable_if<
   std::is_same<MyCodec, proxygen::HTTP2Codec>::value,
   std::unique_ptr<MyCodec> >::type
 makeServerCodec(Version version) {
-  return coral::make_unique<MyCodec>(
+  return folly::make_unique<MyCodec>(
     proxygen::TransportDirection::DOWNSTREAM);
 }
 
@@ -85,5 +85,5 @@ typename std::enable_if<
   std::is_same<MyCodec, proxygen::MockHTTPCodec>::value,
   std::unique_ptr<MyCodec> >::type
 makeServerCodec(Version version) {
-  return coral::make_unique<MyCodec>();
+  return folly::make_unique<MyCodec>();
 }

@@ -9,8 +9,8 @@
  */
 #pragma once
 
-#include <coral/Conv.h>
-#include <coral/String.h>
+#include <folly/Conv.h>
+#include <folly/String.h>
 #include <string>
 
 namespace proxygen {
@@ -21,22 +21,22 @@ namespace proxygen {
 class ParseURL {
  public:
   ParseURL() {}
-  explicit ParseURL(coral::StringPiece urlVal) noexcept {
+  explicit ParseURL(folly::StringPiece urlVal) noexcept {
     init(urlVal);
   }
 
-  void init(coral::StringPiece urlVal) {
+  void init(folly::StringPiece urlVal) {
     CHECK(!initialized_);
     url_ = urlVal;
     parse();
     initialized_ = true;
   }
 
-  coral::StringPiece url() const {
+  folly::StringPiece url() const {
     return url_;
   }
 
-  coral::StringPiece scheme() const {
+  folly::StringPiece scheme() const {
     return scheme_;
   }
 
@@ -48,7 +48,7 @@ class ParseURL {
     return valid() && !host_.empty();
   }
 
-  coral::StringPiece host() const {
+  folly::StringPiece host() const {
     return host_;
   }
 
@@ -59,20 +59,20 @@ class ParseURL {
   std::string hostAndPort() const {
     std::string rc = host_.str();
     if (port_ != 0) {
-      coral::toAppend(":", port_, &rc);
+      folly::toAppend(":", port_, &rc);
     }
     return rc;
   }
 
-  coral::StringPiece path() const {
+  folly::StringPiece path() const {
     return path_;
   }
 
-  coral::StringPiece query() const {
+  folly::StringPiece query() const {
     return query_;
   }
 
-  coral::StringPiece fragment() const {
+  folly::StringPiece fragment() const {
     return fragment_;
   }
 
@@ -80,7 +80,7 @@ class ParseURL {
     return valid_;
   }
 
-  coral::StringPiece hostNoBrackets() {
+  folly::StringPiece hostNoBrackets() {
     stripBrackets();
     return hostNoBrackets_;
   }
@@ -96,14 +96,14 @@ class ParseURL {
 
   bool parseAuthority() noexcept;
 
-  coral::StringPiece url_;
-  coral::StringPiece scheme_;
+  folly::StringPiece url_;
+  folly::StringPiece scheme_;
   std::string authority_;
-  coral::StringPiece host_;
-  coral::StringPiece hostNoBrackets_;
-  coral::StringPiece path_;
-  coral::StringPiece query_;
-  coral::StringPiece fragment_;
+  folly::StringPiece host_;
+  folly::StringPiece hostNoBrackets_;
+  folly::StringPiece path_;
+  folly::StringPiece query_;
+  folly::StringPiece fragment_;
   uint16_t port_{0};
   bool valid_{false};
   bool initialized_{false};

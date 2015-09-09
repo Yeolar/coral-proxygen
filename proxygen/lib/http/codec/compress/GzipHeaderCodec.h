@@ -9,9 +9,9 @@
  */
 #pragma once
 
-#include <coral/ThreadLocal.h>
-#include <coral/io/Cursor.h>
-#include <coral/io/IOBuf.h>
+#include <folly/ThreadLocal.h>
+#include <folly/io/Cursor.h>
+#include <folly/io/IOBuf.h>
 #include <map>
 #include <memory>
 #include <proxygen/lib/http/codec/SPDYVersionSettings.h>
@@ -29,25 +29,25 @@ class GzipHeaderCodec : public HeaderCodec {
                            SPDYVersion version = SPDYVersion::SPDY3_1);
   ~GzipHeaderCodec() override;
 
-  std::unique_ptr<coral::IOBuf> encode(
+  std::unique_ptr<folly::IOBuf> encode(
     std::vector<compress::Header>& headers) noexcept override;
 
   Result<HeaderDecodeResult, HeaderDecodeError>
-  decode(coral::io::Cursor& cursor, uint32_t length) noexcept override;
+  decode(folly::io::Cursor& cursor, uint32_t length) noexcept override;
 
   void decodeStreaming(
-      coral::io::Cursor& cursor,
+      folly::io::Cursor& cursor,
       uint32_t length,
       HeaderCodec::StreamingCallback* streamingCb) noexcept override;
 
  private:
-  coral::IOBuf& getHeaderBuf();
+  folly::IOBuf& getHeaderBuf();
 
   /**
    * Parse the decompressed name/value header block.
    */
   Result<size_t, HeaderDecodeError>
-  parseNameValues(const coral::IOBuf& uncompressed,
+  parseNameValues(const folly::IOBuf& uncompressed,
                   uint32_t uncompressedLength) noexcept;
 
   const SPDYVersionSettings& versionSettings_;

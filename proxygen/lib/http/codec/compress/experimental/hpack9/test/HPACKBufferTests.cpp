@@ -7,16 +7,16 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  *
  */
-#include <coral/io/Cursor.h>
-#include <coral/io/IOBuf.h>
+#include <folly/io/Cursor.h>
+#include <folly/io/IOBuf.h>
 #include <gtest/gtest.h>
 #include <memory>
 #include <proxygen/lib/http/codec/compress/HPACKDecodeBuffer.h>
 #include <proxygen/lib/http/codec/compress/HPACKEncodeBuffer.h>
 #include <proxygen/lib/http/codec/compress/experimental/hpack9/Huffman.h>
 
-using namespace coral::io;
-using namespace coral;
+using namespace folly::io;
+using namespace folly;
 using namespace proxygen;
 using namespace std;
 using namespace testing;

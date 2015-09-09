@@ -7,9 +7,9 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  *
  */
-#include <coral/Range.h>
-#include <coral/io/Cursor.h>
-#include <coral/io/IOBuf.h>
+#include <folly/Range.h>
+#include <folly/io/Cursor.h>
+#include <folly/io/IOBuf.h>
 #include <glog/logging.h>
 #include <gtest/gtest.h>
 #include <proxygen/lib/http/codec/compress/HPACKCodec.h>
@@ -17,8 +17,8 @@
 #include <proxygen/lib/http/codec/compress/HeaderCodec.h>
 #include <vector>
 
-using namespace coral::io;
-using namespace coral;
+using namespace folly::io;
+using namespace folly;
 using namespace proxygen::compress;
 using namespace proxygen;
 using namespace std;
@@ -294,7 +294,7 @@ TEST_F(HPACKCodecTests, uncompressed_size_limit) {
   // generate lots of small headers
   string contentLength = "Content-Length";
   for (int i = 0; i < 10000; i++) {
-    string value = coral::to<string>(i);
+    string value = folly::to<string>(i);
     vector<string> header = {contentLength, value};
     headers.push_back(header);
   }

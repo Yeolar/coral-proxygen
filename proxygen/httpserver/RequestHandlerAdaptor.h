@@ -40,7 +40,7 @@ class RequestHandlerAdaptor
   void setTransaction(HTTPTransaction* txn) noexcept override;
   void detachTransaction() noexcept override;
   void onHeadersComplete(std::unique_ptr<HTTPMessage> msg) noexcept override;
-  void onBody(std::unique_ptr<coral::IOBuf> chain) noexcept override;
+  void onBody(std::unique_ptr<folly::IOBuf> chain) noexcept override;
   void onChunkHeader(size_t length) noexcept override;
   void onChunkComplete() noexcept override;
   void onTrailers(std::unique_ptr<HTTPHeaders> trailers) noexcept override;
@@ -53,7 +53,7 @@ class RequestHandlerAdaptor
   // ResponseHandler
   void sendHeaders(HTTPMessage& msg) noexcept override;
   void sendChunkHeader(size_t len) noexcept override;
-  void sendBody(std::unique_ptr<coral::IOBuf> body) noexcept override;
+  void sendBody(std::unique_ptr<folly::IOBuf> body) noexcept override;
   void sendChunkTerminator() noexcept override;
   void sendEOM() noexcept override;
   void sendAbort() noexcept override;

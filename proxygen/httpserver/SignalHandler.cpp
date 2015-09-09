@@ -9,16 +9,16 @@
  */
 #include <proxygen/httpserver/SignalHandler.h>
 
-#include <coral/io/async/EventBaseManager.h>
+#include <folly/io/async/EventBaseManager.h>
 #include <proxygen/httpserver/HTTPServer.h>
 #include <signal.h>
 
-using coral::EventBaseManager;
+using folly::EventBaseManager;
 
 namespace proxygen {
 
 SignalHandler::SignalHandler(HTTPServer* server)
-    : coral::AsyncSignalHandler(EventBaseManager::get()->getEventBase()),
+    : folly::AsyncSignalHandler(EventBaseManager::get()->getEventBase()),
       server_(server) {
 }
 

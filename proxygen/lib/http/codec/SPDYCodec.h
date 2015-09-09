@@ -22,7 +22,7 @@
 #include <proxygen/lib/http/codec/compress/HeaderCodec.h>
 #include <zlib.h>
 
-namespace coral { namespace io {
+namespace folly { namespace io {
 class Cursor;
 }}
 
@@ -46,39 +46,39 @@ public:
   CodecProtocol getProtocol() const override;
   bool supportsStreamFlowControl() const override;
   bool supportsSessionFlowControl() const override;
-  size_t onIngress(const coral::IOBuf& buf) override;
-  void generateHeader(coral::IOBufQueue& writeBuf,
+  size_t onIngress(const folly::IOBuf& buf) override;
+  void generateHeader(folly::IOBufQueue& writeBuf,
                       StreamID stream,
                       const HTTPMessage& msg,
                       StreamID assocStream = 0,
                       bool eom = false,
                       HTTPHeaderSize* size = nullptr) override;
-  size_t generateBody(coral::IOBufQueue& writeBuf,
+  size_t generateBody(folly::IOBufQueue& writeBuf,
                       StreamID stream,
-                      std::unique_ptr<coral::IOBuf> chain,
+                      std::unique_ptr<folly::IOBuf> chain,
                       boost::optional<uint8_t> padding,
                       bool eom) override;
-  size_t generateChunkHeader(coral::IOBufQueue& writeBuf,
+  size_t generateChunkHeader(folly::IOBufQueue& writeBuf,
                              StreamID stream,
                              size_t length) override;
-  size_t generateChunkTerminator(coral::IOBufQueue& writeBuf,
+  size_t generateChunkTerminator(folly::IOBufQueue& writeBuf,
                                  StreamID stream) override;
-  size_t generateTrailers(coral::IOBufQueue& writeBuf,
+  size_t generateTrailers(folly::IOBufQueue& writeBuf,
                           StreamID stream,
                           const HTTPHeaders& trailers) override;
-  size_t generateEOM(coral::IOBufQueue& writeBuf,
+  size_t generateEOM(folly::IOBufQueue& writeBuf,
                      StreamID stream) override;
-  size_t generateRstStream(coral::IOBufQueue& writeBuf,
+  size_t generateRstStream(folly::IOBufQueue& writeBuf,
                            StreamID txn,
                            ErrorCode statusCode) override;
-  size_t generateGoaway(coral::IOBufQueue& writeBuf,
+  size_t generateGoaway(folly::IOBufQueue& writeBuf,
                         StreamID lastStream,
                         ErrorCode statusCode) override;
-  size_t generatePingRequest(coral::IOBufQueue& writeBuf) override;
-  size_t generatePingReply(coral::IOBufQueue& writeBuf,
+  size_t generatePingRequest(folly::IOBufQueue& writeBuf) override;
+  size_t generatePingReply(folly::IOBufQueue& writeBuf,
                            uint64_t uniqueID) override;
-  size_t generateSettings(coral::IOBufQueue& writeBuf) override;
-  size_t generateWindowUpdate(coral::IOBufQueue& writeBuf,
+  size_t generateSettings(folly::IOBufQueue& writeBuf) override;
+  size_t generateWindowUpdate(folly::IOBufQueue& writeBuf,
                               StreamID stream,
                               uint32_t delta) override;
   void enableDoubleGoawayDrain() override;
@@ -144,7 +144,7 @@ public:
    */
   void generateSynStream(StreamID stream,
                          StreamID assocStream,
-                         coral::IOBufQueue& writeBuf,
+                         folly::IOBufQueue& writeBuf,
                          const HTTPMessage& msg,
                          bool eom,
                          HTTPHeaderSize* size);
@@ -152,7 +152,7 @@ public:
    * Generates a frame of type SYN_REPLY
    */
   void generateSynReply(StreamID stream,
-                        coral::IOBufQueue& writeBuf,
+                        folly::IOBufQueue& writeBuf,
                         const HTTPMessage& msg,
                         bool eom,
                         HTTPHeaderSize* size);
@@ -160,12 +160,12 @@ public:
   /**
    * Generates the shared parts of a ping request and reply.
    */
-  size_t generatePingCommon(coral::IOBufQueue& writeBuf,
+  size_t generatePingCommon(folly::IOBufQueue& writeBuf,
                             uint64_t uniqueID);
   /**
    * Ingress parser, can throw exceptions
    */
-  size_t parseIngress(const coral::IOBuf& buf);
+  size_t parseIngress(const folly::IOBuf& buf);
 
   /**
    * Handle an ingress SYN_STREAM control frame. For a downstream-facing
@@ -218,7 +218,7 @@ public:
    * Helper function to parse out a control frame and execute its handler.
    * All errors are thrown as exceptions.
    */
-  void onControlFrame(coral::io::Cursor& cursor);
+  void onControlFrame(folly::io::Cursor& cursor);
 
   /**
    * Helper function that contains the common implementation details of
@@ -244,11 +244,11 @@ public:
    * @return length  Length of the encoded bytes
    * @return payload data payload
    */
-  size_t generateDataFrame(coral::IOBufQueue& writeBuf,
+  size_t generateDataFrame(folly::IOBufQueue& writeBuf,
                            uint32_t streamID,
                            uint8_t flags,
                            uint32_t length,
-                           std::unique_ptr<coral::IOBuf> payload);
+                           std::unique_ptr<folly::IOBuf> payload);
 
   /**
    * Serializes headers for requests (aka SYN_STREAM)
@@ -259,7 +259,7 @@ public:
    *                 front of the returned IOBuf, in case the caller
    *                 wants to put some other data there.
    */
-  std::unique_ptr<coral::IOBuf> serializeRequestHeaders(
+  std::unique_ptr<folly::IOBuf> serializeRequestHeaders(
     const HTTPMessage& msg,
     bool isPushed,
     uint32_t headroom = 0,
@@ -273,7 +273,7 @@ public:
    *                 front of the returned IOBuf, in case the caller
    *                 wants to put some other data there.
    */
-  std::unique_ptr<coral::IOBuf> serializeResponseHeaders(
+  std::unique_ptr<folly::IOBuf> serializeResponseHeaders(
      const HTTPMessage& msg,
      uint32_t headroom = 0,
      HTTPHeaderSize* size = nullptr);
@@ -288,7 +288,7 @@ public:
    *                 front of the returned IOBuf, in case the caller
    *                 wants to put some other data there.
    */
-  std::unique_ptr<coral::IOBuf> encodeHeaders(
+  std::unique_ptr<folly::IOBuf> encodeHeaders(
     const HTTPMessage& msg, std::vector<compress::Header>& headers,
     uint32_t headroom = 0,
     HTTPHeaderSize* size = nullptr);
@@ -301,7 +301,7 @@ public:
   /**
    * Decodes the headers from the cursor and returns the result.
    */
-  HeaderDecodeResult decodeHeaders(coral::io::Cursor& cursor);
+  HeaderDecodeResult decodeHeaders(folly::io::Cursor& cursor);
 
   void checkLength(uint32_t expectedLength, const std::string& msg);
 
@@ -315,7 +315,7 @@ public:
    */
   bool rstStatusSupported(int statusCode) const;
 
-  coral::fbvector<StreamID> closedStreams_;
+  folly::fbvector<StreamID> closedStreams_;
   const SPDYVersionSettings& versionSettings_;
 
   HTTPSettings ingressSettings_{
@@ -328,7 +328,7 @@ public:
   };
 
   std::unique_ptr<HTTPMessage> partialMsg_;
-  const coral::IOBuf* currentIngressBuf_{nullptr};
+  const folly::IOBuf* currentIngressBuf_{nullptr};
 
   StreamID nextEgressPingID_;
   // StreamID's are 31 bit unsigned integers, so all received goaways will

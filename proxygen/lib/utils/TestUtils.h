@@ -9,10 +9,10 @@
  */
 #pragma once
 
-#include <coral/Random.h>
-#include <coral/Range.h>
-#include <coral/io/IOBuf.h>
-#include <coral/io/Cursor.h>
+#include <folly/Random.h>
+#include <folly/Range.h>
+#include <folly/io/IOBuf.h>
+#include <folly/io/Cursor.h>
 #include <sys/resource.h>
 
 #ifndef NDEBUG
@@ -29,9 +29,9 @@
 #endif
 
 
-inline coral::StringPiece
-getContainingDirectory(coral::StringPiece input) {
-  auto pos = coral::rfind(input, '/');
+inline folly::StringPiece
+getContainingDirectory(folly::StringPiece input) {
+  auto pos = folly::rfind(input, '/');
   if (pos == std::string::npos) {
     pos = 0;
   } else {

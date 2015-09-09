@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include <coral/io/IOBuf.h>
+#include <folly/io/IOBuf.h>
 #include <memory>
 #include <proxygen/lib/http/codec/compress/HPACKDecoder.h>
 #include <proxygen/lib/http/codec/compress/HPACKEncoder.h>
@@ -17,9 +17,9 @@
 
 namespace proxygen { namespace hpack {
 
-void dumpToFile(const std::string& filename, const coral::IOBuf* buf);
+void dumpToFile(const std::string& filename, const folly::IOBuf* buf);
 
-std::unique_ptr<coral::IOBuf> encodeDecode(
+std::unique_ptr<folly::IOBuf> encodeDecode(
   std::vector<HPACKHeader> headers,
   HPACKEncoder& encoder,
   HPACKDecoder& decoder);

@@ -7,7 +7,7 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  *
  */
-#include <coral/Conv.h>
+#include <folly/Conv.h>
 #include <glog/logging.h>
 #include <gtest/gtest.h>
 #include <memory>
@@ -16,7 +16,7 @@
 #include <proxygen/lib/http/codec/compress/experimental/hpack9/HPACKEncoder.h>
 #include <proxygen/lib/http/codec/compress/Logging.h>
 
-using namespace coral;
+using namespace folly;
 using namespace proxygen;
 using namespace std;
 using namespace testing;
@@ -52,8 +52,8 @@ TEST_F(HPACKContextTests, is_static) {
   TestContext context(HPACK::MessageType::REQ, HPACK::kTableSize);
   // add 10 headers to the table
   for (int i = 1; i <= 10; i++) {
-    HPACKHeader header("name" + coral::to<string>(i),
-                      "value" + coral::to<string>(i));
+    HPACKHeader header("name" + folly::to<string>(i),
+                      "value" + folly::to<string>(i));
     context.add(header);
   }
   EXPECT_EQ(context.getTable().size(), 10);

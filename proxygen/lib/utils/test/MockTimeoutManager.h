@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include <coral/io/async/TimeoutManager.h>
+#include <folly/io/async/TimeoutManager.h>
 #include <chrono>
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
@@ -18,20 +18,20 @@
 
 namespace proxygen {
 
-class MockTimeoutManager : public coral::TimeoutManager {
+class MockTimeoutManager : public folly::TimeoutManager {
  public:
 
   MOCK_METHOD2(
       attachTimeoutManager,
-      void(coral::AsyncTimeout*, coral::TimeoutManager::InternalEnum));
+      void(folly::AsyncTimeout*, folly::TimeoutManager::InternalEnum));
 
-  MOCK_METHOD1(detachTimeoutManager, void(coral::AsyncTimeout*));
+  MOCK_METHOD1(detachTimeoutManager, void(folly::AsyncTimeout*));
 
   MOCK_METHOD2(
       scheduleTimeout,
-      bool(coral::AsyncTimeout*, std::chrono::milliseconds));
+      bool(folly::AsyncTimeout*, std::chrono::milliseconds));
 
-  MOCK_METHOD1(cancelTimeout, void(coral::AsyncTimeout*));
+  MOCK_METHOD1(cancelTimeout, void(folly::AsyncTimeout*));
 
   MOCK_METHOD0(bumpHandlingTime, bool());
   MOCK_METHOD0(isInTimeoutManagerThread, bool());

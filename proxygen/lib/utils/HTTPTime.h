@@ -9,12 +9,12 @@
  */
 #pragma once
 
-#include <coral/Optional.h>
+#include <folly/Optional.h>
 #include <stddef.h>
 #include <string>
 
 namespace proxygen {
 
-coral::Optional<int64_t> parseHTTPDateTime(const std::string& s);
+folly::Optional<int64_t> parseHTTPDateTime(const std::string& s);
 
 } // proxygen

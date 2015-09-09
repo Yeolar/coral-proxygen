@@ -38,7 +38,7 @@ size_t parse(T* codec,
     atOnce = length;
   }
 
-  coral::IOBufQueue input(coral::IOBufQueue::cacheChainLength());
+  folly::IOBufQueue input(folly::IOBufQueue::cacheChainLength());
   while (length > 0) {
     if (consumed == 0) {
       // Parser wants more data
@@ -48,7 +48,7 @@ size_t parse(T* codec,
         len = lenDistribution(rng);
       }
       uint32_t chunkLen = std::min(length, len);
-      input.append(std::move(coral::IOBuf::copyBuffer(start, chunkLen)));
+      input.append(std::move(folly::IOBuf::copyBuffer(start, chunkLen)));
       start += chunkLen;
       length -= chunkLen;
     }
@@ -80,7 +80,7 @@ class FakeHTTPCodecCallback : public HTTPCodec::Callback {
     msg = std::move(inMsg);
   }
   void onBody(HTTPCodec::StreamID stream,
-              std::unique_ptr<coral::IOBuf> chain,
+              std::unique_ptr<folly::IOBuf> chain,
               uint16_t padding) override {
     bodyCalls++;
     bodyLength += chain->computeChainDataLength();
@@ -105,7 +105,7 @@ class FakeHTTPCodecCallback : public HTTPCodec::Callback {
     } else {
       sessionErrors++;
     }
-    lastParseError = coral::make_unique<HTTPException>(error);
+    lastParseError = folly::make_unique<HTTPException>(error);
   }
 
   void onAbort(HTTPCodec::StreamID stream, ErrorCode code) override {
@@ -229,7 +229,7 @@ class FakeHTTPCodecCallback : public HTTPCodec::Callback {
   uint32_t windowSize{0};
   uint32_t maxStreams{0};
   std::map<uint32_t, std::vector<uint32_t> > windowUpdates;
-  coral::IOBufQueue data;
+  folly::IOBufQueue data;
 
   std::unique_ptr<HTTPMessage> msg;
   std::unique_ptr<HTTPException> lastParseError;
@@ -242,7 +242,7 @@ MATCHER_P(PtrBufHasLen, n, "") {
 
 std::unique_ptr<HTTPMessage> getPriorityMessage(uint8_t priority);
 
-std::unique_ptr<coral::IOBuf> makeBuf(uint32_t size = 10);
+std::unique_ptr<folly::IOBuf> makeBuf(uint32_t size = 10);
 
 std::unique_ptr<testing::NiceMock<MockHTTPCodec>>
 makeDownstreamParallelCodec();
@@ -256,7 +256,7 @@ std::unique_ptr<HTTPMessage> makeGetRequest();
 std::unique_ptr<HTTPMessage> makePostRequest();
 std::unique_ptr<HTTPMessage> makeResponse(uint16_t statusCode);
 
-std::tuple<std::unique_ptr<HTTPMessage>, std::unique_ptr<coral::IOBuf> >
+std::tuple<std::unique_ptr<HTTPMessage>, std::unique_ptr<folly::IOBuf> >
 makeResponse(uint16_t statusCode, size_t len);
 
 // Takes a MockHTTPCodec and fakes out its interface

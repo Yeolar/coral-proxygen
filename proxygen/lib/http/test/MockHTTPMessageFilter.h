@@ -21,9 +21,9 @@ class MockHTTPMessageFilter : public HTTPMessageFilter {
     onHeadersComplete(std::shared_ptr<HTTPMessage>(msg.release()));
   }
 
-  GMOCK_METHOD1_(, noexcept,, onBody, void(std::shared_ptr<coral::IOBuf>));
-  void onBody(std::unique_ptr<coral::IOBuf> chain) noexcept override {
-    onBody(std::shared_ptr<coral::IOBuf>(chain.release()));
+  GMOCK_METHOD1_(, noexcept,, onBody, void(std::shared_ptr<folly::IOBuf>));
+  void onBody(std::unique_ptr<folly::IOBuf> chain) noexcept override {
+    onBody(std::shared_ptr<folly::IOBuf>(chain.release()));
   }
   GMOCK_METHOD1_(, noexcept,, onChunkHeader, void(size_t));
   GMOCK_METHOD0_(, noexcept,, onChunkComplete, void());

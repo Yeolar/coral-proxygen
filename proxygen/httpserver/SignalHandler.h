@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include <coral/io/async/AsyncSignalHandler.h>
+#include <folly/io/async/AsyncSignalHandler.h>
 #include <vector>
 
 namespace proxygen {
@@ -22,7 +22,7 @@ class HTTPServer;
  *
  * Note: Should only be created from the thread invoking `HTTPServer::start()`.
  */
-class SignalHandler: private coral::AsyncSignalHandler {
+class SignalHandler: private folly::AsyncSignalHandler {
  public:
   explicit SignalHandler(HTTPServer* server);
 

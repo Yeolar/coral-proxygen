@@ -42,14 +42,14 @@ class SimpleController : public HTTPSessionController {
   HTTPTransactionHandler* getParseErrorHandler(
     HTTPTransaction* txn,
     const HTTPException& error,
-    const coral::SocketAddress& localAddress) override;
+    const folly::SocketAddress& localAddress) override;
 
   /**
    * Will be invoked when HTTPSession times out parsing a new request.
    */
   HTTPTransactionHandler* getTransactionTimeoutHandler(
     HTTPTransaction* txn,
-    const coral::SocketAddress& localAddress) override;
+    const folly::SocketAddress& localAddress) override;
 
   void attachSession(HTTPSession*) override;
   void detachSession(const HTTPSession*) override;

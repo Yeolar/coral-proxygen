@@ -23,13 +23,13 @@ class DirectResponseHandler : public RequestHandler {
                         std::string body)
       : code_(code),
         message_(message),
-        body_(coral::IOBuf::copyBuffer(body)) {
+        body_(folly::IOBuf::copyBuffer(body)) {
   }
 
   void onRequest(std::unique_ptr<HTTPMessage> headers) noexcept override {
   }
 
-  void onBody(std::unique_ptr<coral::IOBuf> body) noexcept override {
+  void onBody(std::unique_ptr<folly::IOBuf> body) noexcept override {
   }
 
   void onUpgrade(proxygen::UpgradeProtocol prot) noexcept override {
@@ -53,7 +53,7 @@ class DirectResponseHandler : public RequestHandler {
  private:
   const int code_;
   const std::string message_;
-  std::unique_ptr<coral::IOBuf> body_;
+  std::unique_ptr<folly::IOBuf> body_;
 };
 
 }

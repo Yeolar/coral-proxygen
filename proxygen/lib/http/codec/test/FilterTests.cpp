@@ -43,7 +43,7 @@ class FilterTest : public testing::Test {
   HTTPCodec::Callback* callbackStart_;
   HTTPCodecFilterChain chain_;
   MockHTTPCodecCallback callback_;
-  coral::IOBufQueue writeBuf_{coral::IOBufQueue::cacheChainLength()};
+  folly::IOBufQueue writeBuf_{folly::IOBufQueue::cacheChainLength()};
 };
 
 class HTTPChecksTest: public FilterTest {
@@ -68,9 +68,9 @@ class FlowControlFilterTest: public FilterTest {
             }));
     }
     EXPECT_CALL(*codec_, generateBody(_, _, _, _, _))
-      .WillRepeatedly(Invoke([] (coral::IOBufQueue& writeBuf,
+      .WillRepeatedly(Invoke([] (folly::IOBufQueue& writeBuf,
                                  HTTPCodec::StreamID stream,
-                                 std::shared_ptr<coral::IOBuf> chain,
+                                 std::shared_ptr<folly::IOBuf> chain,
                                  boost::optional<uint8_t> padding,
                                  bool eom) {
           auto len = chain->computeChainDataLength() + 4;

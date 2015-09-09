@@ -9,18 +9,18 @@
  */
 #pragma once
 
-#include <coral/io/async/EventBase.h>
+#include <folly/io/async/EventBase.h>
 #include <proxygen/lib/utils/FilterChain.h>
-#include <coral/io/async/AsyncTransport.h>
+#include <folly/io/async/AsyncTransport.h>
 
 namespace proxygen {
 
 typedef GenericFilter<
-  coral::AsyncTransportWrapper,
-  coral::AsyncTransportWrapper::ReadCallback,
-  &coral::AsyncTransportWrapper::setReadCB,
+  folly::AsyncTransportWrapper,
+  folly::AsyncTransportWrapper::ReadCallback,
+  &folly::AsyncTransportWrapper::setReadCB,
   true,
-  coral::AsyncTransportWrapper::Destructor> TransportFilter;
+  folly::AsyncTransportWrapper::Destructor> TransportFilter;
 
 /**
  * An implementation of Transport that passes through all calls and also
@@ -45,29 +45,29 @@ class PassThroughTransportFilter: public TransportFilter {
 
   void readEOF() noexcept override;
 
-  void readErr(const coral::AsyncSocketException& ex)
+  void readErr(const folly::AsyncSocketException& ex)
     noexcept override;
 
   // AsyncTransport methods
 
   void setReadCB(
-    coral::AsyncTransportWrapper::ReadCallback* callback) override;
+    folly::AsyncTransportWrapper::ReadCallback* callback) override;
 
-  coral::AsyncTransportWrapper::ReadCallback* getReadCallback()
+  folly::AsyncTransportWrapper::ReadCallback* getReadCallback()
     const override;
 
-  void write(coral::AsyncTransportWrapper::WriteCallback* callback,
+  void write(folly::AsyncTransportWrapper::WriteCallback* callback,
              const void* buf, size_t bytes,
-             coral::WriteFlags flags) override;
+             folly::WriteFlags flags) override;
 
-  void writev(coral::AsyncTransportWrapper::WriteCallback* callback,
+  void writev(folly::AsyncTransportWrapper::WriteCallback* callback,
               const iovec* vec, size_t count,
-              coral::WriteFlags flags) override;
+              folly::WriteFlags flags) override;
 
   void writeChain(
-    coral::AsyncTransportWrapper::WriteCallback* callback,
-    std::unique_ptr<coral::IOBuf>&& iob,
-    coral::WriteFlags flags) override;
+    folly::AsyncTransportWrapper::WriteCallback* callback,
+    std::unique_ptr<folly::IOBuf>&& iob,
+    folly::WriteFlags flags) override;
 
   void close() override;
 
@@ -87,23 +87,23 @@ class PassThroughTransportFilter: public TransportFilter {
 
   bool error() const override;
 
-  void attachEventBase(coral::EventBase* eventBase) override;
+  void attachEventBase(folly::EventBase* eventBase) override;
 
   void detachEventBase() override;
 
   bool isDetachable() const override;
 
-  coral::EventBase* getEventBase() const override;
+  folly::EventBase* getEventBase() const override;
 
   void setSendTimeout(uint32_t milliseconds) override;
 
   uint32_t getSendTimeout() const override;
 
   void getLocalAddress(
-  coral::SocketAddress* address) const override;
+  folly::SocketAddress* address) const override;
 
   void getPeerAddress(
-  coral::SocketAddress* address) const override;
+  folly::SocketAddress* address) const override;
 
   void setEorTracking(bool track) override;
 
@@ -114,10 +114,10 @@ class PassThroughTransportFilter: public TransportFilter {
 };
 
 typedef FilterChain<
-  coral::AsyncTransportWrapper,
-  coral::AsyncTransportWrapper::ReadCallback,
+  folly::AsyncTransportWrapper,
+  folly::AsyncTransportWrapper::ReadCallback,
   PassThroughTransportFilter,
-  &coral::AsyncTransportWrapper::setReadCB,
+  &folly::AsyncTransportWrapper::setReadCB,
   false> TransportFilterChain;
 
 }

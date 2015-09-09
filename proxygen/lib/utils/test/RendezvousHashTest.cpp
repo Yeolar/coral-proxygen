@@ -7,8 +7,8 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  *
  */
-#include <coral/Conv.h>
-#include <coral/Foreach.h>
+#include <folly/Conv.h>
+#include <folly/Foreach.h>
 #include <gtest/gtest.h>
 #include <limits>
 #include <map>
@@ -22,7 +22,7 @@ TEST(RendezvousHash, Consistency) {
   RendezvousHash hashes;
   std::vector<std::pair<std::string, uint64_t> > nodes;
   for (int i = 0; i < 10; ++i) {
-    nodes.emplace_back(coral::to<std::string>("key", i), 1);
+    nodes.emplace_back(folly::to<std::string>("key", i), 1);
   }
   hashes.build(nodes);
 
@@ -41,7 +41,7 @@ TEST(RendezvousHash, ConsistencyWithNewNode) {
   int numNodes = 10;
   std::vector<std::pair<std::string, uint64_t> > nodes;
   for (int i = 0; i < numNodes; ++i) {
-    nodes.emplace_back(coral::to<std::string>("key", i), 1);
+    nodes.emplace_back(folly::to<std::string>("key", i), 1);
   }
   hashes.build(nodes);
   std::map<uint64_t, size_t> mapping;
@@ -50,7 +50,7 @@ TEST(RendezvousHash, ConsistencyWithNewNode) {
   }
   hashes = RendezvousHash();
   // Adding a new node and rebuild the hash
-  nodes.emplace_back(coral::to<std::string>("key", numNodes), 1);
+  nodes.emplace_back(folly::to<std::string>("key", numNodes), 1);
   hashes.build(nodes);
   // traffic should only flow to the new node
   FOR_EACH_KV (key, expected, mapping) {
@@ -64,7 +64,7 @@ TEST(RendezvousHash, ConsistencyWithIncreasedWeight) {
   int numNodes = 10;
   std::vector<std::pair<std::string, uint64_t> > nodes;
   for (int i = 0; i < numNodes; ++i) {
-    nodes.emplace_back(coral::to<std::string>("key", i), i);
+    nodes.emplace_back(folly::to<std::string>("key", i), i);
   }
   hashes.build(nodes);
 
@@ -77,7 +77,7 @@ TEST(RendezvousHash, ConsistencyWithIncreasedWeight) {
   nodes.clear();
   hashes = RendezvousHash();
   for (int i = 0; i < numNodes; ++i) {
-    nodes.emplace_back(coral::to<std::string>("key", i), i*2);
+    nodes.emplace_back(folly::to<std::string>("key", i), i*2);
   }
   hashes.build(nodes);
 
@@ -92,7 +92,7 @@ TEST(RendezvousHash, ConsistentFlowToIncreasedWeightNode) {
   int numNodes = 10;
   std::vector<std::pair<std::string, uint64_t> > nodes;
   for (int i = 0; i < numNodes; ++i) {
-    nodes.emplace_back(coral::to<std::string>("key", i), i);
+    nodes.emplace_back(folly::to<std::string>("key", i), i);
   }
   hashes.build(nodes);
 
@@ -105,10 +105,10 @@ TEST(RendezvousHash, ConsistentFlowToIncreasedWeightNode) {
   // Increase the weight for a single node
   hashes = RendezvousHash();
 
-  nodes.emplace_back(coral::to<std::string>("key", 0), 10);
+  nodes.emplace_back(folly::to<std::string>("key", 0), 10);
 
   for (int i = 1; i < numNodes; ++i) {
-    nodes.emplace_back(coral::to<std::string>("key", i), i);
+    nodes.emplace_back(folly::to<std::string>("key", i), i);
   }
   hashes.build(nodes);
   // traffic should only flow to the first node
@@ -123,7 +123,7 @@ TEST(RendezvousHash, ConsistentFlowToDecreasedWeightNodes) {
   int numNodes = 18;
   std::vector<std::pair<std::string, uint64_t> > nodes;
   for (int i = 0; i < numNodes; ++i) {
-    nodes.emplace_back(coral::to<std::string>("key", i), 100);
+    nodes.emplace_back(folly::to<std::string>("key", i), 100);
   }
   hashes.build(nodes);
   std::map<uint64_t, size_t> mapping;
@@ -136,12 +136,12 @@ TEST(RendezvousHash, ConsistentFlowToDecreasedWeightNodes) {
 
   // decrease the weights for 5 nodes
   for (int i = 0; i < 5; ++i) {
-    nodes.emplace_back(coral::to<std::string>("key", i), 50);
+    nodes.emplace_back(folly::to<std::string>("key", i), 50);
   }
 
   // keep the weights for the rest unchanged
   for (int i = 5; i < numNodes; ++i) {
-    nodes.emplace_back(coral::to<std::string>("key", i), 100);
+    nodes.emplace_back(folly::to<std::string>("key", i), 100);
   }
 
   hashes.build(nodes);
@@ -157,7 +157,7 @@ TEST(RendezvousHash, ConsistentFlowToDecreasedWeightNode) {
   int numNodes = 10;
   std::vector<std::pair<std::string, uint64_t> > nodes;
   for (int i = 0; i < numNodes; ++i) {
-    nodes.emplace_back(coral::to<std::string>("key", i), i);
+    nodes.emplace_back(folly::to<std::string>("key", i), i);
   }
   hashes.build(nodes);
   std::map<uint64_t, size_t> mapping;
@@ -170,11 +170,11 @@ TEST(RendezvousHash, ConsistentFlowToDecreasedWeightNode) {
   hashes = RendezvousHash();
 
   for (int i = 0; i < numNodes - 1; ++i) {
-    nodes.emplace_back(coral::to<std::string>("key", i), i);
+    nodes.emplace_back(folly::to<std::string>("key", i), i);
   }
 
   // zero the weight of the last node
-  nodes.emplace_back(coral::to<std::string>("key", numNodes-1), 0);
+  nodes.emplace_back(folly::to<std::string>("key", numNodes-1), 0);
   hashes.build(nodes);
   FOR_EACH_KV (key, expected, mapping) {
     // traffic should only flow from the zero weight cluster to others
@@ -192,7 +192,7 @@ TEST(RendezvousHash, ConsistencyWithDecreasedWeight) {
   int numNodes = 10;
   std::vector<std::pair<std::string, uint64_t> > nodes;
   for (int i = 0; i < numNodes; ++i) {
-    nodes.emplace_back(coral::to<std::string>("key", i), i*2);
+    nodes.emplace_back(folly::to<std::string>("key", i), i*2);
   }
   hashes.build(nodes);
   std::map<uint64_t, size_t> mapping;
@@ -205,7 +205,7 @@ TEST(RendezvousHash, ConsistencyWithDecreasedWeight) {
   hashes = RendezvousHash();
 
   for (int i = 0; i < numNodes; ++i) {
-    nodes.emplace_back(coral::to<std::string>("key", i), i);
+    nodes.emplace_back(folly::to<std::string>("key", i), i);
   }
   hashes.build(nodes);
 

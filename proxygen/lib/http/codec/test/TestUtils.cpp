@@ -10,11 +10,11 @@
 #include <proxygen/lib/http/codec/test/TestUtils.h>
 #include <proxygen/lib/http/codec/SPDYConstants.h>
 
-#include <coral/Random.h>
-#include <coral/io/Cursor.h>
+#include <folly/Random.h>
+#include <folly/io/Cursor.h>
 
-using namespace coral::io;
-using namespace coral;
+using namespace folly::io;
+using namespace folly;
 using namespace std;
 using namespace testing;
 
@@ -25,29 +25,29 @@ const HTTPSettings kDefaultIngressSettings{
 };
 
 std::unique_ptr<HTTPMessage> getPriorityMessage(uint8_t priority) {
-  auto ret = coral::make_unique<HTTPMessage>();
+  auto ret = folly::make_unique<HTTPMessage>();
   ret->setAdvancedProtocolString(spdy::kVersionStrv2);
   ret->setPriority(priority);
   return ret;
 }
 
-std::unique_ptr<coral::IOBuf> makeBuf(uint32_t size) {
-  auto out = coral::IOBuf::create(size);
+std::unique_ptr<folly::IOBuf> makeBuf(uint32_t size) {
+  auto out = folly::IOBuf::create(size);
   out->append(size);
   // fill with random junk
   RWPrivateCursor cursor(out.get());
   while (cursor.length() >= 8) {
-    cursor.write<uint64_t>(coral::Random::rand64());
+    cursor.write<uint64_t>(folly::Random::rand64());
   }
   while (cursor.length()) {
-    cursor.write<uint8_t>((uint8_t)coral::Random::rand32());
+    cursor.write<uint8_t>((uint8_t)folly::Random::rand32());
   }
   return out;
 }
 
 std::unique_ptr<testing::NiceMock<MockHTTPCodec>>
 makeMockParallelCodec(TransportDirection dir) {
-  auto codec = coral::make_unique<testing::NiceMock<MockHTTPCodec>>();
+  auto codec = folly::make_unique<testing::NiceMock<MockHTTPCodec>>();
   EXPECT_CALL(*codec, supportsParallelRequests())
     .WillRepeatedly(testing::Return(true));
   EXPECT_CALL(*codec, isReusable())
@@ -79,7 +79,7 @@ HTTPMessage getGetRequest(const std::string& url) {
 }
 
 std::unique_ptr<HTTPMessage> makeGetRequest() {
-  return coral::make_unique<HTTPMessage>(getGetRequest());
+  return folly::make_unique<HTTPMessage>(getGetRequest());
 }
 
 HTTPMessage getPostRequest() {
@@ -93,26 +93,26 @@ HTTPMessage getPostRequest() {
 }
 
 std::unique_ptr<HTTPMessage> makePostRequest() {
-  return coral::make_unique<HTTPMessage>(getPostRequest());
+  return folly::make_unique<HTTPMessage>(getPostRequest());
 }
 
 std::unique_ptr<HTTPMessage> makeResponse(uint16_t statusCode) {
-  auto resp = coral::make_unique<HTTPMessage>();
+  auto resp = folly::make_unique<HTTPMessage>();
   resp->setStatusCode(statusCode);
   return resp;
 }
 
-std::tuple<std::unique_ptr<HTTPMessage>, std::unique_ptr<coral::IOBuf> >
+std::tuple<std::unique_ptr<HTTPMessage>, std::unique_ptr<folly::IOBuf> >
 makeResponse(uint16_t statusCode, size_t len) {
   auto resp = makeResponse(statusCode);
-  resp->getHeaders().set(HTTP_HEADER_CONTENT_LENGTH, coral::to<string>(len));
+  resp->getHeaders().set(HTTP_HEADER_CONTENT_LENGTH, folly::to<string>(len));
   return std::make_pair(std::move(resp), makeBuf(len));
 }
 
 void fakeMockCodec(MockHTTPCodec& codec) {
   // For each generate* function, write some data to the chain
   EXPECT_CALL(codec, generateHeader(_, _, _, _, _, _))
-    .WillRepeatedly(Invoke([] (coral::IOBufQueue& writeBuf,
+    .WillRepeatedly(Invoke([] (folly::IOBufQueue& writeBuf,
                                HTTPCodec::StreamID stream,
                                const HTTPMessage& msg,
                                HTTPCodec::StreamID assocStream,
@@ -122,9 +122,9 @@ void fakeMockCodec(MockHTTPCodec& codec) {
                            }));
 
   EXPECT_CALL(codec, generateBody(_, _, _, _, _))
-    .WillRepeatedly(Invoke([] (coral::IOBufQueue& writeBuf,
+    .WillRepeatedly(Invoke([] (folly::IOBufQueue& writeBuf,
                                HTTPCodec::StreamID stream,
-                               std::shared_ptr<coral::IOBuf> chain,
+                               std::shared_ptr<folly::IOBuf> chain,
                                boost::optional<uint8_t> padding,
                                bool eom) {
                              auto len = chain->computeChainDataLength();
@@ -133,7 +133,7 @@ void fakeMockCodec(MockHTTPCodec& codec) {
                            }));
 
   EXPECT_CALL(codec, generateChunkHeader(_, _, _))
-    .WillRepeatedly(Invoke([] (coral::IOBufQueue& writeBuf,
+    .WillRepeatedly(Invoke([] (folly::IOBufQueue& writeBuf,
                                HTTPCodec::StreamID stream,
                                size_t length) {
                              writeBuf.append(makeBuf(length));
@@ -141,14 +141,14 @@ void fakeMockCodec(MockHTTPCodec& codec) {
                            }));
 
   EXPECT_CALL(codec, generateChunkTerminator(_, _))
-    .WillRepeatedly(Invoke([] (coral::IOBufQueue& writeBuf,
+    .WillRepeatedly(Invoke([] (folly::IOBufQueue& writeBuf,
                                HTTPCodec::StreamID stream) {
                              writeBuf.append(makeBuf(4));
                              return 4;
                            }));
 
   EXPECT_CALL(codec, generateTrailers(_, _, _))
-    .WillRepeatedly(Invoke([] (coral::IOBufQueue& writeBuf,
+    .WillRepeatedly(Invoke([] (folly::IOBufQueue& writeBuf,
                                HTTPCodec::StreamID stream,
                                const HTTPHeaders& trailers) {
                              writeBuf.append(makeBuf(30));
@@ -156,14 +156,14 @@ void fakeMockCodec(MockHTTPCodec& codec) {
                            }));
 
   EXPECT_CALL(codec, generateEOM(_, _))
-    .WillRepeatedly(Invoke([] (coral::IOBufQueue& writeBuf,
+    .WillRepeatedly(Invoke([] (folly::IOBufQueue& writeBuf,
                                HTTPCodec::StreamID stream) {
                              writeBuf.append(makeBuf(6));
                              return 6;
                            }));
 
   EXPECT_CALL(codec, generateRstStream(_, _, _))
-    .WillRepeatedly(Invoke([] (coral::IOBufQueue& writeBuf,
+    .WillRepeatedly(Invoke([] (folly::IOBufQueue& writeBuf,
                                HTTPCodec::StreamID stream,
                                ErrorCode code) {
                              writeBuf.append(makeBuf(6));
@@ -171,7 +171,7 @@ void fakeMockCodec(MockHTTPCodec& codec) {
                            }));
 
   EXPECT_CALL(codec, generateGoaway(_, _, _))
-    .WillRepeatedly(Invoke([] (coral::IOBufQueue& writeBuf,
+    .WillRepeatedly(Invoke([] (folly::IOBufQueue& writeBuf,
                                uint32_t lastStream,
                                ErrorCode code) {
                              writeBuf.append(makeBuf(6));
@@ -179,26 +179,26 @@ void fakeMockCodec(MockHTTPCodec& codec) {
                            }));
 
   EXPECT_CALL(codec, generatePingRequest(_))
-    .WillRepeatedly(Invoke([] (coral::IOBufQueue& writeBuf) {
+    .WillRepeatedly(Invoke([] (folly::IOBufQueue& writeBuf) {
                              writeBuf.append(makeBuf(6));
                              return 6;
                            }));
 
   EXPECT_CALL(codec, generatePingReply(_, _))
-    .WillRepeatedly(Invoke([] (coral::IOBufQueue& writeBuf,
+    .WillRepeatedly(Invoke([] (folly::IOBufQueue& writeBuf,
                                uint64_t id) {
                              writeBuf.append(makeBuf(6));
                              return 6;
                            }));
 
   EXPECT_CALL(codec, generateSettings(_))
-    .WillRepeatedly(Invoke([] (coral::IOBufQueue& writeBuf) {
+    .WillRepeatedly(Invoke([] (folly::IOBufQueue& writeBuf) {
                              writeBuf.append(makeBuf(6));
                              return 6;
                            }));
 
   EXPECT_CALL(codec, generateWindowUpdate(_, _, _))
-    .WillRepeatedly(Invoke([] (coral::IOBufQueue& writeBuf,
+    .WillRepeatedly(Invoke([] (folly::IOBufQueue& writeBuf,
                                HTTPCodec::StreamID stream,
                                uint32_t delta) {
                              writeBuf.append(makeBuf(6));

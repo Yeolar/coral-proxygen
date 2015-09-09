@@ -9,13 +9,13 @@
  */
 #include <proxygen/lib/services/RequestWorker.h>
 
-#include <coral/io/async/EventBaseManager.h>
+#include <folly/io/async/EventBaseManager.h>
 #include <proxygen/lib/services/ServiceWorker.h>
 
 namespace proxygen {
 
 RequestWorker::RequestWorker(FinishCallback& callback, uint8_t threadId)
-    : WorkerThread(coral::EventBaseManager::get()),
+    : WorkerThread(folly::EventBaseManager::get()),
       nextRequestId_(static_cast<uint64_t>(threadId) << 56),
       callback_(callback) {
 }

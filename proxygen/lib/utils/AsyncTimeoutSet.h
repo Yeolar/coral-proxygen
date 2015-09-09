@@ -11,9 +11,9 @@
 
 #include <chrono>
 #include <cstddef>
-#include <coral/io/async/AsyncTimeout.h>
-#include <coral/io/async/DelayedDestruction.h>
-#include <coral/io/async/TimeoutManager.h>
+#include <folly/io/async/AsyncTimeout.h>
+#include <folly/io/async/DelayedDestruction.h>
+#include <folly/io/async/TimeoutManager.h>
 #include <memory>
 #include <proxygen/lib/utils/Time.h>
 
@@ -37,8 +37,8 @@ namespace proxygen {
  * Note, this class may not be needed given libevent's
  * event_base_init_common_timeout(). We should look into using that.
  */
-class AsyncTimeoutSet : private coral::AsyncTimeout,
-                        public coral::DelayedDestruction {
+class AsyncTimeoutSet : private folly::AsyncTimeout,
+                        public folly::DelayedDestruction {
  public:
   typedef std::unique_ptr<AsyncTimeoutSet, Destructor> UniquePtr;
 
@@ -95,7 +95,7 @@ class AsyncTimeoutSet : private coral::AsyncTimeout,
     void setScheduled(AsyncTimeoutSet* timeoutSet, Callback* prev);
     void cancelTimeoutImpl();
 
-    std::shared_ptr<coral::RequestContext> context_;
+    std::shared_ptr<folly::RequestContext> context_;
 
     AsyncTimeoutSet* timeoutSet_{nullptr};
     Callback* prev_{nullptr};
@@ -125,7 +125,7 @@ class AsyncTimeoutSet : private coral::AsyncTimeout,
    *
    * If timeout clock is unspecified, it will use the default (system clock)
    */
-  AsyncTimeoutSet(coral::TimeoutManager* timeoutManager,
+  AsyncTimeoutSet(folly::TimeoutManager* timeoutManager,
                   std::chrono::milliseconds intervalMS,
                   std::chrono::milliseconds atMostEveryN =
                       std::chrono::milliseconds(0),
@@ -136,7 +136,7 @@ class AsyncTimeoutSet : private coral::AsyncTimeout,
    * details on what the InternalEnum specifies, see the documentation in
    * TAsyncTimeout.h
    */
-  AsyncTimeoutSet(coral::TimeoutManager* timeoutManager,
+  AsyncTimeoutSet(folly::TimeoutManager* timeoutManager,
                   InternalEnum internal,
                   std::chrono::milliseconds intervalMS,
                   std::chrono::milliseconds atMostEveryN =

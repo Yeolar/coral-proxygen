@@ -11,13 +11,13 @@
 
 #include <chrono>
 #include <fcntl.h>
-#include <coral/String.h>
+#include <folly/String.h>
 #include <wangle/acceptor/ServerSocketConfig.h>
 #include <list>
 #include <string>
 #include <sys/stat.h>
 #include <sys/types.h>
-#include <coral/io/async/AsyncSocket.h>
+#include <folly/io/async/AsyncSocket.h>
 #include <zlib.h>
 
 namespace proxygen {

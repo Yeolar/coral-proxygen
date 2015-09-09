@@ -10,15 +10,15 @@
 #include <proxygen/lib/http/session/HTTPSessionAcceptor.h>
 #include <proxygen/lib/http/session/test/HTTPSessionMocks.h>
 #include <proxygen/lib/utils/TestUtils.h>
-#include <coral/io/async/test/MockAsyncServerSocket.h>
-#include <coral/io/async/test/MockAsyncSocket.h>
+#include <folly/io/async/test/MockAsyncServerSocket.h>
+#include <folly/io/async/test/MockAsyncSocket.h>
 
 using namespace proxygen;
 using namespace testing;
 
-using coral::AsyncSocket;
-using coral::test::MockAsyncSocket;
-using coral::SocketAddress;
+using folly::AsyncSocket;
+using folly::test::MockAsyncSocket;
+using folly::SocketAddress;
 
 namespace {
 
@@ -81,7 +81,7 @@ class HTTPSessionAcceptorTestBase :
   }
 
   void newAcceptor() {
-    acceptor_ = coral::make_unique<HTTPTargetSessionAcceptor>(config_);
+    acceptor_ = folly::make_unique<HTTPTargetSessionAcceptor>(config_);
     EXPECT_CALL(mockServerSocket_, addAcceptCallback(_, _, _));
     acceptor_->init(&mockServerSocket_, &eventBase_);
   }
@@ -90,8 +90,8 @@ class HTTPSessionAcceptorTestBase :
   AcceptorConfiguration config_;
   wangle::SSLContextConfig sslCtxConfig_;
   std::unique_ptr<HTTPTargetSessionAcceptor> acceptor_;
-  coral::EventBase eventBase_;
-  coral::test::MockAsyncServerSocket mockServerSocket_;
+  folly::EventBase eventBase_;
+  folly::test::MockAsyncServerSocket mockServerSocket_;
 };
 
 class HTTPSessionAcceptorTestNPN :

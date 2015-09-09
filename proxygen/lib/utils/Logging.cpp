@@ -9,8 +9,8 @@
  */
 #include <proxygen/lib/utils/Logging.h>
 
-#include <coral/Memory.h>
-#include <coral/String.h>
+#include <folly/Memory.h>
+#include <folly/String.h>
 
 #include <fstream>
 #include <iostream>
@@ -19,7 +19,7 @@
 #include <vector>
 #include <sys/stat.h>
 
-using coral::IOBuf;
+using folly::IOBuf;
 using std::ostream;
 using std::string;
 using std::stringstream;
@@ -27,13 +27,13 @@ using std::unique_ptr;
 using std::vector;
 
 namespace {
-proxygen::HexCoralPrinter hexCoralPrinter;
+proxygen::HexFollyPrinter hexFollyPrinter;
 proxygen::Hex16Printer hex16Printer;
 proxygen::ChainInfoPrinter chainInfoPrinter;
 proxygen::BinPrinter binPrinter;
 
 vector<proxygen::IOBufPrinter*> printers = {
-  &hexCoralPrinter,
+  &hexFollyPrinter,
   &hex16Printer,
   &chainInfoPrinter,
   &binPrinter
@@ -42,8 +42,8 @@ vector<proxygen::IOBufPrinter*> printers = {
 
 namespace proxygen {
 
-string HexCoralPrinter::print(const IOBuf* buf) {
-  return coral::hexDump(buf->data(), buf->length());
+string HexFollyPrinter::print(const IOBuf* buf) {
+  return folly::hexDump(buf->data(), buf->length());
 }
 
 string Hex16Printer::print(const IOBuf* buf) {

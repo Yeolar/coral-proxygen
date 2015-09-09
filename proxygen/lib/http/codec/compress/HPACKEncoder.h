@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include <coral/io/IOBuf.h>
+#include <folly/io/IOBuf.h>
 #include <list>
 #include <proxygen/lib/http/codec/compress/HPACKConstants.h>
 #include <proxygen/lib/http/codec/compress/HPACKContext.h>
@@ -40,7 +40,7 @@ class HPACKEncoder : public HPACKContext {
   /**
    * Encode the given headers and return the buffer
    */
-  virtual std::unique_ptr<coral::IOBuf> encode(
+  virtual std::unique_ptr<folly::IOBuf> encode(
     const std::vector<HPACKHeader>& headers,
     uint32_t headroom = 0);
 

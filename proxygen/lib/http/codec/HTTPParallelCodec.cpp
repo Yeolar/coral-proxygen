@@ -11,11 +11,11 @@
 
 #include <algorithm>
 #include <boost/algorithm/string.hpp>
-#include <coral/Conv.h>
-#include <coral/Memory.h>
-#include <coral/ScopeGuard.h>
-#include <coral/String.h>
-#include <coral/io/Cursor.h>
+#include <folly/Conv.h>
+#include <folly/Memory.h>
+#include <folly/ScopeGuard.h>
+#include <folly/String.h>
+#include <folly/io/Cursor.h>
 #include <glog/logging.h>
 #include <iostream>
 #include <proxygen/lib/http/HTTPHeaderSize.h>

@@ -25,7 +25,7 @@ HTTPException getException(const std::string& msg) {
 const uint32_t FlowControlFilter::kDefaultCapacity = spdy::kInitialWindow;
 
 FlowControlFilter::FlowControlFilter(Callback& callback,
-                                     coral::IOBufQueue& writeBuf,
+                                     folly::IOBufQueue& writeBuf,
                                      HTTPCodec* codec,
                                      uint32_t recvCapacity):
     notify_(callback),
@@ -43,7 +43,7 @@ FlowControlFilter::FlowControlFilter(Callback& callback,
   }
 }
 
-void FlowControlFilter::setReceiveWindowSize(coral::IOBufQueue& writeBuf,
+void FlowControlFilter::setReceiveWindowSize(folly::IOBufQueue& writeBuf,
                                              uint32_t capacity) {
   if (capacity < spdy::kInitialWindow) {
     VLOG(4) << "Ignoring low conn-level recv window size of " << capacity;
@@ -68,7 +68,7 @@ void FlowControlFilter::setReceiveWindowSize(coral::IOBufQueue& writeBuf,
   }
 }
 
-bool FlowControlFilter::ingressBytesProcessed(coral::IOBufQueue& writeBuf,
+bool FlowControlFilter::ingressBytesProcessed(folly::IOBufQueue& writeBuf,
                                               uint32_t delta) {
   toAck_ += delta;
   bool willAck = (toAck_ > 0 &&
@@ -96,13 +96,13 @@ bool FlowControlFilter::isReusable() const {
 }
 
 void FlowControlFilter::onBody(StreamID stream,
-                               std::unique_ptr<coral::IOBuf> chain,
+                               std::unique_ptr<folly::IOBuf> chain,
                                uint16_t padding) {
   uint64_t amount = chain->computeChainDataLength();
   if (!recvWindow_.reserve(amount + padding)) {
     error_ = true;
     HTTPException ex = getException(
-      coral::to<std::string>(
+      folly::to<std::string>(
         "Failed to reserve receive window, window size=",
         recvWindow_.getSize(), ", amount=", amount));
     callback_->onError(0, ex, false);
@@ -128,7 +128,7 @@ void FlowControlFilter::onWindowUpdate(StreamID stream, uint32_t amount) {
       // the entire session.
       error_ = true;
       HTTPException ex = getException(
-        coral::to<std::string>(
+        folly::to<std::string>(
           "Failed to update send window, outstanding=",
           sendWindow_.getOutstanding(), ", amount=", amount));
       callback_->onError(stream, ex, false);
@@ -144,9 +144,9 @@ void FlowControlFilter::onWindowUpdate(StreamID stream, uint32_t amount) {
   }
 }
 
-size_t FlowControlFilter::generateBody(coral::IOBufQueue& writeBuf,
+size_t FlowControlFilter::generateBody(folly::IOBufQueue& writeBuf,
                                        StreamID stream,
-                                       std::unique_ptr<coral::IOBuf> chain,
+                                       std::unique_ptr<folly::IOBuf> chain,
                                        boost::optional<uint8_t> padding,
                                        bool eom) {
   uint8_t padLen = padding ? *padding : 0;
@@ -170,7 +170,7 @@ size_t FlowControlFilter::generateBody(coral::IOBufQueue& writeBuf,
                              eom);
 }
 
-size_t FlowControlFilter::generateWindowUpdate(coral::IOBufQueue& writeBuf,
+size_t FlowControlFilter::generateWindowUpdate(folly::IOBufQueue& writeBuf,
                                                StreamID stream,
                                                uint32_t delta) {
   CHECK(stream) << " someone tried to manually manipulate a conn-level window";

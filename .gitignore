@@ -36,7 +36,5 @@
 /proxygen/lib/utils/TraceFieldType.h
 
 /build/
-/build_/
-/sed-pattern
 
 .ycm_extra_conf.py*

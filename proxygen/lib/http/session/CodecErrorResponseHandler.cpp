@@ -9,9 +9,9 @@
  */
 #include <proxygen/lib/http/session/CodecErrorResponseHandler.h>
 
-#include <coral/Conv.h>
+#include <folly/Conv.h>
 
-using coral::IOBuf;
+using folly::IOBuf;
 using std::string;
 using std::unique_ptr;
 

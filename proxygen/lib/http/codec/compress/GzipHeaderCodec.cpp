@@ -9,19 +9,19 @@
  */
 #include <proxygen/lib/http/codec/compress/GzipHeaderCodec.h>
 
-#include <coral/Memory.h>
-#include <coral/String.h>
-#include <coral/ThreadLocal.h>
-#include <coral/io/IOBuf.h>
+#include <folly/Memory.h>
+#include <folly/String.h>
+#include <folly/ThreadLocal.h>
+#include <folly/io/IOBuf.h>
 #include <proxygen/lib/http/codec/SPDYCodec.h>
 #include <proxygen/lib/http/codec/SPDYConstants.h>
 #include <proxygen/lib/utils/Logging.h>
 #include <proxygen/lib/utils/UnionBasedStatic.h>
 #include <string>
 
-using coral::IOBuf;
-using coral::ThreadLocalPtr;
-using coral::io::Cursor;
+using folly::IOBuf;
+using folly::ThreadLocalPtr;
+using folly::io::Cursor;
 using namespace proxygen;
 using proxygen::compress::Header;
 using proxygen::compress::HeaderPiece;
@@ -73,11 +73,11 @@ struct ZlibContext {
 typedef std::map<ZlibConfig, std::unique_ptr<ZlibContext>> ZlibContextMap;
 
 DEFINE_UNION_STATIC(ThreadLocalPtr<IOBuf>, IOBuf, s_buf);
-DEFINE_UNION_STATIC(coral::ThreadLocal<ZlibContextMap>,
+DEFINE_UNION_STATIC(folly::ThreadLocal<ZlibContextMap>,
                     ThreadLocalContextMap,
                     s_zlibContexts);
 
-coral::IOBuf& getStaticHeaderBufSpace(size_t size) {
+folly::IOBuf& getStaticHeaderBufSpace(size_t size) {
   if (!s_buf.data) {
     s_buf.data.reset(new IOBuf(IOBuf::CREATE, size));
   } else {
@@ -110,7 +110,7 @@ static const ZlibContext* getZlibContext(SPDYVersionSettings versionSettings,
     // This is the first request for the specified SPDY version and compression
     // level in this thread, so we need to construct the initial compressor and
     // decompressor contexts.
-    auto newContext = coral::make_unique<ZlibContext>();
+    auto newContext = folly::make_unique<ZlibContext>();
     newContext->deflater.zalloc = Z_NULL;
     newContext->deflater.zfree = Z_NULL;
     newContext->deflater.opaque = Z_NULL;
@@ -177,7 +177,7 @@ GzipHeaderCodec::~GzipHeaderCodec() {
   inflateEnd(&inflater_);
 }
 
-coral::IOBuf& GzipHeaderCodec::getHeaderBuf() {
+folly::IOBuf& GzipHeaderCodec::getHeaderBuf() {
   return getStaticHeaderBufSpace(maxUncompressed_);
 }
 
@@ -230,7 +230,7 @@ unique_ptr<IOBuf> GzipHeaderCodec::encode(vector<Header>& headers) noexcept {
       // lowercasing the header name inline
       char* nameBegin = (char *)dst;
       appendString(dst, *header.name);
-      coral::toLowerAscii((char *)nameBegin, header.name->size());
+      folly::toLowerAscii((char *)nameBegin, header.name->size());
 
       lastValueLenPtr = dst;
       lastValueLen = header.value->length();
@@ -377,7 +377,7 @@ void GzipHeaderCodec::decodeStreaming(
 }
 
 Result<size_t, HeaderDecodeError>
-GzipHeaderCodec::parseNameValues(const coral::IOBuf& uncompressed,
+GzipHeaderCodec::parseNameValues(const folly::IOBuf& uncompressed,
                                  uint32_t uncompressedLength) noexcept {
 
   size_t expandedHeaderLineBytes = 0;
@@ -408,7 +408,7 @@ GzipHeaderCodec::parseNameValues(const coral::IOBuf& uncompressed,
     try {
       if (len > uncompressedLength) {
         throw std::out_of_range(
-          coral::to<string>("bad length=", len, " uncompressedLength=",
+          folly::to<string>("bad length=", len, " uncompressedLength=",
                             uncompressedLength));
       } else if (next.second >= len) {
         // string is contiguous, just put a pointer into the headers structure
@@ -423,8 +423,8 @@ GzipHeaderCodec::parseNameValues(const coral::IOBuf& uncompressed,
       uncompressedLength -= len;
     } catch (const std::out_of_range& ex) {
       LOG(ERROR) << "bad encoding for nv=" << i << ": "
-                 << coral::exceptionStr(ex);
-      LOG(ERROR) << IOBufPrinter::printHexCoral(&uncompressed, true);
+                 << folly::exceptionStr(ex);
+      LOG(ERROR) << IOBufPrinter::printHexFolly(&uncompressed, true);
       return HeaderDecodeError::BAD_ENCODING;
     }
     if (i % 2 == 0) {

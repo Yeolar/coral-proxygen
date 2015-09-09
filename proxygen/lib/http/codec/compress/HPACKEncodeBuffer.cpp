@@ -15,7 +15,7 @@
 #include <proxygen/lib/http/codec/compress/Logging.h>
 #include <proxygen/lib/utils/Logging.h>
 
-using coral::IOBuf;
+using folly::IOBuf;
 using proxygen::huffman::HuffTree;
 using std::string;
 using std::unique_ptr;

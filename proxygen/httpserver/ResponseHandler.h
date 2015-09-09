@@ -58,7 +58,7 @@ class ResponseHandler {
 
   virtual void sendChunkHeader(size_t len) noexcept = 0;
 
-  virtual void sendBody(std::unique_ptr<coral::IOBuf> body) noexcept = 0;
+  virtual void sendBody(std::unique_ptr<folly::IOBuf> body) noexcept = 0;
 
   virtual void sendChunkTerminator() noexcept = 0;
 

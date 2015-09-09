@@ -61,7 +61,7 @@ class HTTPEvent {
         event_(event), upgrade_(false) {}
 
   HTTPEvent(HTTPCodec::StreamID streamID,
-            Type event, std::unique_ptr<coral::IOBuf> body):
+            Type event, std::unique_ptr<folly::IOBuf> body):
       body_(std::move(body)), streamID_(streamID), length_(0),
       event_(event), upgrade_(false) {}
 
@@ -86,7 +86,7 @@ class HTTPEvent {
 
   std::unique_ptr<HTTPMessage> getHeaders() { return std::move(headers_); }
 
-  std::unique_ptr<coral::IOBuf> getBody() { return std::move(body_); }
+  std::unique_ptr<folly::IOBuf> getBody() { return std::move(body_); }
 
   std::unique_ptr<HTTPException> getError() { return std::move(error_); }
 
@@ -110,7 +110,7 @@ class HTTPEvent {
 
  private:
   std::unique_ptr<HTTPMessage> headers_;
-  std::unique_ptr<coral::IOBuf> body_;
+  std::unique_ptr<folly::IOBuf> body_;
   std::unique_ptr<HTTPHeaders> trailers_;
   std::unique_ptr<HTTPException> error_;
   HTTPCodec::StreamID streamID_;

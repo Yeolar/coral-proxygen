@@ -11,7 +11,7 @@
 
 #include <assert.h>
 #include <cctype>
-#include <coral/Range.h>
+#include <folly/Range.h>
 #include <stdint.h>
 #include <string>
 
@@ -23,7 +23,7 @@ class SPDYUtil {
   // namespace/class later
   static const char http_tokens[256];
 
-  static bool validateURL(coral::ByteRange url) {
+  static bool validateURL(folly::ByteRange url) {
     for (auto p: url) {
       if (p <= 0x20 || p == 0x7f) {
         // no controls or unescaped spaces
@@ -33,7 +33,7 @@ class SPDYUtil {
     return true;
   }
 
-  static bool validateMethod(coral::ByteRange method) {
+  static bool validateMethod(folly::ByteRange method) {
     for (auto p: method) {
       if (!isalpha(p)) {
         // methods are all characters
@@ -43,7 +43,7 @@ class SPDYUtil {
     return true;
   }
 
-  static bool validateHeaderName(coral::ByteRange name) {
+  static bool validateHeaderName(folly::ByteRange name) {
     if (name.size() == 0) {
       return false;
     }
@@ -66,7 +66,7 @@ class SPDYUtil {
     STRICT
   };
 
-  static bool validateHeaderValue(coral::ByteRange value,
+  static bool validateHeaderValue(folly::ByteRange value,
                                   CtlEscapeMode mode) {
     bool escape = false;
     bool quote = false;

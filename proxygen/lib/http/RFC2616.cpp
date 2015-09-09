@@ -9,8 +9,8 @@
  */
 #include <proxygen/lib/http/RFC2616.h>
 
-#include <coral/String.h>
-#include <coral/ThreadLocal.h>
+#include <folly/String.h>
+#include <folly/ThreadLocal.h>
 #include <proxygen/lib/http/HTTPHeaders.h>
 
 namespace proxygen { namespace RFC2616 {
@@ -36,21 +36,21 @@ bool bodyImplied(const HTTPHeaders& headers) {
     headers.exists(HTTP_HEADER_CONTENT_LENGTH);
 }
 
-bool parseQvalues(coral::StringPiece value, std::vector<TokenQPair> &output) {
+bool parseQvalues(folly::StringPiece value, std::vector<TokenQPair> &output) {
   bool result = true;
-  static coral::ThreadLocal<std::vector<coral::StringPiece>> tokens;
+  static folly::ThreadLocal<std::vector<folly::StringPiece>> tokens;
   tokens->clear();
-  coral::split(",", value, *tokens, true /*ignore empty*/);
+  folly::split(",", value, *tokens, true /*ignore empty*/);
   for (auto& token: *tokens) {
     auto pos = token.find(';');
     double qvalue = 1.0;
     if (pos != std::string::npos) {
       auto qpos = token.find("q=", pos);
       if (qpos != std::string::npos) {
-        coral::StringPiece qvalueStr(token.data() + qpos + 2,
+        folly::StringPiece qvalueStr(token.data() + qpos + 2,
                                      token.size() - (qpos + 2));
         try {
-          qvalue = coral::to<double>(&qvalueStr);
+          qvalue = folly::to<double>(&qvalueStr);
         } catch (const std::range_error&) {
           // q=<some garbage>
           result = false;

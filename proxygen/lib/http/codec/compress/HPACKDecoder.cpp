@@ -10,12 +10,12 @@
 #include <proxygen/lib/http/codec/compress/HPACKDecoder.h>
 
 #include <algorithm>
-#include <coral/Memory.h>
+#include <folly/Memory.h>
 #include <proxygen/lib/http/codec/compress/HeaderCodec.h>
 #include <proxygen/lib/http/codec/compress/Huffman.h>
 
-using coral::IOBuf;
-using coral::io::Cursor;
+using folly::IOBuf;
+using folly::io::Cursor;
 using std::list;
 using std::string;
 using std::unique_ptr;
@@ -25,7 +25,7 @@ using proxygen::HPACK::DecodeError;
 namespace proxygen {
 
 unique_ptr<HPACKDecoder::headers_t> HPACKDecoder::decode(const IOBuf* buffer) {
-  auto headers = coral::make_unique<headers_t>();
+  auto headers = folly::make_unique<headers_t>();
   Cursor cursor(buffer);
   uint32_t totalBytes = buffer ? cursor.totalLength() : 0;
   decode(cursor, totalBytes, *headers);

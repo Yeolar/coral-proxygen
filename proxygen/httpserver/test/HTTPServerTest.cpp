@@ -8,9 +8,9 @@
  *
  */
 #include <boost/thread.hpp>
-#include <coral/io/async/AsyncSSLSocket.h>
-#include <coral/io/async/AsyncServerSocket.h>
-#include <coral/io/async/EventBaseManager.h>
+#include <folly/io/async/AsyncSSLSocket.h>
+#include <folly/io/async/AsyncServerSocket.h>
+#include <folly/io/async/EventBaseManager.h>
 #include <gtest/gtest.h>
 #include <proxygen/httpserver/HTTPServer.h>
 #include <proxygen/httpserver/ResponseBuilder.h>
@@ -19,12 +19,12 @@
 using namespace proxygen;
 using namespace testing;
 
-using coral::AsyncSSLSocket;
-using coral::AsyncServerSocket;
-using coral::EventBaseManager;
-using coral::SSLContext;
-using coral::SSLContext;
-using coral::SocketAddress;
+using folly::AsyncSSLSocket;
+using folly::AsyncServerSocket;
+using folly::EventBaseManager;
+using folly::SSLContext;
+using folly::SSLContext;
+using folly::SocketAddress;
 
 namespace {
 
@@ -79,7 +79,7 @@ TEST(MultiBind, HandlesListenFailures) {
 
   std::vector<HTTPServer::IPConfig> ips = {
     {
-      coral::SocketAddress("127.0.0.1", port),
+      folly::SocketAddress("127.0.0.1", port),
       HTTPServer::Protocol::HTTP
     }
   };
@@ -87,7 +87,7 @@ TEST(MultiBind, HandlesListenFailures) {
   HTTPServerOptions options;
   options.threads = 4;
 
-  auto server = coral::make_unique<HTTPServer>(std::move(options));
+  auto server = folly::make_unique<HTTPServer>(std::move(options));
 
   // We have to bind both the sockets before listening on either
   server->bind(ips);
@@ -107,7 +107,7 @@ TEST(MultiBind, HandlesListenFailures) {
 
 TEST(SSL, SSLTest) {
   HTTPServer::IPConfig cfg{
-    coral::SocketAddress("127.0.0.1", 0),
+    folly::SocketAddress("127.0.0.1", 0),
       HTTPServer::Protocol::HTTP};
   wangle::SSLContextConfig sslCfg;
   sslCfg.isDefault = true;
@@ -120,7 +120,7 @@ TEST(SSL, SSLTest) {
   HTTPServerOptions options;
   options.threads = 4;
 
-  auto server = coral::make_unique<HTTPServer>(std::move(options));
+  auto server = folly::make_unique<HTTPServer>(std::move(options));
 
   std::vector<HTTPServer::IPConfig> ips{cfg};
   server->bind(ips);
@@ -129,25 +129,25 @@ TEST(SSL, SSLTest) {
   EXPECT_TRUE(st.start());
 
   // Make an SSL connection to the server
-  class Cb : public coral::AsyncSocket::ConnectCallback {
+  class Cb : public folly::AsyncSocket::ConnectCallback {
    public:
-    explicit Cb(coral::AsyncSSLSocket* sock) : sock_(sock) {}
+    explicit Cb(folly::AsyncSSLSocket* sock) : sock_(sock) {}
     void connectSuccess() noexcept override {
       success = true;
       sock_->close();
     }
-    void connectErr(const coral::AsyncSocketException&)
+    void connectErr(const folly::AsyncSocketException&)
       noexcept override {
       success = false;
     }
 
     bool success{false};
-    coral::AsyncSSLSocket* sock_{nullptr};
+    folly::AsyncSSLSocket* sock_{nullptr};
   };
 
-  coral::EventBase evb;
+  folly::EventBase evb;
   auto ctx = std::make_shared<SSLContext>();
-  coral::AsyncSSLSocket::UniquePtr sock(new coral::AsyncSSLSocket(ctx, &evb));
+  folly::AsyncSSLSocket::UniquePtr sock(new folly::AsyncSSLSocket(ctx, &evb));
   Cb cb(sock.get());
   sock->connect(&cb, server->addresses().front().address, 1000);
   evb.loop();

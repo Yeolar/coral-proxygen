@@ -11,8 +11,8 @@
 
 #include <boost/heap/d_ary_heap.hpp>
 #include <climits>
-#include <coral/SocketAddress.h>
-#include <coral/io/async/DelayedDestructionBase.h>
+#include <folly/SocketAddress.h>
+#include <folly/io/async/DelayedDestructionBase.h>
 #include <wangle/acceptor/TransportInfo.h>
 #include <ostream>
 #include <proxygen/lib/http/HTTPConstants.h>
@@ -117,7 +117,7 @@ class HTTPTransactionHandler {
    * called pauseIngress(), this callback will be delayed until you call
    * resumeIngress().
    */
-  virtual void onBody(std::unique_ptr<coral::IOBuf> chain) noexcept = 0;
+  virtual void onBody(std::unique_ptr<folly::IOBuf> chain) noexcept = 0;
 
   /**
    * Can be called multiple times per transaction. If you had previously
@@ -207,7 +207,7 @@ class HTTPPushTransactionHandler : public HTTPTransactionHandler {
     LOG(FATAL) << "push txn received headers";
   }
 
-  void onBody(std::unique_ptr<coral::IOBuf> chain) noexcept final {
+  void onBody(std::unique_ptr<folly::IOBuf> chain) noexcept final {
     LOG(FATAL) << "push txn received body";
   }
 
@@ -239,7 +239,7 @@ class HTTPPushTransactionHandler : public HTTPTransactionHandler {
 
 class HTTPTransaction :
       public AsyncTimeoutSet::Callback,
-      public coral::DelayedDestructionBase {
+      public folly::DelayedDestructionBase {
  public:
   typedef HTTPTransactionHandler Handler;
   typedef HTTPPushTransactionHandler PushHandler;
@@ -259,7 +259,7 @@ class HTTPTransaction :
                              HTTPHeaderSize* size) noexcept = 0;
 
     virtual size_t sendBody(HTTPTransaction* txn,
-                            std::unique_ptr<coral::IOBuf>,
+                            std::unique_ptr<folly::IOBuf>,
                             bool eom) noexcept = 0;
 
     virtual size_t sendChunkHeader(HTTPTransaction* txn,
@@ -286,10 +286,10 @@ class HTTPTransaction :
 
     virtual void notifyEgressBodyBuffered(int64_t bytes) noexcept = 0;
 
-    virtual const coral::SocketAddress& getLocalAddress()
+    virtual const folly::SocketAddress& getLocalAddress()
       const noexcept = 0;
 
-    virtual const coral::SocketAddress& getPeerAddress()
+    virtual const folly::SocketAddress& getPeerAddress()
       const noexcept = 0;
 
     virtual void describe(std::ostream&) const = 0;
@@ -411,20 +411,20 @@ class HTTPTransaction :
     return direction_ == TransportDirection::DOWNSTREAM;
   }
 
-  void getLocalAddress(coral::SocketAddress& addr) const {
+  void getLocalAddress(folly::SocketAddress& addr) const {
     addr = transport_.getLocalAddress();
   }
 
-  void getPeerAddress(coral::SocketAddress& addr) const {
+  void getPeerAddress(folly::SocketAddress& addr) const {
     addr = transport_.getPeerAddress();
   }
 
-  const coral::SocketAddress& getLocalAddress()
+  const folly::SocketAddress& getLocalAddress()
     const noexcept {
     return transport_.getLocalAddress();
   }
 
-  const coral::SocketAddress& getPeerAddress()
+  const folly::SocketAddress& getPeerAddress()
     const noexcept {
     return transport_.getPeerAddress();
   }
@@ -481,7 +481,7 @@ class HTTPTransaction :
    * Invoked by the session when some or all of the ingress entity-body has
    * been parsed.
    */
-  void onIngressBody(std::unique_ptr<coral::IOBuf> chain, uint16_t padding);
+  void onIngressBody(std::unique_ptr<folly::IOBuf> chain, uint16_t padding);
 
   /**
    * Invoked by the session when a chunk header has been parsed.
@@ -675,7 +675,7 @@ class HTTPTransaction :
    *             applying any necessary protocol framing, such as
    *             chunk headers.
    */
-  virtual void sendBody(std::unique_ptr<coral::IOBuf> body);
+  virtual void sendBody(std::unique_ptr<folly::IOBuf> body);
 
   /**
    * Write any protocol framing required for the subsequent call(s)
@@ -960,15 +960,15 @@ class HTTPTransaction :
   // Internal implementations of the ingress-related callbacks
   // that work whether the ingress events are immediate or deferred.
   void processIngressHeadersComplete(std::unique_ptr<HTTPMessage> msg);
-  void processIngressBody(std::unique_ptr<coral::IOBuf> chain, size_t len);
+  void processIngressBody(std::unique_ptr<folly::IOBuf> chain, size_t len);
   void processIngressChunkHeader(size_t length);
   void processIngressChunkComplete();
   void processIngressTrailers(std::unique_ptr<HTTPHeaders> trailers);
   void processIngressUpgrade(UpgradeProtocol protocol);
   void processIngressEOM();
 
-  void sendBodyFlowControlled(std::unique_ptr<coral::IOBuf> body = nullptr);
-  size_t sendBodyNow(std::unique_ptr<coral::IOBuf> body, size_t bodyLen,
+  void sendBodyFlowControlled(std::unique_ptr<folly::IOBuf> body = nullptr);
+  size_t sendBodyNow(std::unique_ptr<folly::IOBuf> body, size_t bodyLen,
                      bool eom);
   size_t sendEOMNow();
   void onDeltaSendWindowSize(int32_t windowDelta);
@@ -1033,7 +1033,7 @@ class HTTPTransaction :
    * Queue to hold any body bytes to be sent out
    * while egress to the remote is supposed to be paused.
    */
-  coral::IOBufQueue deferredEgressBody_{coral::IOBufQueue::cacheChainLength()};
+  folly::IOBufQueue deferredEgressBody_{folly::IOBufQueue::cacheChainLength()};
 
   const TransportDirection direction_;
   HTTPCodec::StreamID id_;

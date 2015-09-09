@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include <coral/Conv.h>
+#include <folly/Conv.h>
 #include <string>
 #include <utility>
 
@@ -26,7 +26,7 @@ class Exception : public std::exception {
 
   template<typename... Args>
   explicit Exception(Args&&... args)
-      : msg_(coral::to<std::string>(std::forward<Args>(args)...)),
+      : msg_(folly::to<std::string>(std::forward<Args>(args)...)),
         code_(0) {}
 
   ~Exception(void) noexcept override {}

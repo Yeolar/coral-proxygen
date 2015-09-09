@@ -16,9 +16,9 @@
 #include <proxygen/lib/http/codec/compress/Logging.h>
 #include <proxygen/lib/http/codec/compress/test/TestUtil.h>
 #include <vector>
-#include <coral/String.h>
+#include <folly/String.h>
 
-using namespace coral;
+using namespace folly;
 using namespace proxygen;
 using namespace std;
 using namespace testing;
@@ -124,7 +124,7 @@ RfcParam d6(true, exampleHex4);
 namespace {
 std::string unhexlify(const std::string& input) {
   std::string result;
-  coral::unhexlify(input, result);
+  folly::unhexlify(input, result);
   return result;
 }
 }

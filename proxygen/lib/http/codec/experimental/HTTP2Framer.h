@@ -12,8 +12,8 @@
 #include <boost/optional/optional.hpp>
 #include <cstdint>
 #include <deque>
-#include <coral/Range.h>
-#include <coral/io/Cursor.h>
+#include <folly/Range.h>
+#include <folly/io/Cursor.h>
 #include <proxygen/lib/http/codec/ErrorCode.h>
 #include <proxygen/lib/http/codec/SettingsId.h>
 #include <string.h>
@@ -85,7 +85,7 @@ extern bool frameAffectsCompression(FrameType t);
  * @return Nothing if success. The connection error code if failure.
  */
 extern ErrorCode
-parseFrameHeader(coral::io::Cursor& cursor,
+parseFrameHeader(folly::io::Cursor& cursor,
                  FrameHeader& header) noexcept;
 
 /**
@@ -102,9 +102,9 @@ parseFrameHeader(coral::io::Cursor& cursor,
  *         return in a GOAWAY frame if failure.
  */
 extern ErrorCode
-parseData(coral::io::Cursor& cursor,
+parseData(folly::io::Cursor& cursor,
           FrameHeader header,
-          std::unique_ptr<coral::IOBuf>& outBuf,
+          std::unique_ptr<folly::IOBuf>& outBuf,
           uint16_t& padding) noexcept;
 
 /**
@@ -122,10 +122,10 @@ parseData(coral::io::Cursor& cursor,
  *         return in a GOAWAY frame if failure.
  */
 extern ErrorCode
-parseHeaders(coral::io::Cursor& cursor,
+parseHeaders(folly::io::Cursor& cursor,
              FrameHeader header,
              boost::optional<PriorityUpdate>& outPriority,
-             std::unique_ptr<coral::IOBuf>& outBuf) noexcept;
+             std::unique_ptr<folly::IOBuf>& outBuf) noexcept;
 
 /**
  * This function parses the section of the PRIORITY frame after the common
@@ -140,7 +140,7 @@ parseHeaders(coral::io::Cursor& cursor,
  *         return in a GOAWAY frame if failure.
  */
 extern ErrorCode
-parsePriority(coral::io::Cursor& cursor,
+parsePriority(folly::io::Cursor& cursor,
               FrameHeader header,
               PriorityUpdate& outPriority) noexcept;
 
@@ -157,7 +157,7 @@ parsePriority(coral::io::Cursor& cursor,
  *         return in a GOAWAY frame if failure.
  */
 extern ErrorCode
-parseRstStream(coral::io::Cursor& cursor,
+parseRstStream(folly::io::Cursor& cursor,
                FrameHeader header,
                ErrorCode& outCode) noexcept;
 
@@ -174,7 +174,7 @@ parseRstStream(coral::io::Cursor& cursor,
  *         return in a GOAWAY frame if failure.
  */
 extern ErrorCode
-parseSettings(coral::io::Cursor& cursor,
+parseSettings(folly::io::Cursor& cursor,
               FrameHeader header,
               std::deque<SettingPair>& settings) noexcept;
 
@@ -192,10 +192,10 @@ parseSettings(coral::io::Cursor& cursor,
  *         return in a GOAWAY frame if failure.
  */
 extern ErrorCode
-parsePushPromise(coral::io::Cursor& cursor,
+parsePushPromise(folly::io::Cursor& cursor,
                  FrameHeader header,
                  uint32_t& outPromisedStream,
-                 std::unique_ptr<coral::IOBuf>& outBuf) noexcept;
+                 std::unique_ptr<folly::IOBuf>& outBuf) noexcept;
 
 /**
  * This function parses the section of the PING frame after the common
@@ -209,7 +209,7 @@ parsePushPromise(coral::io::Cursor& cursor,
  *         return in a GOAWAY frame if failure.
  */
 extern ErrorCode
-parsePing(coral::io::Cursor& cursor,
+parsePing(folly::io::Cursor& cursor,
           FrameHeader header,
           uint64_t& outData) noexcept;
 
@@ -228,11 +228,11 @@ parsePing(coral::io::Cursor& cursor,
  *         return in a GOAWAY frame if failure.
  */
 extern ErrorCode
-parseGoaway(coral::io::Cursor& cursor,
+parseGoaway(folly::io::Cursor& cursor,
             FrameHeader header,
             uint32_t& outLastStreamID,
             ErrorCode& outCode,
-            std::unique_ptr<coral::IOBuf>& outDebugData) noexcept;
+            std::unique_ptr<folly::IOBuf>& outDebugData) noexcept;
 
 /**
  * This function parses the section of the WINDOW_UPDATE frame after the
@@ -246,7 +246,7 @@ parseGoaway(coral::io::Cursor& cursor,
  *         return in a GOAWAY frame if failure.
  */
 extern ErrorCode
-parseWindowUpdate(coral::io::Cursor& cursor,
+parseWindowUpdate(folly::io::Cursor& cursor,
                   FrameHeader header,
                   uint32_t& outAmount) noexcept;
 
@@ -263,9 +263,9 @@ parseWindowUpdate(coral::io::Cursor& cursor,
  *         return in a GOAWAY frame if failure.
  */
 extern ErrorCode
-parseContinuation(coral::io::Cursor& cursor,
+parseContinuation(folly::io::Cursor& cursor,
                   FrameHeader header,
-                  std::unique_ptr<coral::IOBuf>& outBuf) noexcept;
+                  std::unique_ptr<folly::IOBuf>& outBuf) noexcept;
 
 /**
  * This function parses the section of the ALTSVC frame after the
@@ -283,7 +283,7 @@ parseContinuation(coral::io::Cursor& cursor,
  *         return in a GOAWAY frame if failure.
  */
 extern ErrorCode
-parseAltSvc(coral::io::Cursor& cursor,
+parseAltSvc(folly::io::Cursor& cursor,
             FrameHeader header,
             uint32_t& outMaxAge,
             uint32_t& outPort,
@@ -307,8 +307,8 @@ parseAltSvc(coral::io::Cursor& cursor,
  * @return The number of bytes written to writeBuf.
  */
 extern size_t
-writeData(coral::IOBufQueue& writeBuf,
-          std::unique_ptr<coral::IOBuf> data,
+writeData(folly::IOBufQueue& writeBuf,
+          std::unique_ptr<folly::IOBuf> data,
           uint32_t stream,
           boost::optional<uint8_t> padding,
           bool endStream) noexcept;
@@ -331,8 +331,8 @@ writeData(coral::IOBufQueue& writeBuf,
  * @return The number of bytes written to writeBuf.
  */
 extern size_t
-writeHeaders(coral::IOBufQueue& writeBuf,
-             std::unique_ptr<coral::IOBuf> headers,
+writeHeaders(folly::IOBufQueue& writeBuf,
+             std::unique_ptr<folly::IOBuf> headers,
              uint32_t stream,
              boost::optional<PriorityUpdate> priority,
              boost::optional<uint8_t> padding,
@@ -349,7 +349,7 @@ writeHeaders(coral::IOBufQueue& writeBuf,
  * @return The number of bytes written to writeBuf.
  */
 extern size_t
-writePriority(coral::IOBufQueue& writeBuf,
+writePriority(folly::IOBufQueue& writeBuf,
               uint32_t stream,
               PriorityUpdate priority) noexcept;
 
@@ -364,7 +364,7 @@ writePriority(coral::IOBufQueue& writeBuf,
  * @return The number of bytes written to writeBuf.
  */
 extern size_t
-writeRstStream(coral::IOBufQueue& writeBuf,
+writeRstStream(folly::IOBufQueue& writeBuf,
                uint32_t stream,
                ErrorCode errorCode) noexcept;
 
@@ -378,7 +378,7 @@ writeRstStream(coral::IOBufQueue& writeBuf,
  * @return The number of bytes written to writeBuf.
  */
 extern size_t
-writeSettings(coral::IOBufQueue& writeBuf,
+writeSettings(folly::IOBufQueue& writeBuf,
               const std::deque<SettingPair>& settings);
 
 /**
@@ -386,7 +386,7 @@ writeSettings(coral::IOBufQueue& writeBuf,
  * header. No settings can be transmitted with this frame.
  */
 extern size_t
-writeSettingsAck(coral::IOBufQueue& writeBuf);
+writeSettingsAck(folly::IOBufQueue& writeBuf);
 
 /**
  * Writes an entire PUSH_PROMISE frame, including the common frame
@@ -403,10 +403,10 @@ writeSettingsAck(coral::IOBufQueue& writeBuf);
  * @return The number of bytes written to writeBuf/
  */
 extern size_t
-writePushPromise(coral::IOBufQueue& writeBuf,
+writePushPromise(folly::IOBufQueue& writeBuf,
                  uint32_t associatedStream,
                  uint32_t promisedStream,
-                 std::unique_ptr<coral::IOBuf> headers,
+                 std::unique_ptr<folly::IOBuf> headers,
                  boost::optional<uint8_t> padding,
                  bool endHeaders) noexcept;
 /**
@@ -419,7 +419,7 @@ writePushPromise(coral::IOBufQueue& writeBuf,
  * @return The number of bytes written to writeBuf.
  */
 extern size_t
-writePing(coral::IOBufQueue& writeBuf,
+writePing(folly::IOBufQueue& writeBuf,
           uint64_t data,
           bool ack) noexcept;
 
@@ -435,10 +435,10 @@ writePing(coral::IOBufQueue& writeBuf,
  * @return The number of bytes written to writeBuf.
  */
 extern size_t
-writeGoaway(coral::IOBufQueue& writeBuf,
+writeGoaway(folly::IOBufQueue& writeBuf,
             uint32_t lastStreamID,
             ErrorCode errorCode,
-            std::unique_ptr<coral::IOBuf> debugData = nullptr) noexcept;
+            std::unique_ptr<folly::IOBuf> debugData = nullptr) noexcept;
 
 /**
  * Generate an entire WINDOW_UPDATE frame, including the common frame
@@ -451,7 +451,7 @@ writeGoaway(coral::IOBufQueue& writeBuf,
  * @return The number of bytes written to writeBuf.
  */
 extern size_t
-writeWindowUpdate(coral::IOBufQueue& writeBuf,
+writeWindowUpdate(folly::IOBufQueue& writeBuf,
                   uint32_t stream,
                   uint32_t amount) noexcept;
 
@@ -470,10 +470,10 @@ writeWindowUpdate(coral::IOBufQueue& writeBuf,
  * @return The number of bytes written to writeBuf.
  */
 extern size_t
-writeContinuation(coral::IOBufQueue& queue,
+writeContinuation(folly::IOBufQueue& queue,
                   uint32_t stream,
                   bool endHeaders,
-                  std::unique_ptr<coral::IOBuf> headers,
+                  std::unique_ptr<folly::IOBuf> headers,
                   boost::optional<uint8_t> padding) noexcept;
 /**
  * Generate an entire ALTSVC frame, including the common frame
@@ -490,13 +490,13 @@ writeContinuation(coral::IOBufQueue& queue,
  * @return The number of bytes written to writeBuf.
  */
 extern size_t
-writeAltSvc(coral::IOBufQueue& writeBuf,
+writeAltSvc(folly::IOBufQueue& writeBuf,
             uint32_t stream,
             uint32_t maxAge,
             uint16_t port,
-            coral::StringPiece protocol,
-            coral::StringPiece host,
-            coral::StringPiece origin) noexcept;
+            folly::StringPiece protocol,
+            folly::StringPiece host,
+            folly::StringPiece origin) noexcept;
 
 /**
  * Get the string representation of the given FrameType

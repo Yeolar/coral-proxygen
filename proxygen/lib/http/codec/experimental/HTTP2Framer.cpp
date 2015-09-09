@@ -11,8 +11,8 @@
 
 #include <cstdint>
 
-using namespace coral::io;
-using namespace coral;
+using namespace folly::io;
+using namespace folly;
 
 namespace proxygen { namespace http2 {
 

@@ -11,7 +11,7 @@
 #include <proxygen/lib/http/codec/compress/experimental/hpack9/HPACKConstants.h>
 #include <proxygen/lib/http/codec/compress/experimental/hpack9/Huffman.h>
 
-using coral::io::Cursor;
+using folly::io::Cursor;
 
 namespace proxygen {
 

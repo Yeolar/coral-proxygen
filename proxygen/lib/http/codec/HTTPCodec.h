@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include <coral/io/IOBufQueue.h>
+#include <folly/io/IOBufQueue.h>
 #include <proxygen/lib/http/HTTPException.h>
 #include <proxygen/lib/http/HTTPHeaderSize.h>
 #include <proxygen/lib/http/codec/CodecProtocol.h>
@@ -94,7 +94,7 @@ class HTTPCodec {
      * @param padding Number of pad bytes that came with the data segment
      */
     virtual void onBody(StreamID stream,
-                        std::unique_ptr<coral::IOBuf> chain,
+                        std::unique_ptr<folly::IOBuf> chain,
                         uint16_t padding) = 0;
 
     /**
@@ -290,7 +290,7 @@ class HTTPCodec {
    * @param  buf   A single IOBuf of data to parse
    * @return Number of bytes consumed.
    */
-  virtual size_t onIngress(const coral::IOBuf& buf) = 0;
+  virtual size_t onIngress(const folly::IOBuf& buf) = 0;
 
   /**
    * Finish parsing when the ingress stream has ended.
@@ -342,7 +342,7 @@ class HTTPCodec {
    *
    * @return size of the generated message
    */
-  virtual size_t generateConnectionPreface(coral::IOBufQueue& writeBuf) {
+  virtual size_t generateConnectionPreface(folly::IOBufQueue& writeBuf) {
     return 0;
   }
 
@@ -353,7 +353,7 @@ class HTTPCodec {
    *              and the size of the uncompressed data.
    * @return None
    */
-  virtual void generateHeader(coral::IOBufQueue& writeBuf,
+  virtual void generateHeader(folly::IOBufQueue& writeBuf,
                               StreamID stream,
                               const HTTPMessage& msg,
                               StreamID assocStream = NoStream,
@@ -372,30 +372,30 @@ class HTTPCodec {
    *
    * @return number of bytes written
    */
-  virtual size_t generateBody(coral::IOBufQueue& writeBuf,
+  virtual size_t generateBody(folly::IOBufQueue& writeBuf,
                               StreamID stream,
-                              std::unique_ptr<coral::IOBuf> chain,
+                              std::unique_ptr<folly::IOBuf> chain,
                               boost::optional<uint8_t> padding,
                               bool eom) = 0;
 
   /**
    * Write a body chunk header, if relevant.
    */
-  virtual size_t generateChunkHeader(coral::IOBufQueue& writeBuf,
+  virtual size_t generateChunkHeader(folly::IOBufQueue& writeBuf,
                                      StreamID stream,
                                      size_t length) = 0;
 
   /**
    * Write a body chunk terminator, if relevant.
    */
-  virtual size_t generateChunkTerminator(coral::IOBufQueue& writeBuf,
+  virtual size_t generateChunkTerminator(folly::IOBufQueue& writeBuf,
                                          StreamID stream) = 0;
 
   /**
    * Write the message trailers
    * @return number of bytes written
    */
-  virtual size_t generateTrailers(coral::IOBufQueue& writeBuf,
+  virtual size_t generateTrailers(folly::IOBufQueue& writeBuf,
                                   StreamID stream,
                                   const HTTPHeaders& trailers) = 0;
 
@@ -405,14 +405,14 @@ class HTTPCodec {
    *
    * @return number of bytes written
    */
-  virtual size_t generateEOM(coral::IOBufQueue& writeBuf,
+  virtual size_t generateEOM(folly::IOBufQueue& writeBuf,
                              StreamID stream) = 0;
 
   /**
    * Generate any protocol framing needed to abort a connection.
    * @return number of bytes written
    */
-  virtual size_t generateRstStream(coral::IOBufQueue& writeBuf,
+  virtual size_t generateRstStream(folly::IOBufQueue& writeBuf,
                                    StreamID stream,
                                    ErrorCode code) = 0;
 
@@ -420,7 +420,7 @@ class HTTPCodec {
    * Generate any protocol framing needed to abort a stream.
    * @return number of bytes written
    */
-  virtual size_t generateGoaway(coral::IOBufQueue& writeBuf,
+  virtual size_t generateGoaway(folly::IOBufQueue& writeBuf,
                                 StreamID lastStream,
                                 ErrorCode code) = 0;
 
@@ -428,20 +428,20 @@ class HTTPCodec {
    * If the protocol supports it, generate a ping message that the other
    * side should respond to.
    */
-  virtual size_t generatePingRequest(coral::IOBufQueue& writeBuf) { return 0; }
+  virtual size_t generatePingRequest(folly::IOBufQueue& writeBuf) { return 0; }
 
   /**
    * Generate a reply to a ping message, if supported in the
    * protocol implemented by the codec.
    */
-  virtual size_t generatePingReply(coral::IOBufQueue& writeBuf,
+  virtual size_t generatePingReply(folly::IOBufQueue& writeBuf,
                                    uint64_t uniqueID) { return 0; }
 
   /**
    * Generate a settings message, if supported in the
    * protocol implemented by the codec.
    */
-  virtual size_t generateSettings(coral::IOBufQueue& writeBuf) {
+  virtual size_t generateSettings(folly::IOBufQueue& writeBuf) {
     return 0;
   }
 
@@ -449,7 +449,7 @@ class HTTPCodec {
    * Generate a settings ack message, if supported in the
    * protocol implemented by the codec.
    */
-  virtual size_t generateSettingsAck(coral::IOBufQueue& writeBuf) {
+  virtual size_t generateSettingsAck(folly::IOBufQueue& writeBuf) {
     return 0;
   }
 
@@ -459,7 +459,7 @@ class HTTPCodec {
    * Returns the number of bytes written on the wire as a result of invoking
    * this function.
    */
-  virtual size_t generateWindowUpdate(coral::IOBufQueue& writeBuf,
+  virtual size_t generateWindowUpdate(folly::IOBufQueue& writeBuf,
                                       StreamID stream,
                                       uint32_t delta) {
     return 0;

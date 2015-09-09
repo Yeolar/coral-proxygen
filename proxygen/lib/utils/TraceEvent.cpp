@@ -10,7 +10,7 @@
 #include <proxygen/lib/utils/TraceEvent.h>
 #include <proxygen/lib/utils/UnionBasedStatic.h>
 
-#include <coral/ThreadLocal.h>
+#include <folly/ThreadLocal.h>
 #include <random>
 #include <sstream>
 #include <string>
@@ -40,7 +40,7 @@ class TraceEventIDGenerator {
 
 namespace proxygen {
 
-DEFINE_UNION_STATIC_UNION_IMPL(coral::ThreadLocal<TraceEventIDGenerator>,
+DEFINE_UNION_STATIC_UNION_IMPL(folly::ThreadLocal<TraceEventIDGenerator>,
                     TraceEventIDGenerator,
                     s_idGenerator);
 
@@ -48,7 +48,7 @@ __attribute__((__constructor__))
 void initIDGeneratorUnion() {
   new (&s_mtx.data) std::mutex();
   new (&s_generator.data) std::mt19937();
-  new (&s_idGenerator.data) coral::ThreadLocal<TraceEventIDGenerator>();
+  new (&s_idGenerator.data) folly::ThreadLocal<TraceEventIDGenerator>();
 }
 
 TraceEvent::TraceEvent(TraceEventType type, uint32_t parentID):

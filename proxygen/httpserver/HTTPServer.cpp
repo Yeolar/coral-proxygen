@@ -9,17 +9,17 @@
  */
 #include <proxygen/httpserver/HTTPServer.h>
 
-#include <coral/ThreadName.h>
-#include <coral/io/async/EventBaseManager.h>
+#include <folly/ThreadName.h>
+#include <folly/io/async/EventBaseManager.h>
 #include <proxygen/httpserver/HTTPServerAcceptor.h>
 #include <proxygen/httpserver/SignalHandler.h>
 #include <proxygen/httpserver/filters/RejectConnectFilter.h>
 #include <proxygen/httpserver/filters/ZlibServerFilter.h>
 
-using coral::AsyncServerSocket;
-using coral::EventBase;
-using coral::EventBaseManager;
-using coral::SocketAddress;
+using folly::AsyncServerSocket;
+using folly::EventBase;
+using folly::EventBaseManager;
+using folly::SocketAddress;
 using wangle::IOThreadPoolExecutor;
 using wangle::ThreadPoolExecutor;
 
@@ -32,7 +32,7 @@ class AcceptorFactory : public wangle::AcceptorFactory {
       options_(options),
       config_(config)  {}
   std::shared_ptr<wangle::Acceptor> newAcceptor(
-      coral::EventBase* eventBase) override {
+      folly::EventBase* eventBase) override {
     auto acc = std::shared_ptr<HTTPServerAcceptor>(
       HTTPServerAcceptor::make(config_, *options_).release());
     acc->init(nullptr, eventBase);
@@ -51,7 +51,7 @@ HTTPServer::HTTPServer(HTTPServerOptions options):
   if (!options_->supportsConnect) {
     options_->handlerFactories.insert(
         options_->handlerFactories.begin(),
-        coral::make_unique<RejectConnectFilterFactory>());
+        folly::make_unique<RejectConnectFilterFactory>());
   }
 
   // Add Content Compression filter (gzip), if needed. Should be
@@ -59,7 +59,7 @@ HTTPServer::HTTPServer(HTTPServerOptions options):
   if (options_->enableContentCompression) {
     options_->handlerFactories.insert(
         options_->handlerFactories.begin(),
-        coral::make_unique<ZlibServerFilterFactory>(
+        folly::make_unique<ZlibServerFilterFactory>(
           options_->contentCompressionLevel,
           options_->contentCompressionMinimumSize,
           options_->contentCompressionTypes));
@@ -132,7 +132,7 @@ void HTTPServer::start(std::function<void()> onSuccess,
 
   // Install signal handler if required
   if (!options_->shutdownOn.empty()) {
-    signalHandler_ = coral::make_unique<SignalHandler>(this);
+    signalHandler_ = folly::make_unique<SignalHandler>(this);
     signalHandler_->install(options_->shutdownOn);
   }
 

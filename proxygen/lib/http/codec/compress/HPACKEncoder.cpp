@@ -13,7 +13,7 @@
 #include <unordered_set>
 #include <utility>
 
-using coral::IOBuf;
+using folly::IOBuf;
 using std::list;
 using std::unique_ptr;
 using std::unordered_set;

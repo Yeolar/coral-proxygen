@@ -11,11 +11,11 @@
 
 #include <atomic>
 #include <cstdint>
-#include <coral/io/async/EventBase.h>
+#include <folly/io/async/EventBase.h>
 #include <mutex>
 #include <thread>
 
-namespace coral {
+namespace folly {
 class EventBaseManager;
 }
 
@@ -27,7 +27,7 @@ namespace proxygen {
  */
 class WorkerThread {
  public:
-  explicit WorkerThread(coral::EventBaseManager* ebm);
+  explicit WorkerThread(folly::EventBaseManager* ebm);
   virtual ~WorkerThread();
 
   /**
@@ -80,7 +80,7 @@ class WorkerThread {
   /**
    * Get the EventBase used to drive the events in this worker thread.
    */
-  coral::EventBase* getEventBase() {
+  folly::EventBase* getEventBase() {
     return &eventBase_;
   }
 
@@ -116,8 +116,8 @@ class WorkerThread {
   State state_{State::IDLE};
   std::thread thread_;
   std::mutex joinLock_;
-  coral::EventBase eventBase_;
-  coral::EventBaseManager* eventBaseManager_{nullptr};
+  folly::EventBase eventBase_;
+  folly::EventBaseManager* eventBaseManager_{nullptr};
 
   // A thread-local pointer to the current WorkerThread for this thread
   static __thread WorkerThread* currentWorker_;

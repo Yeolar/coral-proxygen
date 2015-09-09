@@ -26,9 +26,9 @@ class HTTPDownstreamSession final: public HTTPSession {
    */
   HTTPDownstreamSession(
       AsyncTimeoutSet* transactionTimeouts,
-      coral::AsyncTransportWrapper::UniquePtr&& sock,
-      const coral::SocketAddress& localAddr,
-      const coral::SocketAddress& peerAddr,
+      folly::AsyncTransportWrapper::UniquePtr&& sock,
+      const folly::SocketAddress& localAddr,
+      const folly::SocketAddress& peerAddr,
       HTTPSessionController* controller,
       std::unique_ptr<HTTPCodec> codec,
       const wangle::TransportInfo& tinfo,

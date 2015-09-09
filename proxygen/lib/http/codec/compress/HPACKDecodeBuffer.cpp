@@ -13,7 +13,7 @@
 #include <memory>
 #include <proxygen/lib/http/codec/compress/Huffman.h>
 
-using coral::IOBuf;
+using folly::IOBuf;
 using std::unique_ptr;
 using proxygen::HPACK::DecodeError;
 

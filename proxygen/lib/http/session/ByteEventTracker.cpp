@@ -9,13 +9,13 @@
  */
 #include <proxygen/lib/http/session/ByteEventTracker.h>
 
-#include <coral/io/async/DelayedDestruction.h>
+#include <folly/io/async/DelayedDestruction.h>
 #include <proxygen/lib/http/session/HTTPSession.h>
 #include <proxygen/lib/http/session/HTTPSessionStats.h>
 #include <string>
 
-using coral::AsyncSocket;
-using coral::AsyncTransportWrapper;
+using folly::AsyncSocket;
+using folly::AsyncTransportWrapper;
 using std::string;
 using std::vector;
 

@@ -12,7 +12,7 @@
 #include <memory>
 #include <zlib.h>
 
-namespace coral {
+namespace folly {
 class IOBuf;
 }
 
@@ -45,7 +45,7 @@ class ZlibStreamDecompressor {
 
   void init(ZlibCompressionType type);
 
-  std::unique_ptr<coral::IOBuf> decompress(const coral::IOBuf* in);
+  std::unique_ptr<folly::IOBuf> decompress(const folly::IOBuf* in);
 
   int getStatus() { return status_; }
 

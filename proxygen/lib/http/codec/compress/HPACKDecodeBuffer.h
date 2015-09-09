@@ -9,9 +9,9 @@
  */
 #pragma once
 
-#include <coral/Conv.h>
-#include <coral/io/Cursor.h>
-#include <coral/io/IOBuf.h>
+#include <folly/Conv.h>
+#include <folly/io/Cursor.h>
+#include <folly/io/IOBuf.h>
 #include <proxygen/lib/http/codec/compress/HPACKConstants.h>
 #include <proxygen/lib/http/codec/compress/Huffman.h>
 
@@ -21,7 +21,7 @@ class HPACKDecodeBuffer {
  public:
 
   explicit HPACKDecodeBuffer(const huffman::HuffTree& huffmanTree,
-                             coral::io::Cursor& cursorVal,
+                             folly::io::Cursor& cursorVal,
                              uint32_t totalBytes)
       : huffmanTree_(huffmanTree),
         cursor_(cursorVal),
@@ -30,11 +30,11 @@ class HPACKDecodeBuffer {
 
   ~HPACKDecodeBuffer() {}
 
-  void reset(coral::io::Cursor& cursorVal) {
-    reset(cursorVal, coral::to<uint32_t>(cursorVal.totalLength()));
+  void reset(folly::io::Cursor& cursorVal) {
+    reset(cursorVal, folly::to<uint32_t>(cursorVal.totalLength()));
   }
 
-  void reset(coral::io::Cursor& cursorVal,
+  void reset(folly::io::Cursor& cursorVal,
              uint32_t totalBytes) {
     cursor_ = cursorVal;
     totalBytes_ = totalBytes;
@@ -45,7 +45,7 @@ class HPACKDecodeBuffer {
     return totalBytes_ - remainingBytes_;
   }
 
-  const coral::io::Cursor& cursor() const {
+  const folly::io::Cursor& cursor() const {
     return cursor_;
   }
 
@@ -78,7 +78,7 @@ class HPACKDecodeBuffer {
 
 private:
   const huffman::HuffTree& huffmanTree_;
-  coral::io::Cursor& cursor_;
+  folly::io::Cursor& cursor_;
   uint32_t totalBytes_;
   uint32_t remainingBytes_;
 };

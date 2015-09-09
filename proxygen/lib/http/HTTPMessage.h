@@ -11,10 +11,10 @@
 
 #include <array>
 #include <boost/variant.hpp>
-#include <coral/Conv.h>
-#include <coral/Optional.h>
-#include <coral/SocketAddress.h>
-#include <coral/io/IOBufQueue.h>
+#include <folly/Conv.h>
+#include <folly/Optional.h>
+#include <folly/SocketAddress.h>
+#include <folly/io/IOBufQueue.h>
 #include <glog/logging.h>
 #include <map>
 #include <mutex>
@@ -59,13 +59,13 @@ class HTTPMessage {
   /**
    * Set/Get client address
    */
-  void setClientAddress(const coral::SocketAddress& addr) {
+  void setClientAddress(const folly::SocketAddress& addr) {
     request().clientAddress_ = addr;
     request().clientIP_ = addr.getAddressStr();
-    request().clientPort_ = coral::to<std::string>(addr.getPort());
+    request().clientPort_ = folly::to<std::string>(addr.getPort());
   }
 
-  const coral::SocketAddress& getClientAddress() const {
+  const folly::SocketAddress& getClientAddress() const {
     return request().clientAddress_;
   }
 
@@ -80,13 +80,13 @@ class HTTPMessage {
   /**
    * Set/Get destination (vip) address
    */
-  void setDstAddress(const coral::SocketAddress& addr) {
+  void setDstAddress(const folly::SocketAddress& addr) {
     dstAddress_ = addr;
     dstIP_ = addr.getAddressStr();
-    dstPort_ = coral::to<std::string>(addr.getPort());
+    dstPort_ = folly::to<std::string>(addr.getPort());
   }
 
-  const coral::SocketAddress& getDstAddress() const {
+  const folly::SocketAddress& getDstAddress() const {
     return dstAddress_;
   }
 
@@ -113,7 +113,7 @@ class HTTPMessage {
    * Access the method (fpreq)
    */
   void setMethod(HTTPMethod method);
-  void setMethod(coral::StringPiece method);
+  void setMethod(folly::StringPiece method);
   void rawSetMethod(const std::string& method) {
     setMethod(method);
   }
@@ -388,7 +388,7 @@ class HTTPMessage {
   /**
    * Get the query parameter with the specified name after percent decoding.
    *
-   * Returns empty string if parameter is missing or coral::uriUnescape
+   * Returns empty string if parameter is missing or folly::uriUnescape
    * query param
    */
   std::string getDecodedQueryParam(const std::string& name) const;
@@ -432,7 +432,7 @@ class HTTPMessage {
    * Applications should make sure they call unparseCookies() when editing
    * the Cookie Header, so that the StringPiece references are cleared.
    */
-  const coral::StringPiece getCookie(const std::string& name) const;
+  const folly::StringPiece getCookie(const std::string& name) const;
 
   /**
    * Print the message out.
@@ -589,7 +589,7 @@ class HTTPMessage {
       const std::string& input,
       char pairDelim,
       char valueDelim,
-      std::function<void(coral::StringPiece, coral::StringPiece)> callback);
+      std::function<void(folly::StringPiece, folly::StringPiece)> callback);
 
   static void splitNameValue(
       const std::string& input,
@@ -601,11 +601,11 @@ class HTTPMessage {
    * Form the URL from the individual components.
    * url -> {scheme}://{authority}{path}?{query}#{fragment}
    */
-  static std::string createUrl(const coral::StringPiece scheme,
-                               const coral::StringPiece authority,
-                               const coral::StringPiece path,
-                               const coral::StringPiece query,
-                               const coral::StringPiece fragment);
+  static std::string createUrl(const folly::StringPiece scheme,
+                               const folly::StringPiece authority,
+                               const folly::StringPiece path,
+                               const folly::StringPiece query,
+                               const folly::StringPiece fragment);
 
   /**
    * Create a query string from the query parameters map
@@ -629,7 +629,7 @@ class HTTPMessage {
   /**
    * Trims whitespace from the beggining and end of the StringPiece.
    */
-  static coral::StringPiece trim(coral::StringPiece sp);
+  static folly::StringPiece trim(folly::StringPiece sp);
 
   /** The 12 standard fields for HTTP messages. Use accessors.
    * An HTTPMessage is either a Request or Response.
@@ -637,7 +637,7 @@ class HTTPMessage {
    * If an access is then used for the other type, a DCHECK will fail.
    */
   struct Request {
-    coral::SocketAddress clientAddress_;
+    folly::SocketAddress clientAddress_;
     std::string clientIP_;
     std::string clientPort_;
     mutable boost::variant<boost::blank, std::string, HTTPMethod> method_;
@@ -655,7 +655,7 @@ class HTTPMessage {
     std::string statusMsg_;
   };
 
-  coral::SocketAddress dstAddress_;
+  folly::SocketAddress dstAddress_;
   std::string dstIP_;
   std::string dstPort_;
 
@@ -705,7 +705,7 @@ class HTTPMessage {
    * These are mutable since we parse them lazily in getCookie() and
    * getQueryParam()
    */
-  mutable std::map<coral::StringPiece, coral::StringPiece> cookies_;
+  mutable std::map<folly::StringPiece, folly::StringPiece> cookies_;
   // TODO: use StringPiece for queryParams_ and delete splitNameValue()
   mutable std::map<std::string, std::string> queryParams_;
 

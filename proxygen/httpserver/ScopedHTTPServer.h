@@ -10,8 +10,8 @@
 #pragma once
 
 #include <boost/thread.hpp>
-#include <coral/io/async/SSLContext.h>
-#include <coral/ThreadName.h>
+#include <folly/io/async/SSLContext.h>
+#include <folly/ThreadName.h>
 #include <proxygen/httpserver/HTTPServer.h>
 #include <proxygen/httpserver/ResponseBuilder.h>
 
@@ -27,7 +27,7 @@ class ScopedHandler : public RequestHandler {
     request_ = std::move(headers);
   }
 
-  void onBody(std::unique_ptr<coral::IOBuf> body) noexcept override {
+  void onBody(std::unique_ptr<folly::IOBuf> body) noexcept override {
     requestBody_.append(std::move(body));
   }
 
@@ -58,7 +58,7 @@ class ScopedHandler : public RequestHandler {
   HandlerType* const handlerPtr_{nullptr};
 
   std::unique_ptr<HTTPMessage> request_;
-  coral::IOBufQueue requestBody_;
+  folly::IOBufQueue requestBody_;
 };
 
 template <typename HandlerType>
@@ -139,7 +139,7 @@ inline std::unique_ptr<ScopedHTTPServer> ScopedHTTPServer::start(
     std::unique_ptr<wangle::SSLContextConfig> sslCfg) {
 
   std::unique_ptr<RequestHandlerFactory> f =
-      coral::make_unique<ScopedHandlerFactory<HandlerType>>(handler);
+      folly::make_unique<ScopedHandlerFactory<HandlerType>>(handler);
   return start(std::move(f), port, numThreads, std::move(sslCfg));
 }
 
@@ -151,7 +151,7 @@ ScopedHTTPServer::start<std::unique_ptr<RequestHandlerFactory>>(
     int numThreads,
     std::unique_ptr<wangle::SSLContextConfig> sslCfg) {
   // This will handle both IPv4 and IPv6 cases
-  coral::SocketAddress addr;
+  folly::SocketAddress addr;
   addr.setFromLocalPort(port);
 
   HTTPServer::IPConfig cfg {
@@ -170,7 +170,7 @@ ScopedHTTPServer::start<std::unique_ptr<RequestHandlerFactory>>(
 
   options.handlerFactories.push_back(std::move(f));
 
-  auto server = coral::make_unique<HTTPServer>(std::move(options));
+  auto server = folly::make_unique<HTTPServer>(std::move(options));
   server->bind(IPs);
 
   // Start the server
@@ -180,7 +180,7 @@ ScopedHTTPServer::start<std::unique_ptr<RequestHandlerFactory>>(
   std::thread t = std::thread([&, barrier] () {
     server->start(
       [&, barrier] () {
-        coral::setThreadName("http-acceptor");
+        folly::setThreadName("http-acceptor");
         barrier->wait();
       },
       [&, barrier] (std::exception_ptr ex) {

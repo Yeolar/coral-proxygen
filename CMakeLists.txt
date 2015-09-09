@@ -39,8 +39,8 @@ if(APPLE)
 endif()
 
 # Required packages
-find_package(Coral REQUIRED)
-set(PROXYGEN_HAVE_CORAL ${CORAL_FOUND})
+find_package(Folly REQUIRED)
+set(PROXYGEN_HAVE_FOLLY ${FOLLY_FOUND})
 find_package(Wangle REQUIRED)
 set(PROXYGEN_HAVE_WANGLE ${WANGLE_FOUND})
 find_package(Boost REQUIRED COMPONENTS system thread)
@@ -70,7 +70,7 @@ set(CMAKE_CXX_FLAGS "-std=c++11 -fPIC")
 
 # Link libraries
 link_libraries(
-    ${CORAL_LIBRARIES}
+    ${FOLLY_LIBRARIES}
     ${WANGLE_LIBRARIES}
     ${Boost_LIBRARIES}
     ${DOUBLE_CONVERSION_LIBRARY}
@@ -111,6 +111,35 @@ add_custom_target(uninstall
     COMMAND ${CMAKE_COMMAND}
         -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake
 )
+
+
+if(NOT EXISTS ${PROJECT_SOURCE_DIR}/proxygen/lib/http/HTTPCommonHeaders.cpp)
+  message(STATUS "Generate HTTPCommonHeaders.{h,cpp}")
+  set(ENV{HEADERS_LIST}
+      ${PROJECT_SOURCE_DIR}/proxygen/lib/http/HTTPCommonHeaders.txt)
+  set(ENV{FBCODE_DIR} ${PROJECT_SOURCE_DIR})
+  set(ENV{INSTALL_DIR} ${PROJECT_SOURCE_DIR}/proxygen/lib/http)
+
+  execute_process(
+    COMMAND ${PROJECT_SOURCE_DIR}/proxygen/lib/http/gen_HTTPCommonHeaders.h.sh
+    COMMAND ${PROJECT_SOURCE_DIR}/proxygen/lib/http/gen_HTTPCommonHeaders.cpp.sh
+  )
+endif()
+
+
+if(NOT EXISTS ${PROJECT_SOURCE_DIR}/proxygen/lib/utils/TraceEventType.cpp OR
+   NOT EXISTS ${PROJECT_SOURCE_DIR}/proxygen/lib/utils/TraceFieldType.cpp)
+  message(STATUS "Generate TraceEventType.{h,cpp} TraceFieldType.{h,cpp}")
+  execute_process(
+    COMMAND ${PROJECT_SOURCE_DIR}/proxygen/lib/utils/gen_trace_event_constants.py
+            --install_dir=${PROJECT_SOURCE_DIR}/proxygen/lib/utils
+            --input_files=${PROJECT_SOURCE_DIR}/proxygen/lib/utils/TraceEventType.txt,${PROJECT_SOURCE_DIR}/proxygen/lib/utils/TraceFieldType.txt
+            --output_type=cpp
+            --output_scope=proxygen
+            --header_path=proxygen/lib/utils
+  )
+endif()
+
 
 include_directories(${PROJECT_SOURCE_DIR})
 

@@ -9,8 +9,8 @@
  */
 #pragma once
 
-#include <coral/Memory.h>
-#include <coral/dynamic.h>
+#include <folly/Memory.h>
+#include <folly/dynamic.h>
 #include <memory>
 #include <proxygen/lib/http/codec/compress/HPACKHeader.h>
 #include <string>
@@ -29,10 +29,10 @@ class HTTPArchive {
   static std::unique_ptr<HTTPArchive> fromPublicFile(const std::string& fname);
 
   // helper function for extracting a list of headers from a json array
-  static void extractHeaders(coral::dynamic& obj,
+  static void extractHeaders(folly::dynamic& obj,
                              std::vector<HPACKHeader>& msg);
 
-  static void extractHeadersFromPublic(coral::dynamic& obj,
+  static void extractHeadersFromPublic(folly::dynamic& obj,
                                        std::vector<HPACKHeader>& msg);
 
   static uint32_t getSize(const std::vector<HPACKHeader>& headers);

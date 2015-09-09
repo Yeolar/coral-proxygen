@@ -8,9 +8,9 @@
  *
  */
 #include <gflags/gflags.h>
-#include <coral/Memory.h>
-#include <coral/Portability.h>
-#include <coral/io/async/EventBaseManager.h>
+#include <folly/Memory.h>
+#include <folly/Portability.h>
+#include <folly/io/async/EventBaseManager.h>
 #include <proxygen/httpserver/HTTPServer.h>
 #include <proxygen/httpserver/RequestHandlerFactory.h>
 #include <unistd.h>
@@ -21,9 +21,9 @@
 using namespace EchoService;
 using namespace proxygen;
 
-using coral::EventBase;
-using coral::EventBaseManager;
-using coral::SocketAddress;
+using folly::EventBase;
+using folly::EventBaseManager;
+using folly::SocketAddress;
 
 using Protocol = HTTPServer::Protocol;
 
@@ -48,7 +48,7 @@ class EchoHandlerFactory : public RequestHandlerFactory {
   }
 
  private:
-  coral::ThreadLocalPtr<EchoStats> stats_;
+  folly::ThreadLocalPtr<EchoStats> stats_;
 };
 
 int main(int argc, char* argv[]) {

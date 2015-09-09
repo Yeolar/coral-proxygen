@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include <coral/Memory.h>
+#include <folly/Memory.h>
 
 #include <proxygen/httpserver/Filters.h>
 #include <proxygen/httpserver/RequestHandlerFactory.h>
@@ -56,7 +56,7 @@ class ZlibServerFilter : public Filter {
       Filter::sendHeaders(msg);
       header_ = true;
     } else {
-      responseMessage_ = coral::make_unique<HTTPMessage>(msg);
+      responseMessage_ = folly::make_unique<HTTPMessage>(msg);
     }
   }
 
@@ -75,7 +75,7 @@ class ZlibServerFilter : public Filter {
   }
 
   // Compress the body, if chunked may be called multiple times
-  void sendBody(std::unique_ptr<coral::IOBuf> body) noexcept override {
+  void sendBody(std::unique_ptr<folly::IOBuf> body) noexcept override {
     // If not compressing, pass the body through
     if (!compress_) {
       DCHECK(header_ == true);
@@ -85,7 +85,7 @@ class ZlibServerFilter : public Filter {
 
     //First time through the compressor
     if (compressor_ == nullptr) {
-      compressor_ = coral::make_unique<ZlibStreamCompressor>(
+      compressor_ = folly::make_unique<ZlibStreamCompressor>(
           proxygen::ZlibCompressionType::GZIP, compressionLevel_);
 
       if (!compressor_ || compressor_->hasError()) {
@@ -111,7 +111,7 @@ class ZlibServerFilter : public Filter {
       DCHECK(compress_ == true);
       auto& headers = responseMessage_->getHeaders();
       headers.set(HTTP_HEADER_CONTENT_LENGTH,
-          coral::to<std::string>(compressedBodyLength));
+          folly::to<std::string>(compressedBodyLength));
 
       Filter::sendHeaders(*responseMessage_);
       header_  = true;
@@ -125,7 +125,7 @@ class ZlibServerFilter : public Filter {
     // Need to send the gzip trailer for compressed chunked messages
     if (compress_ && chunked_) {
 
-      auto emptyBuffer = coral::IOBuf::copyBuffer("");
+      auto emptyBuffer = folly::IOBuf::copyBuffer("");
       auto compressed = compressor_->compress(emptyBuffer.get(), true);
 
       if (compressor_->hasError()) {
@@ -154,7 +154,7 @@ class ZlibServerFilter : public Filter {
 
     uint32_t contentLength = 0;
     if (!contentLengthHeader.empty()) {
-      contentLength = coral::to<uint32_t>(contentLengthHeader);
+      contentLength = folly::to<uint32_t>(contentLengthHeader);
     }
 
     return contentLength > minimumCompressionSize_;
@@ -166,7 +166,7 @@ class ZlibServerFilter : public Filter {
     auto responseContentType =
         msg.getHeaders().getSingleOrEmpty(HTTP_HEADER_CONTENT_TYPE);
 
-    coral::toLowerAscii((char *)responseContentType.data(),
+    folly::toLowerAscii((char *)responseContentType.data(),
         responseContentType.size());
 
     // Handle  text/html; encoding=utf-8 case
@@ -240,7 +240,7 @@ class ZlibServerFilterFactory : public RequestHandlerFactory {
     if (RFC2616::parseQvalues(acceptEncodingHeader, output)) {
       std::vector<RFC2616::TokenQPair>::iterator it = std::find_if(
           output.begin(), output.end(), [](RFC2616::TokenQPair elem) {
-            return elem.first.compare(coral::StringPiece("gzip")) == 0;
+            return elem.first.compare(folly::StringPiece("gzip")) == 0;
           });
 
       return (it != output.end());

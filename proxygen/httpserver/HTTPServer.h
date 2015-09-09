@@ -10,8 +10,8 @@
 #pragma once
 
 #include <wangle/ssl/SSLContextConfig.h>
-#include <coral/io/async/AsyncServerSocket.h>
-#include <coral/io/async/EventBase.h>
+#include <folly/io/async/AsyncServerSocket.h>
+#include <folly/io/async/EventBase.h>
 #include <wangle/bootstrap/ServerBootstrap.h>
 #include <proxygen/httpserver/HTTPServerOptions.h>
 #include <thread>
@@ -36,12 +36,12 @@ class HTTPServer final {
   };
 
   struct IPConfig {
-    IPConfig(coral::SocketAddress a,
+    IPConfig(folly::SocketAddress a,
              Protocol p)
         : address(a),
           protocol(p) {}
 
-    coral::SocketAddress address;
+    folly::SocketAddress address;
     Protocol protocol;
     std::vector<wangle::SSLContextConfig> sslConfigs;
   };
@@ -105,7 +105,7 @@ class HTTPServer final {
   /**
    * Event base in which we binded server sockets.
    */
-  coral::EventBase* mainEventBase_{nullptr};
+  folly::EventBase* mainEventBase_{nullptr};
 
   /**
    * Optional signal handlers on which we should shutdown server

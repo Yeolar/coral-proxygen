@@ -7,7 +7,7 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  *
  */
-#include <coral/io/Cursor.h>
+#include <folly/io/Cursor.h>
 #include <proxygen/lib/http/codec/experimental/HTTP2Codec.h>
 #include <proxygen/lib/http/codec/experimental/test/HTTP2FramerTest.h>
 #include <proxygen/lib/http/HTTPHeaderSize.h>
@@ -19,8 +19,8 @@
 #include <random>
 
 using namespace proxygen;
-using namespace coral;
-using namespace coral::io;
+using namespace folly;
+using namespace folly::io;
 using namespace std;
 
 class HTTP2CodecTest : public testing::Test {
@@ -74,7 +74,7 @@ class HTTP2CodecTest : public testing::Test {
       return;
     }
     auto endpoint = isUpstream ? "client" : "server";
-    auto filename = coral::to<std::string>(
+    auto filename = folly::to<std::string>(
         "/tmp/http2_", endpoint, "_", testInfo_->name(), ".bin");
     dumpBinToFile(filename, output_.front());
   }
@@ -558,7 +558,7 @@ TEST_F(HTTP2CodecTest, JunkAfterConnError) {
 
 TEST_F(HTTP2CodecTest, BasicData) {
   string data("abcde");
-  auto buf = coral::IOBuf::copyBuffer(data.data(), data.length());
+  auto buf = folly::IOBuf::copyBuffer(data.data(), data.length());
   upstreamCodec_.generateBody(output_, 2, std::move(buf),
                               HTTPCodec::NoPadding, true);
 
@@ -610,7 +610,7 @@ TEST_F(HTTP2CodecTest, BasicPing) {
 
   uint64_t pingReq;
   parse([&] (IOBuf* ingress) {
-      coral::io::Cursor c(ingress);
+      folly::io::Cursor c(ingress);
       c.skip(http2::kFrameHeaderSize + http2::kConnectionPreface.length());
       pingReq = c.read<uint64_t>();
     });
@@ -750,7 +750,7 @@ TEST_F(HTTP2CodecTest, BadPushSettings) {
 
   parseUpstream([&] (IOBuf* ingress) {
       // set ENABLE_PUSH to 1
-      coral::io::RWPrivateCursor c(ingress);
+      folly::io::RWPrivateCursor c(ingress);
       c.skip(http2::kFrameHeaderSize + sizeof(uint16_t));
       c.writeBE<uint32_t>(1);
     });
@@ -876,7 +876,7 @@ TEST_F(HTTP2CodecTest, BadServerPreface) {
  * frame with optionally malformed length
  */
 void generateHeaderChrome(HPACKCodec09& headerCodec,
-                          coral::IOBufQueue& writeBuf,
+                          folly::IOBufQueue& writeBuf,
                           HTTPCodec::StreamID stream,
                           const HTTPMessage& msg,
                           HTTPCodec::StreamID assocStream,

@@ -9,16 +9,16 @@
  */
 #pragma once
 
-#include <coral/Range.h>
+#include <folly/Range.h>
 
 namespace proxygen {
 
 // Case-insensitive string comparison
-inline bool caseInsensitiveEqual(coral::StringPiece s, coral::StringPiece t) {
+inline bool caseInsensitiveEqual(folly::StringPiece s, folly::StringPiece t) {
   if (s.size() != t.size()) {
     return false;
   }
-  return std::equal(s.begin(), s.end(), t.begin(), coral::asciiCaseInsensitive);
+  return std::equal(s.begin(), s.end(), t.begin(), folly::asciiCaseInsensitive);
 }
 
 }

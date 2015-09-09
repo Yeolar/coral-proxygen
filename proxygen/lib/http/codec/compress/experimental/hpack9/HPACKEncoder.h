@@ -23,7 +23,7 @@ class HPACKEncoder09 : public HPACKEncoder {
                           uint32_t tableSize = HPACK::kTableSize)
       : HPACKEncoder(huffman::huffTree09(), huffman, tableSize) {}
 
-  std::unique_ptr<coral::IOBuf> encode(const std::vector<HPACKHeader>& headers,
+  std::unique_ptr<folly::IOBuf> encode(const std::vector<HPACKHeader>& headers,
                                        uint32_t headroom = 0) override;
 
  protected:

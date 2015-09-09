@@ -29,7 +29,7 @@ class HTTP1xCodecCallback : public HTTPCodec::Callback {
     headerSize = msg->getIngressHeaderSize();
   }
   void onBody(HTTPCodec::StreamID stream,
-              std::unique_ptr<coral::IOBuf> chain,
+              std::unique_ptr<folly::IOBuf> chain,
               uint16_t padding) override {}
   void onChunkHeader(HTTPCodec::StreamID stream, size_t length) override {}
   void onChunkComplete(HTTPCodec::StreamID stream) override {}
@@ -46,9 +46,9 @@ class HTTP1xCodecCallback : public HTTPCodec::Callback {
   HTTPHeaderSize headerSize;
 };
 
-unique_ptr<coral::IOBuf> getSimpleRequestData() {
+unique_ptr<folly::IOBuf> getSimpleRequestData() {
   string req("GET /yeah HTTP/1.1\nHost: www.facebook.com\n\n");
-  auto buffer = coral::IOBuf::copyBuffer(req);
+  auto buffer = folly::IOBuf::copyBuffer(req);
   return std::move(buffer);
 }
 
@@ -70,7 +70,7 @@ TEST(HTTP1xCodecTest, TestHeadRequestChunkedResponse) {
   auto txnID = codec.createStream();
 
   // Generate a HEAD request
-  auto reqBuf = coral::IOBuf::copyBuffer(
+  auto reqBuf = folly::IOBuf::copyBuffer(
       "HEAD /www.facebook.com HTTP/1.1\nHost: www.facebook.com\n\n");
   codec.onIngress(*reqBuf);
   EXPECT_EQ(callbacks.headersComplete, 1);
@@ -81,7 +81,7 @@ TEST(HTTP1xCodecTest, TestHeadRequestChunkedResponse) {
   resp.setStatusCode(200);
   resp.setIsChunked(true);
   resp.getHeaders().set(HTTP_HEADER_TRANSFER_ENCODING, "chunked");
-  coral::IOBufQueue respBuf(coral::IOBufQueue::cacheChainLength());
+  folly::IOBufQueue respBuf(folly::IOBufQueue::cacheChainLength());
   codec.generateHeader(respBuf, txnID, resp, 0, true);
   auto respStr = respBuf.move()->moveToFbString();
   EXPECT_TRUE(respStr.find("0\r\n") == string::npos);
@@ -94,7 +94,7 @@ TEST(HTTP1xCodecTest, TestGetRequestChunkedResponse) {
   auto txnID = codec.createStream();
 
   // Generate a GET request
-  auto reqBuf = coral::IOBuf::copyBuffer(
+  auto reqBuf = folly::IOBuf::copyBuffer(
       "GET /www.facebook.com HTTP/1.1\nHost: www.facebook.com\n\n");
   codec.onIngress(*reqBuf);
   EXPECT_EQ(callbacks.headersComplete, 1);
@@ -105,16 +105,16 @@ TEST(HTTP1xCodecTest, TestGetRequestChunkedResponse) {
   resp.setStatusCode(200);
   resp.setIsChunked(true);
   resp.getHeaders().set(HTTP_HEADER_TRANSFER_ENCODING, "chunked");
-  coral::IOBufQueue respBuf(coral::IOBufQueue::cacheChainLength());
+  folly::IOBufQueue respBuf(folly::IOBufQueue::cacheChainLength());
   codec.generateHeader(respBuf, txnID, resp, 0, false);
 
   auto headerFromBuf = respBuf.split(respBuf.chainLength());
 
   string resp1("Hello");
-  auto body1 = coral::IOBuf::copyBuffer(resp1);
+  auto body1 = folly::IOBuf::copyBuffer(resp1);
 
   string resp2("");
-  auto body2 = coral::IOBuf::copyBuffer(resp2);
+  auto body2 = folly::IOBuf::copyBuffer(resp2);
 
   codec.generateBody(respBuf, txnID, std::move(body1), HTTPCodec::NoPadding,
                      false);
@@ -129,15 +129,15 @@ TEST(HTTP1xCodecTest, TestGetRequestChunkedResponse) {
   ASSERT_EQ("0\r\n\r\n", bodyFromBuf->moveToFbString());
 }
 
-unique_ptr<coral::IOBuf> getChunkedRequest1st() {
+unique_ptr<folly::IOBuf> getChunkedRequest1st() {
   string req("GET /aha HTTP/1.1\n");
-  auto buffer = coral::IOBuf::copyBuffer(req);
+  auto buffer = folly::IOBuf::copyBuffer(req);
   return std::move(buffer);
 }
 
-unique_ptr<coral::IOBuf> getChunkedRequest2nd() {
+unique_ptr<folly::IOBuf> getChunkedRequest2nd() {
   string req("Host: m.facebook.com\nAccept-Encoding: meflate\n\n");
-  auto buffer = coral::IOBuf::copyBuffer(req);
+  auto buffer = folly::IOBuf::copyBuffer(req);
   return std::move(buffer);
 }
 
@@ -174,15 +174,15 @@ TEST(HTTP1xCodecTest, TestChunkedUpstream) {
 
   HTTPHeaderSize size;
 
-  coral::IOBufQueue buf(coral::IOBufQueue::cacheChainLength());
+  folly::IOBufQueue buf(folly::IOBufQueue::cacheChainLength());
   codec.generateHeader(buf, txnID, msg, 0, false, &size);
   auto headerFromBuf = buf.split(buf.chainLength());
 
   string req1("Hello");
-  auto body1 = coral::IOBuf::copyBuffer(req1);
+  auto body1 = folly::IOBuf::copyBuffer(req1);
 
   string req2("World");
-  auto body2 = coral::IOBuf::copyBuffer(req2);
+  auto body2 = folly::IOBuf::copyBuffer(req2);
 
   codec.generateBody(buf, txnID, std::move(body1), HTTPCodec::NoPadding,
                      false);

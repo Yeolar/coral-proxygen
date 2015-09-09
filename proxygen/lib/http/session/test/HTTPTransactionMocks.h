@@ -30,11 +30,11 @@ class MockHTTPTransactionTransport: public HTTPTransaction::Transport {
                                                  const HTTPMessage&,
                                                  HTTPHeaderSize*));
   GMOCK_METHOD3_(, noexcept,, sendBody,
-                 size_t(HTTPTransaction*, std::shared_ptr<coral::IOBuf>, bool));
+                 size_t(HTTPTransaction*, std::shared_ptr<folly::IOBuf>, bool));
 
-  size_t sendBody(HTTPTransaction* txn, std::unique_ptr<coral::IOBuf> iob,
+  size_t sendBody(HTTPTransaction* txn, std::unique_ptr<folly::IOBuf> iob,
                   bool eom) noexcept override {
-    return sendBody(txn, std::shared_ptr<coral::IOBuf>(iob.release()), eom);
+    return sendBody(txn, std::shared_ptr<folly::IOBuf>(iob.release()), eom);
   }
 
   GMOCK_METHOD2_(, noexcept,, sendChunkHeader, size_t(HTTPTransaction*,
@@ -52,19 +52,19 @@ class MockHTTPTransactionTransport: public HTTPTransaction::Transport {
   GMOCK_METHOD1_(, noexcept,, notifyIngressBodyProcessed, void(uint32_t));
   GMOCK_METHOD1_(, noexcept,, notifyEgressBodyBuffered, void(int64_t));
   GMOCK_METHOD0_(, noexcept,, getLocalAddressNonConst,
-                 const coral::SocketAddress&());
+                 const folly::SocketAddress&());
   GMOCK_METHOD3_(, noexcept,, newPushedTransaction,
                  HTTPTransaction*(HTTPCodec::StreamID assocStreamId,
                                   HTTPTransaction::PushHandler* handler,
                                   int8_t));
-  const coral::SocketAddress& getLocalAddress()
+  const folly::SocketAddress& getLocalAddress()
     const noexcept override {
     return const_cast<MockHTTPTransactionTransport*>(this)
       ->getLocalAddressNonConst();
   }
   GMOCK_METHOD0_(, noexcept,, getPeerAddressNonConst,
-                 const coral::SocketAddress&());
-  const coral::SocketAddress& getPeerAddress()
+                 const folly::SocketAddress&());
+  const folly::SocketAddress& getPeerAddress()
     const noexcept override {
     return const_cast<MockHTTPTransactionTransport*>(this)
       ->getPeerAddressNonConst();
@@ -117,9 +117,9 @@ class MockHTTPTransaction : public HTTPTransaction {
   MOCK_CONST_METHOD0(extraResponseExpected, bool());
 
   MOCK_METHOD1(sendHeaders, void(const HTTPMessage& headers));
-  MOCK_METHOD1(sendBody, void(std::shared_ptr<coral::IOBuf>));
-  void sendBody(std::unique_ptr<coral::IOBuf> iob) noexcept override {
-    sendBody(std::shared_ptr<coral::IOBuf>(iob.release()));
+  MOCK_METHOD1(sendBody, void(std::shared_ptr<folly::IOBuf>));
+  void sendBody(std::unique_ptr<folly::IOBuf> iob) noexcept override {
+    sendBody(std::shared_ptr<folly::IOBuf>(iob.release()));
   }
   MOCK_METHOD1(sendChunkHeader, void(size_t));
   MOCK_METHOD0(sendChunkTerminator, void());
@@ -141,7 +141,7 @@ class MockHTTPTransaction : public HTTPTransaction {
   }
 
   testing::NiceMock<MockHTTPTransactionTransport> mockTransport_;
-  const coral::SocketAddress defaultAddress_;
+  const folly::SocketAddress defaultAddress_;
   MockHTTPCodec mockCodec_;
   wangle::TransportInfo setupTransportInfo_;
 };

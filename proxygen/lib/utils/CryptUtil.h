@@ -9,14 +9,14 @@
  */
 #pragma once
 
-#include <coral/Range.h>
+#include <folly/Range.h>
 #include <string>
 
 namespace proxygen {
 
 // Base64 encode using openssl, may return empty string on allocation failure
-std::string base64Encode(coral::ByteRange text);
+std::string base64Encode(folly::ByteRange text);
 
 // MD5 encode using openssl
-std::string md5Encode(coral::ByteRange text);
+std::string md5Encode(folly::ByteRange text);
 }

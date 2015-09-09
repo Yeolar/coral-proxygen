@@ -10,7 +10,7 @@
 #include <proxygen/lib/http/session/HTTPSession.h>
 
 #include <chrono>
-#include <coral/Conv.h>
+#include <folly/Conv.h>
 #include <wangle/acceptor/ConnectionManager.h>
 #include <wangle/acceptor/SocketOptions.h>
 #include <openssl/err.h>
@@ -18,16 +18,16 @@
 #include <proxygen/lib/http/codec/HTTPChecks.h>
 #include <proxygen/lib/http/session/HTTPSessionController.h>
 #include <proxygen/lib/http/session/HTTPSessionStats.h>
-#include <coral/io/async/AsyncSSLSocket.h>
+#include <folly/io/async/AsyncSSLSocket.h>
 
-using coral::AsyncSSLSocket;
-using coral::AsyncSocket;
-using coral::AsyncTransportWrapper;
-using coral::AsyncTransport;
-using coral::WriteFlags;
-using coral::AsyncSocketException;
-using coral::IOBuf;
-using coral::SocketAddress;
+using folly::AsyncSSLSocket;
+using folly::AsyncSocket;
+using folly::AsyncTransportWrapper;
+using folly::AsyncTransport;
+using folly::WriteFlags;
+using folly::AsyncSocketException;
+using folly::IOBuf;
+using folly::SocketAddress;
 using wangle::TransportInfo;
 using std::pair;
 using std::set;
@@ -611,7 +611,7 @@ HTTPSession::onMessageBeginImpl(HTTPCodec::StreamID streamID,
     VLOG(1) << "Failed to add pushed transaction " << streamID << " on "
             << *this;
     HTTPException ex(HTTPException::Direction::INGRESS_AND_EGRESS,
-      coral::to<std::string>("Failed to add pushed transaction ", streamID));
+      folly::to<std::string>("Failed to add pushed transaction ", streamID));
     ex.setCodecStatusCode(ErrorCode::REFUSED_STREAM);
     onError(streamID, ex, true);
     return nullptr;
@@ -883,7 +883,7 @@ void HTTPSession::onAbort(HTTPCodec::StreamID streamID,
     return;
   }
   HTTPException ex(HTTPException::Direction::INGRESS_AND_EGRESS,
-    coral::to<std::string>("Stream aborted, streamID=",
+    folly::to<std::string>("Stream aborted, streamID=",
       streamID, ", code=", getErrorCodeString(code)));
   ex.setProxygenError(kErrorStreamAbort);
   ex.setCodecStatusCode(code);
@@ -939,7 +939,7 @@ void HTTPSession::onGoaway(uint64_t lastGoodStreamID,
     // get a normal unacknowledged stream error.
     ProxygenError err = kErrorStreamUnacknowledged;
     HTTPException ex(HTTPException::Direction::INGRESS_AND_EGRESS,
-      coral::to<std::string>(getErrorString(err),
+      folly::to<std::string>(getErrorString(err),
         " on transaction id: ", firstStream,
         " with codec error: ", getErrorCodeString(code)));
     ex.setProxygenError(err);
@@ -957,7 +957,7 @@ void HTTPSession::onPingRequest(uint64_t uniqueID) {
   TimePoint timestamp = getCurrentTime();
 
   // Insert the ping reply to the head of writeBuf_
-  coral::IOBufQueue pingBuf(coral::IOBufQueue::cacheChainLength());
+  folly::IOBufQueue pingBuf(folly::IOBufQueue::cacheChainLength());
   codec_->generatePingReply(pingBuf, uniqueID);
   size_t pingSize = pingBuf.chainLength();
   pingBuf.append(writeBuf_.move());
@@ -1118,7 +1118,7 @@ void HTTPSession::sendHeaders(HTTPTransaction* txn,
 
 size_t
 HTTPSession::sendBody(HTTPTransaction* txn,
-                      std::unique_ptr<coral::IOBuf> body,
+                      std::unique_ptr<folly::IOBuf> body,
                       bool includeEOM) noexcept {
   uint64_t offset = sessionByteOffset();
   size_t bodyLen = body ? body->computeChainDataLength(): 0;
@@ -1511,7 +1511,7 @@ HTTPSession::runLoopCallback() noexcept {
   //   * Reads have become unpaused (see resumeReads())
   DestructorGuard dg(this);
   inLoopCallback_ = true;
-  coral::ScopeGuard scopeg = coral::makeGuard([this] {
+  folly::ScopeGuard scopeg = folly::makeGuard([this] {
       inLoopCallback_ = false;
       // This ScopeGuard needs to be under the above DestructorGuard
       if (pendingWriteSizeDelta_) {
@@ -1711,7 +1711,7 @@ HTTPSession::shutdownTransport(bool shutdownReads,
       (notifyIngressShutdown ? HTTPException::Direction::INGRESS :
          HTTPException::Direction::EGRESS);
     HTTPException ex(dir,
-      coral::to<std::string>("Shutdown transport: ", getErrorString(error)));
+      folly::to<std::string>("Shutdown transport: ", getErrorString(error)));
     ex.setProxygenError(error);
     invokeOnAllTransactions(&HTTPTransaction::onError, ex);
   }
@@ -2107,12 +2107,12 @@ void HTTPSession::errorOnTransactionIds(
   const std::string& errorMsg) {
   std::string extraErrorMsg;
   if (!errorMsg.empty()) {
-    extraErrorMsg = coral::to<std::string>(". ", errorMsg);
+    extraErrorMsg = folly::to<std::string>(". ", errorMsg);
   }
 
   for (auto id: ids) {
     HTTPException ex(HTTPException::Direction::INGRESS_AND_EGRESS,
-      coral::to<std::string>(getErrorString(err),
+      folly::to<std::string>(getErrorString(err),
         " on transaction id: ", id,
         extraErrorMsg));
     ex.setProxygenError(err);
@@ -2158,7 +2158,7 @@ void HTTPSession::invalidStream(HTTPCodec::StreamID stream, ErrorCode code) {
   }
 
   HTTPException err(HTTPException::Direction::INGRESS_AND_EGRESS,
-                    coral::to<std::string>("invalid stream=", stream));
+                    folly::to<std::string>("invalid stream=", stream));
   // TODO: Below line will change for HTTP/2 -- just call a const getter
   // function for the status code.
   err.setCodecStatusCode(code);

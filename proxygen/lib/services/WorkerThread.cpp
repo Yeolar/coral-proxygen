@@ -9,8 +9,8 @@
  */
 #include <proxygen/lib/services/WorkerThread.h>
 
-#include <coral/String.h>
-#include <coral/io/async/EventBaseManager.h>
+#include <folly/String.h>
+#include <folly/io/async/EventBaseManager.h>
 #include <glog/logging.h>
 #include <signal.h>
 
@@ -20,9 +20,9 @@ __thread WorkerThread* WorkerThread::currentWorker_ = nullptr;
 
 std::atomic_uint WorkerThread::objectCounter_;
 
-WorkerThread::WorkerThread(coral::EventBaseManager* eventBaseManager)
+WorkerThread::WorkerThread(folly::EventBaseManager* eventBaseManager)
     : eventBaseManager_(eventBaseManager) {
-  //eventBase_.setName(coral::to<std::string>("WorkerThread",
+  //eventBase_.setName(folly::to<std::string>("WorkerThread",
   //                                          objectCounter_.fetch_add(1)));
 }
 

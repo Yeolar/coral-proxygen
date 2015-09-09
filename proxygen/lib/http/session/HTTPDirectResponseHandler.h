@@ -28,7 +28,7 @@ public:
   void setTransaction(HTTPTransaction* txn) noexcept override;
   void detachTransaction() noexcept override;
   void onHeadersComplete(std::unique_ptr<HTTPMessage> msg) noexcept override;
-  void onBody(std::unique_ptr<coral::IOBuf> chain) noexcept override;
+  void onBody(std::unique_ptr<folly::IOBuf> chain) noexcept override;
   void onTrailers(std::unique_ptr<HTTPHeaders> trailers) noexcept override;
   void onEOM() noexcept override;
   void onUpgrade(UpgradeProtocol protocol) noexcept override;

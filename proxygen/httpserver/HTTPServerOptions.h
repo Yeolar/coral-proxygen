@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include <coral/SocketAddress.h>
+#include <folly/SocketAddress.h>
 #include <proxygen/httpserver/Filters.h>
 #include <proxygen/httpserver/RequestHandlerFactory.h>
 #include <signal.h>

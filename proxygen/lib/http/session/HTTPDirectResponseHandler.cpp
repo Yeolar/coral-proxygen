@@ -9,10 +9,10 @@
  */
 #include <proxygen/lib/http/session/HTTPDirectResponseHandler.h>
 
-#include <coral/Conv.h>
+#include <folly/Conv.h>
 #include <proxygen/lib/http/session/HTTPErrorPage.h>
 
-using coral::IOBuf;
+using folly::IOBuf;
 using std::string;
 using std::unique_ptr;
 
@@ -49,7 +49,7 @@ HTTPDirectResponseHandler::onHeadersComplete(
   VLOG(4) << "processing request";
   headersSent_ = true;
   HTTPMessage response;
-  std::unique_ptr<coral::IOBuf> responseBody;
+  std::unique_ptr<folly::IOBuf> responseBody;
   response.setHTTPVersion(1, 1);
   response.setStatusCode(statusCode_);
   if (!statusMessage_.empty()) {
@@ -67,7 +67,7 @@ HTTPDirectResponseHandler::onHeadersComplete(
     response.getHeaders().add(HTTP_HEADER_CONTENT_TYPE, page.contentType);
     responseBody = std::move(page.content);
   }
-  response.getHeaders().add(HTTP_HEADER_CONTENT_LENGTH, coral::to<string>(
+  response.getHeaders().add(HTTP_HEADER_CONTENT_LENGTH, folly::to<string>(
     responseBody ? responseBody->computeChainDataLength() : 0));
   txn_->sendHeaders(response);
   if (responseBody) {

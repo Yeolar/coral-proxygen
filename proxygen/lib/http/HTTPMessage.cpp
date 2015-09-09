@@ -11,15 +11,15 @@
 
 #include <array>
 #include <boost/algorithm/string.hpp>
-#include <coral/Format.h>
-#include <coral/Range.h>
+#include <folly/Format.h>
+#include <folly/Range.h>
 #include <string>
 #include <utility>
 #include <vector>
 
-using coral::IOBuf;
-using coral::Optional;
-using coral::StringPiece;
+using folly::IOBuf;
+using folly::Optional;
+using folly::StringPiece;
 using std::pair;
 using std::string;
 using std::unique_ptr;
@@ -147,7 +147,7 @@ void HTTPMessage::setMethod(HTTPMethod method) {
   req.method_ = method;
 }
 
-void HTTPMessage::setMethod(coral::StringPiece method) {
+void HTTPMessage::setMethod(folly::StringPiece method) {
   VLOG(9) << "setMethod: " << method;
   Request& req = request();
   boost::optional<HTTPMethod> result = stringToMethod(method);
@@ -185,7 +185,7 @@ const std::string& HTTPMessage::getMethodString() const {
 void HTTPMessage::setHTTPVersion(uint8_t maj, uint8_t min) {
   version_.first = maj;
   version_.second = min;
-  versionStr_ = coral::to<string>(maj, ".", min);
+  versionStr_ = folly::to<string>(maj, ".", min);
 }
 
 const pair<uint8_t, uint8_t>& HTTPMessage::getHTTPVersion() const {
@@ -198,7 +198,7 @@ int HTTPMessage::processMaxForwards() {
     if (value.length() > 0) {
       int64_t max_forwards = 0;
       try {
-        max_forwards = coral::to<int64_t>(value);
+        max_forwards = folly::to<int64_t>(value);
       } catch (const std::range_error& ex) {
         return 400;
       }
@@ -209,7 +209,7 @@ int HTTPMessage::processMaxForwards() {
         return 501;
       } else {
         headers_.set(HTTP_HEADER_MAX_FORWARDS,
-                     coral::to<string>(max_forwards - 1));
+                     folly::to<string>(max_forwards - 1));
       }
     }
   }
@@ -246,7 +246,7 @@ void HTTPMessage::ensureHostHeader() {
 
 void HTTPMessage::setStatusCode(uint16_t status) {
   response().status_ = status;
-  response().statusStr_ = coral::to<string>(status);
+  response().statusStr_ = folly::to<string>(status);
 }
 
 uint16_t HTTPMessage::getStatusCode() const {
@@ -255,7 +255,7 @@ uint16_t HTTPMessage::getStatusCode() const {
 
 void HTTPMessage::setPushStatusCode(uint16_t status) {
   request().pushStatus_ = status;
-  request().pushStatusStr_ = coral::to<string>(status);
+  request().pushStatusStr_ = folly::to<string>(status);
 }
 
 const std::string& HTTPMessage::getPushStatusStr() const{
@@ -281,7 +281,7 @@ HTTPMessage::constructDirectResponse(const pair<uint8_t,uint8_t>& version,
                                      int contentLength) {
   setHTTPVersion(version.first, version.second);
 
-  headers_.set(HTTP_HEADER_CONTENT_LENGTH, coral::to<string>(contentLength));
+  headers_.set(HTTP_HEADER_CONTENT_LENGTH, folly::to<string>(contentLength));
 
   if (!headers_.exists(HTTP_HEADER_CONTENT_TYPE)) {
     headers_.add(HTTP_HEADER_CONTENT_TYPE, "text/plain");
@@ -376,7 +376,7 @@ const string& HTTPMessage::getQueryParam(const string& name) const {
 }
 
 int HTTPMessage::getIntQueryParam(const std::string& name) const {
-  return coral::to<int>(getQueryParam(name));
+  return folly::to<int>(getQueryParam(name));
 }
 
 int HTTPMessage::getIntQueryParam(const std::string& name, int defval) const {
@@ -393,9 +393,9 @@ std::string HTTPMessage::getDecodedQueryParam(const std::string& name) const {
 
   std::string result;
   try {
-    coral::uriUnescape(val, result, coral::UriEscapeMode::QUERY);
+    folly::uriUnescape(val, result, folly::UriEscapeMode::QUERY);
   } catch (const std::exception& ex) {
-    LOG(WARNING) << "Invalid escaped query param: " << coral::exceptionStr(ex);
+    LOG(WARNING) << "Invalid escaped query param: " << folly::exceptionStr(ex);
   }
   return result;
 }
@@ -467,23 +467,23 @@ std::string HTTPMessage::createQueryString(
   return query;
 }
 
-std::string HTTPMessage::createUrl(const coral::StringPiece scheme,
-                                   const coral::StringPiece authority,
-                                   const coral::StringPiece path,
-                                   const coral::StringPiece query,
-                                   const coral::StringPiece fragment) {
+std::string HTTPMessage::createUrl(const folly::StringPiece scheme,
+                                   const folly::StringPiece authority,
+                                   const folly::StringPiece path,
+                                   const folly::StringPiece query,
+                                   const folly::StringPiece fragment) {
   std::string url;
   url.reserve(scheme.size() + authority.size() + path.size() + query.size() +
                  fragment.size() + 5); // 5 chars for ://,? and #
   if (!scheme.empty()) {
-    coral::toAppend(scheme.str(), "://", &url);
+    folly::toAppend(scheme.str(), "://", &url);
   }
-  coral::toAppend(authority, path, &url);
+  folly::toAppend(authority, path, &url);
   if (!query.empty()) {
-    coral::toAppend('?', query, &url);
+    folly::toAppend('?', query, &url);
   }
   if (!fragment.empty()) {
-    coral::toAppend('#', fragment, &url);
+    folly::toAppend('#', fragment, &url);
   }
   url.shrink_to_fit();
   return url;
@@ -540,10 +540,10 @@ void HTTPMessage::splitNameValue(
         char valueDelim,
         std::function<void(string&&, string&&)> callback) {
 
-  coral::StringPiece sp(input);
+  folly::StringPiece sp(input);
   while (!sp.empty()) {
     size_t pairDelimPos = sp.find(pairDelim);
-    coral::StringPiece keyValue;
+    folly::StringPiece keyValue;
 
     if (pairDelimPos == string::npos) {
       keyValue = sp;
@@ -660,14 +660,14 @@ void HTTPMessage::dumpMessageToSink(google::LogSink* logSink) const {
   for (auto field : fields) {
     if (!field.second->empty()) {
       LOG_TO_SINK(logSink, INFO) << " " << field.first
-                                 << ":" << coral::backslashify(*field.second);
+                                 << ":" << folly::backslashify(*field.second);
     }
   }
 
   LOG_TO_SINK(logSink, INFO) << "Headers for message: ";
   headers_.forEach([&logSink] (const string& h, const string& v) {
-    LOG_TO_SINK(logSink, INFO) << " " << coral::backslashify(h)
-                               << ": " << coral::backslashify(v);
+    LOG_TO_SINK(logSink, INFO) << " " << folly::backslashify(h)
+                               << ": " << folly::backslashify(v);
   });
 }
 

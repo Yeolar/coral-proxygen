@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include <coral/Range.h>
+#include <folly/Range.h>
 #include <proxygen/lib/http/HTTPMethod.h>
 #include <string>
 
@@ -65,8 +65,8 @@ bool bodyImplied(const HTTPHeaders& headers);
  * Return true if the string was well formed according to the RFC.  Note it can
  * return false but still populate output with best-effort parsing.
  */
-typedef std::pair<coral::StringPiece, double> TokenQPair;
+typedef std::pair<folly::StringPiece, double> TokenQPair;
 
-bool parseQvalues(coral::StringPiece value, std::vector<TokenQPair> &output);
+bool parseQvalues(folly::StringPiece value, std::vector<TokenQPair> &output);
 
 }}

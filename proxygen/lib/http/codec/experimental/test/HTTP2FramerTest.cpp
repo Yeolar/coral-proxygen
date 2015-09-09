@@ -9,7 +9,7 @@
  */
 #include <proxygen/lib/http/codec/experimental/test/HTTP2FramerTest.h>
 
-#include <coral/Random.h>
+#include <folly/Random.h>
 #include <gtest/gtest.h>
 #include <proxygen/lib/http/HTTPHeaderSize.h>
 #include <proxygen/lib/http/HTTPMessage.h>
@@ -18,8 +18,8 @@
 
 #include <proxygen/lib/http/codec/experimental/HTTP2Framer.h>
 
-using namespace coral::io;
-using namespace coral;
+using namespace folly::io;
+using namespace folly;
 using namespace proxygen::http2;
 using namespace proxygen;
 using namespace std;
@@ -276,7 +276,7 @@ TEST_F(HTTP2FramerTest, HeadersWithPaddingAndPriority) {
 }
 
 TEST_F(HTTP2FramerTest, Ping) {
-  uint64_t data = coral::Random::rand64();
+  uint64_t data = folly::Random::rand64();
   writePing(queue_, data, false);
 
   FrameHeader header;

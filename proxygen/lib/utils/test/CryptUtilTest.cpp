@@ -13,7 +13,7 @@
 
 using namespace proxygen;
 
-using coral::ByteRange;
+using folly::ByteRange;
 
 TEST(CryptUtilTest, Base64EncodeTest) {
   ASSERT_EQ("",

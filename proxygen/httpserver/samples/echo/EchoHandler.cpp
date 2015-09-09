@@ -25,7 +25,7 @@ void EchoHandler::onRequest(std::unique_ptr<HTTPMessage> headers) noexcept {
   stats_->recordRequest();
 }
 
-void EchoHandler::onBody(std::unique_ptr<coral::IOBuf> body) noexcept {
+void EchoHandler::onBody(std::unique_ptr<folly::IOBuf> body) noexcept {
   if (body_) {
     body_->prependChain(std::move(body));
   } else {
@@ -37,7 +37,7 @@ void EchoHandler::onEOM() noexcept {
   ResponseBuilder(downstream_)
     .status(200, "OK")
     .header("Request-Number",
-            coral::to<std::string>(stats_->getRequestCount()))
+            folly::to<std::string>(stats_->getRequestCount()))
     .body(std::move(body_))
     .sendWithEOM();
 }

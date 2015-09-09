@@ -14,7 +14,7 @@
 #include <proxygen/lib/http/session/HTTPErrorPage.h>
 #include <proxygen/lib/http/session/SimpleController.h>
 #include <proxygen/lib/services/HTTPAcceptor.h>
-#include <coral/io/async/AsyncSSLSocket.h>
+#include <folly/io/async/AsyncSSLSocket.h>
 
 namespace proxygen {
 
@@ -68,7 +68,7 @@ public:
    *          been set, or else nullptr.
    */
   virtual const HTTPErrorPage* getErrorPage(
-      const coral::SocketAddress& addr) const;
+      const folly::SocketAddress& addr) const;
 
   /**
    * Create a Handler for a new transaction.  The transaction and HTTP message
@@ -95,16 +95,16 @@ protected:
 
   // Acceptor methods
   void onNewConnection(
-    coral::AsyncSocket::UniquePtr sock,
-    const coral::SocketAddress* address,
+    folly::AsyncSocket::UniquePtr sock,
+    const folly::SocketAddress* address,
     const std::string& nextProtocol,
     SecureTransportType secureTransportType,
     const wangle::TransportInfo& tinfo) override;
 
-  coral::AsyncSocket::UniquePtr makeNewAsyncSocket(coral::EventBase* base,
+  folly::AsyncSocket::UniquePtr makeNewAsyncSocket(folly::EventBase* base,
                                                    int fd) override {
-    return coral::AsyncSocket::UniquePtr(
-      new coral::AsyncSocket(base, fd));
+    return folly::AsyncSocket::UniquePtr(
+      new folly::AsyncSocket(base, fd));
   }
 
   virtual size_t dropIdleConnections(size_t num);
@@ -139,14 +139,14 @@ private:
   /** Generator of more detailed error pages for internal clients */
   std::unique_ptr<HTTPErrorPage> diagnosticErrorPage_;
 
-  coral::Optional<SPDYVersion> alwaysUseSPDYVersion_{};
+  folly::Optional<SPDYVersion> alwaysUseSPDYVersion_{};
 
   SimpleController simpleController_;
 
   /**
    * 0.0.0.0:0, a valid address to use if getsockname() or getpeername() fails
    */
-  static const coral::SocketAddress unknownSocketAddress_;
+  static const folly::SocketAddress unknownSocketAddress_;
 };
 
 } // proxygen

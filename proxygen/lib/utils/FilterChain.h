@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include <coral/Memory.h>
+#include <folly/Memory.h>
 #include <glog/logging.h>
 #include <memory>
 #include <utility>

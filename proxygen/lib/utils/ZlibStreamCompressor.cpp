@@ -9,11 +9,11 @@
  */
 #include "ZlibStreamCompressor.h"
 
-#include <coral/Bits.h>
-#include <coral/io/Cursor.h>
+#include <folly/Bits.h>
+#include <folly/io/Cursor.h>
 
-using namespace coral;
-using coral::IOBuf;
+using namespace folly;
+using folly::IOBuf;
 using std::unique_ptr;
 
 // IOBuf uses 24 bytes of data for bookeeping purposes, so requesting for 4073
@@ -98,7 +98,7 @@ std::unique_ptr<IOBuf> ZlibStreamCompressor::compress(const IOBuf* in,
   int flush{Z_NO_FLUSH};
 
   auto out = IOBuf::create(FLAGS_zlib_compressor_buffer_growth);
-  auto appender = coral::io::Appender(out.get(),
+  auto appender = folly::io::Appender(out.get(),
       FLAGS_zlib_compressor_buffer_growth);
 
   auto chunkSize = FLAGS_zlib_compressor_buffer_minsize;

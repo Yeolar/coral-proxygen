@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include <coral/ScopeGuard.h>
+#include <folly/ScopeGuard.h>
 #include <proxygen/httpserver/ResponseHandler.h>
 
 namespace proxygen {
@@ -67,7 +67,7 @@ class ResponseBuilder {
   }
 
   ResponseBuilder& status(uint16_t code, std::string message) {
-    headers_ = coral::make_unique<HTTPMessage>();
+    headers_ = folly::make_unique<HTTPMessage>();
     headers_->setHTTPVersion(1, 1);
     headers_->setStatusCode(code);
     headers_->setStatusMessage(message);
@@ -88,7 +88,7 @@ class ResponseBuilder {
     return *this;
   }
 
-  ResponseBuilder& body(std::unique_ptr<coral::IOBuf> bodyIn) {
+  ResponseBuilder& body(std::unique_ptr<folly::IOBuf> bodyIn) {
     if (bodyIn) {
       if (body_) {
         body_->prependChain(std::move(bodyIn));
@@ -102,8 +102,8 @@ class ResponseBuilder {
 
   template <typename T>
   ResponseBuilder& body(T&& t) {
-    return body(coral::IOBuf::maybeCopyBuffer(
-        coral::to<std::string>(std::forward<T>(t))));
+    return body(folly::IOBuf::maybeCopyBuffer(
+        folly::to<std::string>(std::forward<T>(t))));
   }
 
   ResponseBuilder& closeConnection() {
@@ -136,7 +136,7 @@ class ResponseBuilder {
           const auto len = body_ ? body_->computeChainDataLength() : 0;
           headers_->getHeaders().add(
               HTTP_HEADER_CONTENT_LENGTH,
-              coral::to<std::string>(len));
+              folly::to<std::string>(len));
         }
       }
 
@@ -165,7 +165,7 @@ class ResponseBuilder {
 
   void acceptUpgradeRequest(UpgradeType upgradeType,
                             const std::string upgradeProtocol = "") {
-    headers_ = coral::make_unique<HTTPMessage>();
+    headers_ = folly::make_unique<HTTPMessage>();
     if (upgradeType == UpgradeType::CONNECT_REQUEST) {
       headers_->constructDirectResponse({1, 1}, 200, "OK");
     } else {
@@ -178,7 +178,7 @@ class ResponseBuilder {
   }
 
   void rejectUpgradeRequest() {
-    headers_ = coral::make_unique<HTTPMessage>();
+    headers_ = folly::make_unique<HTTPMessage>();
     headers_->constructDirectResponse({1, 1}, 400, "Bad Request");
     txn_->sendHeaders(*headers_);
     txn_->sendEOM();
@@ -188,7 +188,7 @@ class ResponseBuilder {
   ResponseHandler* const txn_{nullptr};
 
   std::unique_ptr<HTTPMessage> headers_;
-  std::unique_ptr<coral::IOBuf> body_;
+  std::unique_ptr<folly::IOBuf> body_;
 
   // If true, sends EOM.
   bool sendEOM_{false};

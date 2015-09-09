@@ -9,7 +9,7 @@
  */
 #include <proxygen/lib/http/codec/compress/HPACKContext.h>
 
-#include <coral/io/IOBuf.h>
+#include <folly/io/IOBuf.h>
 
 using std::string;
 

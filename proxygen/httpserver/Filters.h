@@ -43,7 +43,7 @@ class Filter : public RequestHandler, public ResponseHandler {
     upstream_->onRequest(std::move(headers));
   }
 
-  void onBody(std::unique_ptr<coral::IOBuf> body) noexcept override {
+  void onBody(std::unique_ptr<folly::IOBuf> body) noexcept override {
     upstream_->onBody(std::move(body));
   }
 
@@ -84,7 +84,7 @@ class Filter : public RequestHandler, public ResponseHandler {
     downstream_->sendChunkHeader(len);
   }
 
-  void sendBody(std::unique_ptr<coral::IOBuf> body) noexcept override {
+  void sendBody(std::unique_ptr<folly::IOBuf> body) noexcept override {
     downstream_->sendBody(std::move(body));
   }
 

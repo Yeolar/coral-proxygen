@@ -12,7 +12,7 @@
 #include <memory>
 #include <string>
 
-namespace coral {
+namespace folly {
 class IOBuf;
 }
 
@@ -26,7 +26,7 @@ class HTTPErrorPage {
 public:
   struct Page {
     Page(const std::string& pageContentType,
-        std::unique_ptr<coral::IOBuf> pageContent) :
+        std::unique_ptr<folly::IOBuf> pageContent) :
       contentType(pageContentType), content(std::move(pageContent)) {}
 
     Page(Page&& other) noexcept :
@@ -35,7 +35,7 @@ public:
     }
 
     const std::string contentType;
-    std::unique_ptr<coral::IOBuf> content;
+    std::unique_ptr<folly::IOBuf> content;
   };
 
   virtual ~HTTPErrorPage() {}
@@ -43,7 +43,7 @@ public:
   virtual Page generate(uint64_t requestID,
                         unsigned httpStatusCode,
                         const std::string& reason,
-                        std::unique_ptr<coral::IOBuf> body,
+                        std::unique_ptr<folly::IOBuf> body,
                         const std::string& detailReason) const = 0;
 };
 
@@ -53,17 +53,17 @@ public:
 class HTTPStaticErrorPage: public HTTPErrorPage {
 public:
   explicit HTTPStaticErrorPage(
-    std::unique_ptr<coral::IOBuf> content,
+    std::unique_ptr<folly::IOBuf> content,
     const std::string& contentType = "text/html; charset=utf-8");
 
   Page generate(uint64_t requestID,
                 unsigned httpStatusCode,
                 const std::string& reason,
-                std::unique_ptr<coral::IOBuf> body,
+                std::unique_ptr<folly::IOBuf> body,
                 const std::string& detailReason) const override;
 
 private:
-  std::unique_ptr<coral::IOBuf> content_;
+  std::unique_ptr<folly::IOBuf> content_;
   std::string contentType_;
 };
 

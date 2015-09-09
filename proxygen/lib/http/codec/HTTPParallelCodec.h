@@ -18,7 +18,7 @@
 #include <proxygen/lib/http/codec/compress/HeaderCodec.h>
 #include <zlib.h>
 
-namespace coral { namespace io {
+namespace folly { namespace io {
 class Cursor;
 }}
 

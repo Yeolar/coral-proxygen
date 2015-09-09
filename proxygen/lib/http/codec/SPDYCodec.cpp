@@ -11,11 +11,11 @@
 
 #include <algorithm>
 #include <boost/algorithm/string.hpp>
-#include <coral/Conv.h>
-#include <coral/Memory.h>
-#include <coral/ScopeGuard.h>
-#include <coral/String.h>
-#include <coral/io/Cursor.h>
+#include <folly/Conv.h>
+#include <folly/Memory.h>
+#include <folly/ScopeGuard.h>
+#include <folly/String.h>
+#include <folly/io/Cursor.h>
 #include <glog/logging.h>
 #include <iostream>
 #include <proxygen/lib/http/HTTPHeaderSize.h>
@@ -28,11 +28,11 @@
 #include <proxygen/lib/utils/UtilInl.h>
 #include <vector>
 
-using coral::IOBuf;
-using coral::IOBufQueue;
-using coral::io::QueueAppender;
-using coral::io::Cursor;
-using coral::io::RWPrivateCursor;
+using folly::IOBuf;
+using folly::IOBufQueue;
+using folly::io::QueueAppender;
+using folly::io::Cursor;
+using folly::io::RWPrivateCursor;
 using proxygen::compress::Header;
 using proxygen::compress::HeaderPieceList;
 using std::pair;
@@ -138,7 +138,7 @@ class SPDYStreamFailed : public std::exception {
       : isNew(inIsNew),
         streamID(inStreamID),
         statusCode(inStatus) {
-    message = coral::to<std::string>("new=", isNew, " streamID=", streamID,
+    message = folly::to<std::string>("new=", isNew, " streamID=", streamID,
                                      " statusCode=", statusCode, " message=",
                                      inMsg);
   }
@@ -218,9 +218,9 @@ SPDYCodec::SPDYCodec(TransportDirection direction, SPDYVersion version,
           << "." << static_cast<int>(versionSettings_.minorVersion)
           << " codec";
   if (version == SPDYVersion::SPDY3_1_HPACK) {
-    headerCodec_ = coral::make_unique<HPACKCodec>(transportDirection_);
+    headerCodec_ = folly::make_unique<HPACKCodec>(transportDirection_);
   } else {
-    headerCodec_ = coral::make_unique<GzipHeaderCodec>(
+    headerCodec_ = folly::make_unique<GzipHeaderCodec>(
       spdyCompressionLevel, versionSettings_);
   }
   // Limit uncompressed headers to 128kb
@@ -274,7 +274,7 @@ void SPDYCodec::checkMinLength(uint32_t minLength, const std::string& msg) {
   }
 }
 
-size_t SPDYCodec::onIngress(const coral::IOBuf& buf) {
+size_t SPDYCodec::onIngress(const folly::IOBuf& buf) {
   size_t bytesParsed = 0;
   currentIngressBuf_ = &buf;
   try {
@@ -286,7 +286,7 @@ size_t SPDYCodec::onIngress(const coral::IOBuf& buf) {
   return bytesParsed;
 }
 
-size_t SPDYCodec::parseIngress(const coral::IOBuf& buf) {
+size_t SPDYCodec::parseIngress(const folly::IOBuf& buf) {
   const size_t chainLength = buf.computeChainDataLength();
   Cursor cursor(&buf);
   size_t avail = cursor.totalLength();
@@ -520,7 +520,7 @@ HeaderDecodeResult SPDYCodec::decodeHeaders(Cursor& cursor) {
     // For other types of errors we throw a stream error
     bool newStream = (type_ != spdy::HEADERS);
     throw SPDYStreamFailed(newStream, streamId_, spdy::RST_PROTOCOL_ERROR,
-                           "Error parsing header: " + coral::to<string>(err));
+                           "Error parsing header: " + folly::to<string>(err));
   }
 
   length_ -= result.ok().bytesConsumed;
@@ -591,9 +591,9 @@ unique_ptr<IOBuf> SPDYCodec::serializeResponseHeaders(
   allHeaders.reserve(headers.size() + 4);
 
   if (msg.getStatusMessage().empty()) {
-    status = coral::to<string>(msg.getStatusCode());
+    status = folly::to<string>(msg.getStatusCode());
   } else {
-    status = coral::to<string>(msg.getStatusCode(), " ",
+    status = folly::to<string>(msg.getStatusCode(), " ",
                                msg.getStatusMessage());
   }
   allHeaders.emplace_back(versionSettings_.statusStr, status);
@@ -652,7 +652,7 @@ unique_ptr<IOBuf> SPDYCodec::serializeRequestHeaders(
   return encodeHeaders(msg, allHeaders, headroom, size);
 }
 
-void SPDYCodec::generateHeader(coral::IOBufQueue& writeBuf,
+void SPDYCodec::generateHeader(folly::IOBufQueue& writeBuf,
                                StreamID stream,
                                const HTTPMessage& msg,
                                StreamID assocStream,
@@ -668,7 +668,7 @@ void SPDYCodec::generateHeader(coral::IOBufQueue& writeBuf,
 
 void SPDYCodec::generateSynStream(StreamID stream,
                                   StreamID assocStream,
-                                  coral::IOBufQueue& writeBuf,
+                                  folly::IOBufQueue& writeBuf,
                                   const HTTPMessage& msg,
                                   bool eom,
                                   HTTPHeaderSize* size) {
@@ -726,7 +726,7 @@ void SPDYCodec::generateSynStream(StreamID stream,
 }
 
 void SPDYCodec::generateSynReply(StreamID stream,
-                                 coral::IOBufQueue& writeBuf,
+                                 folly::IOBufQueue& writeBuf,
                                  const HTTPMessage& msg,
                                  bool eom,
                                  HTTPHeaderSize* size) {
@@ -766,9 +766,9 @@ void SPDYCodec::generateSynReply(StreamID stream,
   writeBuf.append(std::move(out));
 }
 
-size_t SPDYCodec::generateBody(coral::IOBufQueue& writeBuf,
+size_t SPDYCodec::generateBody(folly::IOBufQueue& writeBuf,
                                StreamID stream,
-                               std::unique_ptr<coral::IOBuf> chain,
+                               std::unique_ptr<folly::IOBuf> chain,
                                boost::optional<uint8_t> padding,
                                bool eom) {
   size_t len = chain->computeChainDataLength();
@@ -786,20 +786,20 @@ size_t SPDYCodec::generateBody(coral::IOBufQueue& writeBuf,
   return len;
 }
 
-size_t SPDYCodec::generateChunkHeader(coral::IOBufQueue& writeBuf,
+size_t SPDYCodec::generateChunkHeader(folly::IOBufQueue& writeBuf,
                                       StreamID stream,
                                       size_t length) {
   // SPDY chunk headers are built into the data frames
   return 0;
 }
 
-size_t SPDYCodec::generateChunkTerminator(coral::IOBufQueue& writeBuf,
+size_t SPDYCodec::generateChunkTerminator(folly::IOBufQueue& writeBuf,
                                           StreamID stream) {
   // SPDY has no chunk terminator
   return 0;
 }
 
-size_t SPDYCodec::generateTrailers(coral::IOBufQueue& writeBuf,
+size_t SPDYCodec::generateTrailers(folly::IOBufQueue& writeBuf,
                                    StreamID stream,
                                    const HTTPHeaders& trailers) {
   // TODO generate a HEADERS frame?  An additional HEADERS frame
@@ -808,7 +808,7 @@ size_t SPDYCodec::generateTrailers(coral::IOBufQueue& writeBuf,
   return 0;
 }
 
-size_t SPDYCodec::generateEOM(coral::IOBufQueue& writeBuf,
+size_t SPDYCodec::generateEOM(folly::IOBufQueue& writeBuf,
                               StreamID stream) {
   VLOG(4) << "sending EOM for stream=" << stream;
   generateDataFrame(writeBuf, uint32_t(stream), kFlagFin, 0, nullptr);
@@ -919,7 +919,7 @@ size_t SPDYCodec::generatePingCommon(IOBufQueue& writeBuf, uint64_t uniqueID) {
   return frameSize;
 }
 
-size_t SPDYCodec::generateSettings(coral::IOBufQueue& writeBuf) {
+size_t SPDYCodec::generateSettings(folly::IOBufQueue& writeBuf) {
   auto numSettings = egressSettings_.getNumSettings();
   VLOG(4) << "generating " << (unsigned)numSettings << " settings";
   const size_t frameSize = kFrameSizeControlCommon + kFrameSizeSettings +
@@ -957,7 +957,7 @@ size_t SPDYCodec::generateSettings(coral::IOBufQueue& writeBuf) {
   return frameSize;
 }
 
-size_t SPDYCodec::generateWindowUpdate(coral::IOBufQueue& writeBuf,
+size_t SPDYCodec::generateWindowUpdate(folly::IOBufQueue& writeBuf,
                                        StreamID stream,
                                        uint32_t delta) {
   if (versionSettings_.majorVersion < 3 ||
@@ -993,7 +993,7 @@ uint8_t SPDYCodec::getMinorVersion() const {
   return versionSettings_.minorVersion;
 }
 
-size_t SPDYCodec::generateDataFrame(coral::IOBufQueue& writeBuf,
+size_t SPDYCodec::generateDataFrame(folly::IOBufQueue& writeBuf,
                                     uint32_t streamID, uint8_t flags,
                                     uint32_t length,
                                     unique_ptr<IOBuf> payload) {
@@ -1040,8 +1040,8 @@ SPDYCodec::parseHeaders(TransportDirection direction, StreamID streamID,
       off = 1;  // also signals control header
       len--;
     }
-    coral::StringPiece name(inHeaders[i].str, off, len);
-    coral::StringPiece value = inHeaders[i + 1].str;
+    folly::StringPiece name(inHeaders[i].str, off, len);
+    folly::StringPiece value = inHeaders[i + 1].str;
     VLOG(5) << "Header " << name << ": " << value;
     bool nameOk = SPDYUtil::validateHeaderName(name);
     bool valueOk = false;
@@ -1096,16 +1096,16 @@ SPDYCodec::parseHeaders(TransportDirection direction, StreamID streamID,
         }
       } else if (name == "status") {
         if (direction == TransportDirection::UPSTREAM && !assocStreamID) {
-          coral::StringPiece codePiece;
-          coral::StringPiece reasonPiece;
+          folly::StringPiece codePiece;
+          folly::StringPiece reasonPiece;
           if (value.contains(' ')) {
-            coral::split<false>(' ', value, codePiece, reasonPiece);
+            folly::split<false>(' ', value, codePiece, reasonPiece);
           } else {
             codePiece = value;
           }
           int32_t code = -1;
           try {
-            code = coral::to<unsigned int>(codePiece);
+            code = folly::to<unsigned int>(codePiece);
           } catch (const std::range_error& ex) {
             // Toss out the range error cause the exception will get it
           }
@@ -1130,7 +1130,7 @@ SPDYCodec::parseHeaders(TransportDirection direction, StreamID streamID,
           if (value.size() > 0) {
             int16_t code = -1;
             try {
-              code = coral::to<uint16_t>(value);
+              code = folly::to<uint16_t>(value);
             } catch (const std::range_error& ex) {
               // eat the push status
             }
@@ -1226,7 +1226,7 @@ void SPDYCodec::onSynStream(uint32_t assocStream,
                             const HeaderPieceList& headers,
                             const HTTPHeaderSize& size) {
   VLOG(4) << "Got SYN_STREAM, stream=" << streamId_
-          << " pri=" << coral::to<int>(pri);
+          << " pri=" << folly::to<int>(pri);
   if (sessionClosing_ == ClosingState::CLOSING) {
     VLOG(4) << "Dropping SYN_STREAM after final GOAWAY, stream=" << streamId_;
     // Suppress any EOM callback for the current frame.
@@ -1290,7 +1290,7 @@ void SPDYCodec::onRstStream(uint32_t statusCode) noexcept {
 void SPDYCodec::onSettings(const SettingList& settings) {
   VLOG(4) << "Got " << settings.size() << " settings with "
           << "version=" << version_ << " and flags="
-          << std::hex << coral::to<unsigned int>(flags_) << std::dec;
+          << std::hex << folly::to<unsigned int>(flags_) << std::dec;
   SettingsList settingsList;
   for (const SettingData& cur: settings) {
     // For now, we never ask for anything to be persisted, so ignore anything
@@ -1390,7 +1390,7 @@ void SPDYCodec::failStream(bool newStream, StreamID streamID,
     code >= 100 ?
     HTTPException::Direction::INGRESS :
     HTTPException::Direction::INGRESS_AND_EGRESS,
-    coral::to<std::string>("SPDYCodec stream error: stream=",
+    folly::to<std::string>("SPDYCodec stream error: stream=",
       streamID, " status=", code, " exception: ", excStr));
   if (code >= 100) {
     err.setHttpStatusCode(code);
@@ -1412,7 +1412,7 @@ void SPDYCodec::failStream(bool newStream, StreamID streamID,
 void SPDYCodec::failSession(uint32_t code) {
   HTTPException err(
     HTTPException::Direction::INGRESS_AND_EGRESS,
-    coral::to<std::string>("SPDYCodec session error: "
+    folly::to<std::string>("SPDYCodec session error: "
       "lastGoodStream=", lastStreamID_, " status=", code));
   err.setCodecStatusCode(spdy::goawayToErrorCode(spdy::GoawayStatusCode(code)));
   err.setProxygenError(kErrorParseHeader);

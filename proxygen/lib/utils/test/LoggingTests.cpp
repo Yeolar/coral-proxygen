@@ -7,12 +7,12 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  *
  */
-#include <coral/io/IOBuf.h>
+#include <folly/io/IOBuf.h>
 #include <glog/logging.h>
 #include <gtest/gtest.h>
 #include <proxygen/lib/utils/Logging.h>
 
-using namespace coral;
+using namespace folly;
 using namespace proxygen;
 using namespace std;
 using namespace testing;
@@ -22,7 +22,7 @@ class LoggingTests : public testing::Test {
 
 TEST_F(LoggingTests, print_hex_iobuf) {
   unique_ptr<IOBuf> buf = IOBuf::create(128);
-  EXPECT_EQ(IOBufPrinter::printHexCoral(buf.get()), "");
+  EXPECT_EQ(IOBufPrinter::printHexFolly(buf.get()), "");
   EXPECT_EQ(IOBufPrinter::printHex16(buf.get()), "");
 
   uint8_t* data = buf->writableData();
@@ -31,7 +31,7 @@ TEST_F(LoggingTests, print_hex_iobuf) {
   data[2] = 0x00;
   data[3] = 0x10;
   buf->append(4);
-  EXPECT_TRUE(IOBufPrinter::printHexCoral(buf.get()) != "");
+  EXPECT_TRUE(IOBufPrinter::printHexFolly(buf.get()) != "");
   EXPECT_EQ(IOBufPrinter::printHex16(buf.get()), "0cff 0010 ");
 
   // some linewrap
@@ -39,7 +39,7 @@ TEST_F(LoggingTests, print_hex_iobuf) {
     data[4 + i] = 0xFE;
   }
   buf->append(16);
-  EXPECT_TRUE(IOBufPrinter::printHexCoral(buf.get()) != "");
+  EXPECT_TRUE(IOBufPrinter::printHexFolly(buf.get()) != "");
   string info = IOBufPrinter::printChainInfo(buf.get());
   EXPECT_TRUE(info.find("iobuf of size 20 tailroom ") != string::npos);
   EXPECT_EQ(IOBufPrinter::printHex16(buf.get()),

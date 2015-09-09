@@ -9,8 +9,8 @@
  */
 #pragma once
 
-#include <coral/io/Cursor.h>
-#include <coral/io/IOBuf.h>
+#include <folly/io/Cursor.h>
+#include <folly/io/IOBuf.h>
 #include <list>
 #include <memory>
 #include <proxygen/lib/http/codec/compress/HeaderCodec.h>
@@ -44,7 +44,7 @@ class HPACKDecoder : public HPACKContext {
    * given a Cursor and a total amount of bytes we can consume from it,
    * decode headers into the given vector.
    */
-  uint32_t decode(coral::io::Cursor& cursor,
+  uint32_t decode(folly::io::Cursor& cursor,
                   uint32_t totalBytes,
                   headers_t& headers);
 
@@ -52,7 +52,7 @@ class HPACKDecoder : public HPACKContext {
    * given a Cursor and a total amount of bytes we can consume from it,
    * decode headers and invoke a callback.
    */
-  uint32_t decodeStreaming(coral::io::Cursor& cursor,
+  uint32_t decodeStreaming(folly::io::Cursor& cursor,
                            uint32_t totalBytes,
                            HeaderCodec::StreamingCallback* streamingCb);
 
@@ -61,7 +61,7 @@ class HPACKDecoder : public HPACKContext {
    * headers and return them. This is just a convenience wrapper around
    * the API above.
    */
-  std::unique_ptr<headers_t> decode(const coral::IOBuf* buffer);
+  std::unique_ptr<headers_t> decode(const folly::IOBuf* buffer);
 
   HPACK::DecodeError getError() const {
     return err_;

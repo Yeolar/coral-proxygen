@@ -7,10 +7,10 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  *
  */
-#include <coral/Foreach.h>
-#include <coral/io/Cursor.h>
-#include <coral/io/async/EventBase.h>
-#include <coral/io/async/TimeoutManager.h>
+#include <folly/Foreach.h>
+#include <folly/io/Cursor.h>
+#include <folly/io/async/EventBase.h>
+#include <folly/io/async/TimeoutManager.h>
 #include <gtest/gtest.h>
 #include <proxygen/lib/http/codec/test/MockHTTPCodec.h>
 #include <proxygen/lib/http/codec/test/TestUtils.h>
@@ -20,12 +20,12 @@
 #include <proxygen/lib/http/session/test/TestUtils.h>
 #include <proxygen/lib/test/TestAsyncTransport.h>
 #include <string>
-#include <coral/io/async/test/MockAsyncTransport.h>
+#include <folly/io/async/test/MockAsyncTransport.h>
 #include <vector>
 
-using coral::test::MockAsyncTransport;
+using folly::test::MockAsyncTransport;
 
-using namespace coral;
+using namespace folly;
 using namespace proxygen;
 using namespace testing;
 
@@ -66,7 +66,7 @@ class HTTPUpstreamTest: public testing::Test,
                                std::chrono::milliseconds(500))) {
   }
 
-  virtual void onWriteChain(coral::AsyncTransportWrapper::WriteCallback* callback,
+  virtual void onWriteChain(folly::AsyncTransportWrapper::WriteCallback* callback,
                             std::shared_ptr<IOBuf> iob,
                             WriteFlags flags) {
     if (timeoutWrites_) {
@@ -192,14 +192,14 @@ class HTTPUpstreamTest: public testing::Test,
 
   EventBase eventBase_;
   MockAsyncTransport* transport_;  // invalid once httpSession_ is destroyed
-  coral::AsyncTransportWrapper::ReadCallback* readCallback_{nullptr};
+  folly::AsyncTransportWrapper::ReadCallback* readCallback_{nullptr};
   AsyncTimeoutSet::UniquePtr transactionTimeouts_;
   wangle::TransportInfo mockTransportInfo_;
   SocketAddress localAddr_{"127.0.0.1", 80};
   SocketAddress peerAddr_{"127.0.0.1", 12345};
   HTTPUpstreamSession* httpSession_{nullptr};
   IOBufQueue writes_{IOBufQueue::cacheChainLength()};
-  std::vector<coral::AsyncTransportWrapper::WriteCallback*> cbs_;
+  std::vector<folly::AsyncTransportWrapper::WriteCallback*> cbs_;
   bool saveWrites_{false};
   bool failWrites_{false};
   bool timeoutWrites_{false};
@@ -225,7 +225,7 @@ typedef HTTPUpstreamTest<SPDY3CodecPair> SPDY3UpstreamSessionTest;
 TEST_F(SPDY3UpstreamSessionTest, server_push) {
   SPDYCodec egressCodec(TransportDirection::DOWNSTREAM,
                         SPDYVersion::SPDY3);
-  coral::IOBufQueue output(coral::IOBufQueue::cacheChainLength());
+  folly::IOBufQueue output(folly::IOBufQueue::cacheChainLength());
 
   HTTPMessage push;
   push.getHeaders().set("HOST", "www.foo.com");
@@ -243,7 +243,7 @@ TEST_F(SPDY3UpstreamSessionTest, server_push) {
   egressCodec.generateBody(output, 1, std::move(buf), HTTPCodec::NoPadding,
                            true /* eom */);
 
-  std::unique_ptr<coral::IOBuf> input = output.move();
+  std::unique_ptr<folly::IOBuf> input = output.move();
   input->coalesce();
 
   MockHTTPHandler handler;
@@ -304,9 +304,9 @@ TEST_F(SPDY3UpstreamSessionTest, ingress_goaway_abort_uncreated_streams) {
   // Create SPDY buf for GOAWAY with last good stream as 0 (no streams created)
   SPDYCodec egressCodec(TransportDirection::DOWNSTREAM,
                         SPDYVersion::SPDY3);
-  coral::IOBufQueue respBuf{IOBufQueue::cacheChainLength()};
+  folly::IOBufQueue respBuf{IOBufQueue::cacheChainLength()};
   egressCodec.generateGoaway(respBuf, 0, ErrorCode::NO_ERROR);
-  std::unique_ptr<coral::IOBuf> goawayFrame = respBuf.move();
+  std::unique_ptr<folly::IOBuf> goawayFrame = respBuf.move();
   goawayFrame->coalesce();
 
   InSequence dummy;
@@ -318,7 +318,7 @@ TEST_F(SPDY3UpstreamSessionTest, ingress_goaway_abort_uncreated_streams) {
           EXPECT_TRUE(err.hasProxygenError());
           EXPECT_EQ(err.getProxygenError(), kErrorStreamUnacknowledged);
           ASSERT_EQ(
-            coral::to<std::string>("StreamUnacknowledged on transaction id: ",
+            folly::to<std::string>("StreamUnacknowledged on transaction id: ",
               txn->getID()),
             std::string(err.what()));
         }));
@@ -353,9 +353,9 @@ TEST_F(SPDY3UpstreamSessionTest, ingress_goaway_session_error) {
   // Create SPDY buf for GOAWAY with last good stream as 0 (no streams created)
   SPDYCodec egressCodec(TransportDirection::DOWNSTREAM,
                         SPDYVersion::SPDY3);
-  coral::IOBufQueue respBuf{IOBufQueue::cacheChainLength()};
+  folly::IOBufQueue respBuf{IOBufQueue::cacheChainLength()};
   egressCodec.generateGoaway(respBuf, 0, ErrorCode::PROTOCOL_ERROR);
-  std::unique_ptr<coral::IOBuf> goawayFrame = respBuf.move();
+  std::unique_ptr<folly::IOBuf> goawayFrame = respBuf.move();
   goawayFrame->coalesce();
 
   InSequence dummy;
@@ -367,7 +367,7 @@ TEST_F(SPDY3UpstreamSessionTest, ingress_goaway_session_error) {
           EXPECT_TRUE(err.hasProxygenError());
           EXPECT_EQ(err.getProxygenError(), kErrorStreamUnacknowledged);
           ASSERT_EQ(
-            coral::to<std::string>("StreamUnacknowledged on transaction id: ",
+            folly::to<std::string>("StreamUnacknowledged on transaction id: ",
               txn->getID(),
               " with codec error: PROTOCOL_ERROR"),
             std::string(err.what()));
@@ -595,7 +595,7 @@ TEST_F(HTTPUpstreamTimeoutTest, write_timeout_after_response) {
                     HTTPException::Direction::INGRESS_AND_EGRESS);
           EXPECT_EQ(err.getProxygenError(), kErrorWriteTimeout);
           ASSERT_EQ(
-            coral::to<std::string>("WriteTimeout on transaction id: ",
+            folly::to<std::string>("WriteTimeout on transaction id: ",
               handler.txn_->getID()),
             std::string(err.what()));
         }));
@@ -733,7 +733,7 @@ TEST_F(HTTPUpstreamSessionTest, 101_upgrade) {
 
 class NoFlushUpstreamSessionTest: public HTTPUpstreamTest<SPDY3CodecPair> {
  public:
-  void onWriteChain(coral::AsyncTransportWrapper::WriteCallback* callback,
+  void onWriteChain(folly::AsyncTransportWrapper::WriteCallback* callback,
                     std::shared_ptr<IOBuf> iob,
                     WriteFlags flags) override {
     if (!timesCalled_++) {
@@ -752,7 +752,7 @@ class NoFlushUpstreamSessionTest: public HTTPUpstreamTest<SPDY3CodecPair> {
   }
  private:
   uint32_t timesCalled_{0};
-  std::vector<coral::AsyncTransportWrapper::WriteCallback*> cbs_;
+  std::vector<folly::AsyncTransportWrapper::WriteCallback*> cbs_;
 };
 
 TEST_F(NoFlushUpstreamSessionTest, session_paused_start_paused) {
@@ -819,7 +819,7 @@ TEST_F(NoFlushUpstreamSessionTest, delete_txn_on_unpause) {
 class MockHTTPUpstreamTest: public HTTPUpstreamTest<MockHTTPCodecPair> {
  public:
   void SetUp() override {
-    auto codec = coral::make_unique<NiceMock<MockHTTPCodec>>();
+    auto codec = folly::make_unique<NiceMock<MockHTTPCodec>>();
     codecPtr_ = codec.get();
     EXPECT_CALL(*codec, supportsParallelRequests())
       .WillRepeatedly(Return(true));
@@ -858,7 +858,7 @@ class MockHTTPUpstreamTest: public HTTPUpstreamTest<MockHTTPCodecPair> {
 
   std::unique_ptr<StrictMock<MockHTTPHandler>> openTransaction() {
     // Returns a mock handler with txn_ field set in it
-    auto handler = coral::make_unique<StrictMock<MockHTTPHandler>>();
+    auto handler = folly::make_unique<StrictMock<MockHTTPHandler>>();
     EXPECT_CALL(*handler, setTransaction(_))
       .WillOnce(SaveArg<0>(&handler->txn_));
     auto txn = httpSession_->newTransaction(handler.get());
@@ -1123,7 +1123,7 @@ TEST_F(MockHTTPUpstreamTest, no_window_update_on_drain) {
   // We'll get exactly one window update because we are draining
   EXPECT_CALL(*codecPtr_, generateWindowUpdate(_, _, _))
     .WillOnce(Invoke([&]
-                     (coral::IOBufQueue& writeBuf,
+                     (folly::IOBufQueue& writeBuf,
                       HTTPCodec::StreamID stream,
                       uint32_t delta) {
                        EXPECT_EQ(delta, sendWindow);
@@ -1205,7 +1205,7 @@ class TestAbortPost : public MockHTTPUpstreamTest {
     req.getHeaders().set(HTTP_HEADER_CONTENT_LENGTH, "10");
 
     std::unique_ptr<HTTPMessage> resp;
-    std::unique_ptr<coral::IOBuf> respBody;
+    std::unique_ptr<folly::IOBuf> respBody;
     std::tie(resp, respBody) = makeResponse(200, 50);
 
     EXPECT_CALL(handler, setTransaction(_))
@@ -1266,7 +1266,7 @@ class TestAbortPost : public MockHTTPUpstreamTest {
       doAbort();
     }
     codecCb_->onTrailersComplete(streamID,
-                                 coral::make_unique<HTTPHeaders>());
+                                 folly::make_unique<HTTPHeaders>());
     if (stage == 5) {
       doAbort();
     }
@@ -1370,7 +1370,7 @@ TEST_F(MockHTTP2UpstreamTest, receive_double_goaway) {
           EXPECT_TRUE(err.hasProxygenError());
           EXPECT_EQ(err.getProxygenError(), kErrorStreamUnacknowledged);
           ASSERT_EQ(
-            coral::to<std::string>("StreamUnacknowledged on transaction id: ",
+            folly::to<std::string>("StreamUnacknowledged on transaction id: ",
               handler2->txn_->getID()),
             std::string(err.what()));
         }));
@@ -1496,7 +1496,7 @@ TEST_F(MockHTTP2UpstreamTest, server_push_handler_install_fail) {
               generateRstStream(_, pushID, ErrorCode::_SPDY_INVALID_STREAM))
     .Times(2);
 
-  auto resp = coral::make_unique<HTTPMessage>();
+  auto resp = folly::make_unique<HTTPMessage>();
   resp->setStatusCode(200);
   resp->setStatusMessage("OK");
   codecCb_->onPushMessageBegin(pushID, streamID, resp.get());
@@ -1510,7 +1510,7 @@ TEST_F(MockHTTP2UpstreamTest, server_push_handler_install_fail) {
         }));
   EXPECT_CALL(*handler, onEOM());
 
-  resp = coral::make_unique<HTTPMessage>();
+  resp = folly::make_unique<HTTPMessage>();
   resp->setStatusCode(200);
   resp->setStatusMessage("OK");
   codecCb_->onMessageBegin(streamID, resp.get());
@@ -1545,7 +1545,7 @@ TEST_F(MockHTTP2UpstreamTest, server_push_unhandled_assoc) {
               generateRstStream(_, pushID, ErrorCode::_SPDY_INVALID_STREAM))
     .Times(2);
 
-  auto resp = coral::make_unique<HTTPMessage>();
+  auto resp = folly::make_unique<HTTPMessage>();
   resp->setStatusCode(200);
   resp->setStatusMessage("OK");
   codecCb_->onPushMessageBegin(pushID, streamID, resp.get());
@@ -1614,7 +1614,7 @@ TEST_F(MockHTTPUpstreamTest, force_shutdown_in_set_transaction) {
     .WillOnce(Invoke([&] (const HTTPException& err) {
           EXPECT_FALSE(err.hasProxygenError());
           ASSERT_EQ(
-            coral::to<std::string>("None on transaction id: ",
+            folly::to<std::string>("None on transaction id: ",
               handler.txn_->getID()),
             std::string(err.what()));
         }));

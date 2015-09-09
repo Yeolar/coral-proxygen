@@ -2,18 +2,6 @@
 # Copyright (C) 2015, Yeolar
 #
 
-if(NOT EXISTS ${PROJECT_SOURCE_DIR}/proxygen/lib/http/HTTPCommonHeaders.h)
-    set(ENV{HEADERS_LIST} ${PROJECT_SOURCE_DIR}/proxygen/lib/http/HTTPCommonHeaders.txt)
-    set(ENV{FBCODE_DIR} ${PROJECT_SOURCE_DIR})
-    set(ENV{INSTALL_DIR} ${PROJECT_SOURCE_DIR}/proxygen/lib/http)
-
-    execute_process(
-        COMMAND ${PROJECT_SOURCE_DIR}/proxygen/lib/http/gen_HTTPCommonHeaders.h.sh
-        COMMAND ${PROJECT_SOURCE_DIR}/proxygen/lib/http/gen_HTTPCommonHeaders.cpp.sh
-    )
-endif()
-
-
 set(PROXYGEN_LIB_HTTP_SRCS
     HTTPCommonHeaders.cpp
     HTTPConnector.cpp

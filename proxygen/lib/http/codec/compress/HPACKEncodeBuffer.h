@@ -9,8 +9,8 @@
  */
 #pragma once
 
-#include <coral/io/Cursor.h>
-#include <coral/io/IOBufQueue.h>
+#include <folly/io/Cursor.h>
+#include <folly/io/IOBufQueue.h>
 #include <proxygen/lib/http/codec/compress/HPACKConstants.h>
 #include <proxygen/lib/http/codec/compress/Huffman.h>
 
@@ -31,7 +31,7 @@ class HPACKEncodeBuffer {
   /**
    * transfer ownership of the underlying IOBuf's
    */
-  std::unique_ptr<coral::IOBuf> release() {
+  std::unique_ptr<folly::IOBuf> release() {
     return bufQueue_.move();
   }
 
@@ -87,8 +87,8 @@ class HPACKEncodeBuffer {
   void append(uint8_t byte);
 
   uint32_t growthSize_;
-  coral::IOBufQueue bufQueue_;
-  coral::io::QueueAppender buf_;
+  folly::IOBufQueue bufQueue_;
+  folly::io::QueueAppender buf_;
   const huffman::HuffTree& huffmanTree_;
   bool huffmanEnabled_;
 };

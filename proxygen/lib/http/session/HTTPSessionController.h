@@ -9,7 +9,7 @@
  */
 #pragma once
 
-namespace coral {
+namespace folly {
 class SocketAddress;
 }
 
@@ -48,14 +48,14 @@ class HTTPSessionController {
   virtual HTTPTransactionHandler* getParseErrorHandler(
     HTTPTransaction* txn,
     const HTTPException& error,
-    const coral::SocketAddress& localAddress) = 0;
+    const folly::SocketAddress& localAddress) = 0;
 
   /**
    * Will be invoked when HTTPSession times out parsing a new request.
    */
   virtual HTTPTransactionHandler* getTransactionTimeoutHandler(
     HTTPTransaction* txn,
-    const coral::SocketAddress& localAddress) = 0;
+    const folly::SocketAddress& localAddress) = 0;
 
   /**
    * Inform the controller it is associated with this particular session.

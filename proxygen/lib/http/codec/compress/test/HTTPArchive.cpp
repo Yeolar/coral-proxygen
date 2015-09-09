@@ -10,14 +10,14 @@
 #include <proxygen/lib/http/codec/compress/test/HTTPArchive.h>
 
 #include <algorithm>
-#include <coral/io/IOBuf.h>
-#include <coral/json.h>
+#include <folly/io/IOBuf.h>
+#include <folly/json.h>
 #include <fstream>
 #include <glog/logging.h>
 #include <iostream>
 #include <string>
 
-using coral::IOBuf;
+using folly::IOBuf;
 using std::ifstream;
 using std::ios;
 using std::string;
@@ -53,12 +53,12 @@ std::unique_ptr<IOBuf> readFileToIOBuf(const std::string& filename) {
 }
 
 unique_ptr<HTTPArchive> HTTPArchive::fromFile(const string& filename) {
-  unique_ptr<HTTPArchive> har = coral::make_unique<HTTPArchive>();
+  unique_ptr<HTTPArchive> har = folly::make_unique<HTTPArchive>();
   auto buffer = readFileToIOBuf(filename);
   if (!buffer) {
     return nullptr;
   }
-  coral::dynamic jsonObj = coral::parseJson((const char *)buffer->data());
+  folly::dynamic jsonObj = folly::parseJson((const char *)buffer->data());
   auto entries = jsonObj["log"]["entries"];
   vector<HPACKHeader> msg;
   // go over all the transactions
@@ -76,7 +76,7 @@ unique_ptr<HTTPArchive> HTTPArchive::fromFile(const string& filename) {
   return std::move(har);
 }
 
-void HTTPArchive::extractHeaders(coral::dynamic& obj,
+void HTTPArchive::extractHeaders(folly::dynamic& obj,
                                  vector<HPACKHeader> &msg) {
   msg.clear();
   auto& headersObj = obj["headers"];
@@ -91,7 +91,7 @@ void HTTPArchive::extractHeaders(coral::dynamic& obj,
   }
 }
 
-void HTTPArchive::extractHeadersFromPublic(coral::dynamic& obj,
+void HTTPArchive::extractHeadersFromPublic(folly::dynamic& obj,
                                            vector<HPACKHeader> &msg) {
   msg.clear();
   auto& headersObj = obj["headers"];
@@ -116,12 +116,12 @@ uint32_t HTTPArchive::getSize(const vector<HPACKHeader> &headers) {
 }
 
 unique_ptr<HTTPArchive> HTTPArchive::fromPublicFile(const string& filename) {
-  unique_ptr<HTTPArchive> har = coral::make_unique<HTTPArchive>();
+  unique_ptr<HTTPArchive> har = folly::make_unique<HTTPArchive>();
   auto buffer = readFileToIOBuf(filename);
   if (!buffer) {
     return nullptr;
   }
-  coral::dynamic jsonObj = coral::parseJson((const char *)buffer->data());
+  folly::dynamic jsonObj = folly::parseJson((const char *)buffer->data());
   auto entries = jsonObj["cases"];
   vector<HPACKHeader> msg;
   // go over all the transactions

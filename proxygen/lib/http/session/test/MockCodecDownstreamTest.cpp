@@ -7,11 +7,11 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  *
  */
-#include <coral/Foreach.h>
+#include <folly/Foreach.h>
 #include <wangle/acceptor/ConnectionManager.h>
-#include <coral/io/Cursor.h>
-#include <coral/io/async/EventBase.h>
-#include <coral/io/async/TimeoutManager.h>
+#include <folly/io/Cursor.h>
+#include <folly/io/async/EventBase.h>
+#include <folly/io/async/TimeoutManager.h>
 #include <gtest/gtest.h>
 #include <proxygen/lib/http/codec/test/MockHTTPCodec.h>
 #include <proxygen/lib/http/codec/test/TestUtils.h>
@@ -24,13 +24,13 @@
 #include <proxygen/lib/test/TestAsyncTransport.h>
 #include <string>
 #include <strstream>
-#include <coral/io/async/test/MockAsyncTransport.h>
+#include <folly/io/async/test/MockAsyncTransport.h>
 #include <vector>
 
-using coral::test::MockAsyncTransport;
+using folly::test::MockAsyncTransport;
 
 using namespace wangle;
-using namespace coral;
+using namespace folly;
 using namespace proxygen;
 using namespace std;
 using namespace testing;
@@ -118,7 +118,7 @@ class MockCodecDownstreamTest: public testing::Test {
     eventBase_.loop();
   }
 
-  void onWriteChain(coral::AsyncTransportWrapper::WriteCallback* callback,
+  void onWriteChain(folly::AsyncTransportWrapper::WriteCallback* callback,
                     std::shared_ptr<IOBuf> iob,
                     WriteFlags flags) {
     cbs_.push_back(callback);
@@ -165,7 +165,7 @@ class MockCodecDownstreamTest: public testing::Test {
   StrictMock<MockHTTPCodec>* codec_;
   HTTPCodec::Callback* codecCallback_{nullptr};
   NiceMock<MockAsyncTransport>* transport_;
-  coral::AsyncTransportWrapper::ReadCallback* transportCb_;
+  folly::AsyncTransportWrapper::ReadCallback* transportCb_;
   AsyncTimeoutSet::UniquePtr transactionTimeouts_;
   StrictMock<MockController> mockController_;
   HTTPDownstreamSession* httpSession_;
@@ -175,7 +175,7 @@ class MockCodecDownstreamTest: public testing::Test {
   bool drainPending_{false};
   bool doubleGoaway_{false};
   bool liveGoaways_{false};
-  std::vector<coral::AsyncTransportWrapper::WriteCallback*> cbs_;
+  std::vector<folly::AsyncTransportWrapper::WriteCallback*> cbs_;
 };
 
 TEST_F(MockCodecDownstreamTest, on_abort_then_timeouts) {
@@ -214,7 +214,7 @@ TEST_F(MockCodecDownstreamTest, on_abort_then_timeouts) {
     .WillOnce(Invoke([&] (const HTTPException& ex) {
           ASSERT_EQ(ex.getProxygenError(), kErrorWriteTimeout);
           ASSERT_EQ(
-            coral::to<std::string>("WriteTimeout on transaction id: ",
+            folly::to<std::string>("WriteTimeout on transaction id: ",
               handler2.txn_->getID()),
             std::string(ex.what()));
         }));
@@ -341,7 +341,7 @@ TEST_F(MockCodecDownstreamTest, server_push_after_goaway) {
           EXPECT_TRUE(err.hasProxygenError());
           EXPECT_EQ(err.getProxygenError(), kErrorStreamUnacknowledged);
           ASSERT_EQ(
-            coral::to<std::string>("StreamUnacknowledged on transaction id: ",
+            folly::to<std::string>("StreamUnacknowledged on transaction id: ",
               pushHandler2.txn_->getID()),
             std::string(err.what()));
         }));
@@ -630,9 +630,9 @@ TEST_F(MockCodecDownstreamTest, read_timeout) {
             ConnectionCloseReason::kMAX_REASON);
 
   EXPECT_CALL(*transport_, writeChain(_, _, _))
-    .WillRepeatedly(Invoke([] (coral::AsyncTransportWrapper::WriteCallback* callback,
-                               std::shared_ptr<coral::IOBuf> iob,
-                               coral::WriteFlags flags) {
+    .WillRepeatedly(Invoke([] (folly::AsyncTransportWrapper::WriteCallback* callback,
+                               std::shared_ptr<folly::IOBuf> iob,
+                               folly::WriteFlags flags) {
                              callback->writeSuccess();
                            }));
 
@@ -748,7 +748,7 @@ TEST_F(MockCodecDownstreamTest, buffering) {
         }));
 
   EXPECT_CALL(*transport_, writeChain(_, _, _))
-    .WillRepeatedly(Invoke([&] (coral::AsyncTransportWrapper::WriteCallback* callback,
+    .WillRepeatedly(Invoke([&] (folly::AsyncTransportWrapper::WriteCallback* callback,
                                 const shared_ptr<IOBuf> iob,
                                 WriteFlags flags) {
                              callback->writeSuccess();
@@ -855,9 +855,9 @@ TEST_F(MockCodecDownstreamTest, spdy_window) {
   }
 
   EXPECT_CALL(*transport_, writeChain(_, _, _))
-    .WillRepeatedly(Invoke([] (coral::AsyncTransportWrapper::WriteCallback* callback,
-                               std::shared_ptr<coral::IOBuf> iob,
-                               coral::WriteFlags flags) {
+    .WillRepeatedly(Invoke([] (folly::AsyncTransportWrapper::WriteCallback* callback,
+                               std::shared_ptr<folly::IOBuf> iob,
+                               folly::WriteFlags flags) {
                              callback->writeSuccess();
                            }));
   eventBase_.loop();
@@ -888,7 +888,7 @@ TEST_F(MockCodecDownstreamTest, double_resume) {
         }));
   EXPECT_CALL(handler1, onBody(_))
     .WillOnce(Invoke([&handler1, &bufStr] (
-                       std::shared_ptr<coral::IOBuf> chain) {
+                       std::shared_ptr<folly::IOBuf> chain) {
           EXPECT_EQ(bufStr, chain->moveToFbString());
           handler1.txn_->pauseIngress();
           handler1.txn_->resumeIngress();
@@ -908,9 +908,9 @@ TEST_F(MockCodecDownstreamTest, double_resume) {
   EXPECT_CALL(mockController_, detachSession(_));
 
   EXPECT_CALL(*transport_, writeChain(_, _, _))
-    .WillRepeatedly(Invoke([] (coral::AsyncTransportWrapper::WriteCallback* callback,
-                               std::shared_ptr<coral::IOBuf> iob,
-                               coral::WriteFlags flags) {
+    .WillRepeatedly(Invoke([] (folly::AsyncTransportWrapper::WriteCallback* callback,
+                               std::shared_ptr<folly::IOBuf> iob,
+                               folly::WriteFlags flags) {
                              callback->writeSuccess();
                            }));
 
@@ -925,7 +925,7 @@ void MockCodecDownstreamTest::testConnFlowControlBlocked(bool timeout) {
   NiceMock<MockHTTPHandler> handler1;
   NiceMock<MockHTTPHandler> handler2;
   auto wantToWrite = spdy::kInitialWindow + 50000;
-  auto wantToWriteStr = coral::to<string>(wantToWrite);
+  auto wantToWriteStr = folly::to<string>(wantToWrite);
   auto req1 = makeGetRequest();
   auto req2 = makeGetRequest();
   auto resp1 = makeResponse(200);
@@ -941,9 +941,9 @@ void MockCodecDownstreamTest::testConnFlowControlBlocked(bool timeout) {
   EXPECT_CALL(*codec_, generateHeader(_, 1, _, _, _, _));
   unsigned bodyLen = 0;
   EXPECT_CALL(*codec_, generateBody(_, 1, _, _, false))
-    .WillRepeatedly(Invoke([&] (coral::IOBufQueue& writeBuf,
+    .WillRepeatedly(Invoke([&] (folly::IOBufQueue& writeBuf,
                                 HTTPCodec::StreamID stream,
-                                std::shared_ptr<coral::IOBuf> chain,
+                                std::shared_ptr<folly::IOBuf> chain,
                                 boost::optional<uint8_t> padding,
                                 bool eom) {
                              bodyLen += chain->computeChainDataLength();
@@ -1027,7 +1027,7 @@ TEST_F(MockCodecDownstreamTest, unpaused_large_post) {
   NiceMock<MockHTTPHandler> handler1;
   unsigned kNumChunks = 10;
   auto wantToWrite = spdy::kInitialWindow * kNumChunks;
-  auto wantToWriteStr = coral::to<string>(wantToWrite);
+  auto wantToWriteStr = folly::to<string>(wantToWrite);
   auto req1 = makePostRequest();
   req1->getHeaders().set(HTTP_HEADER_CONTENT_LENGTH, wantToWriteStr);
   auto req1Body = makeBuf(wantToWrite);
@@ -1067,7 +1067,7 @@ TEST_F(MockCodecDownstreamTest, ingress_paused_window_update) {
   auto req = makeGetRequest();
   size_t respSize = spdy::kInitialWindow * 10;
   unique_ptr<HTTPMessage> resp;
-  unique_ptr<coral::IOBuf> respBody;
+  unique_ptr<folly::IOBuf> respBody;
   tie(resp, respBody) = makeResponse(200, respSize);
   size_t written = 0;
 
@@ -1084,9 +1084,9 @@ TEST_F(MockCodecDownstreamTest, ingress_paused_window_update) {
   EXPECT_CALL(*codec_, generateHeader(_, _, _, _, _, _));
   EXPECT_CALL(*codec_, generateBody(_, _, _, _, _))
     .WillRepeatedly(
-      Invoke([&] (coral::IOBufQueue& writeBuf,
+      Invoke([&] (folly::IOBufQueue& writeBuf,
                   HTTPCodec::StreamID stream,
-                  std::shared_ptr<coral::IOBuf> chain,
+                  std::shared_ptr<folly::IOBuf> chain,
                   boost::optional<uint8_t> padding,
                   bool eom) {
                auto len = chain->computeChainDataLength();
@@ -1243,9 +1243,9 @@ void MockCodecDownstreamTest::testGoaway(bool doubleGoaway,
     codecCallback_->onMessageComplete(1, false);
   }
 
-  coral::AsyncTransportWrapper::WriteCallback* cb = nullptr;
+  folly::AsyncTransportWrapper::WriteCallback* cb = nullptr;
   EXPECT_CALL(*transport_, writeChain(_, _, _))
-    .WillOnce(Invoke([&] (coral::AsyncTransportWrapper::WriteCallback* callback,
+    .WillOnce(Invoke([&] (folly::AsyncTransportWrapper::WriteCallback* callback,
                           const shared_ptr<IOBuf> iob,
                           WriteFlags flags) {
                        // don't immediately flush the goaway

@@ -17,7 +17,7 @@
 #include <proxygen/lib/http/codec/compress/Logging.h>
 #include <random>
 
-using namespace coral;
+using namespace folly;
 using namespace proxygen;
 using namespace std;
 using namespace testing;
@@ -295,19 +295,19 @@ TEST(SPDYCodecTest, UnsupportedFrameType) {
 }
 
 template <typename Codec>
-unique_ptr<coral::IOBuf> getSynStream(Codec& egressCodec,
+unique_ptr<folly::IOBuf> getSynStream(Codec& egressCodec,
                                       uint32_t streamID,
                                       const HTTPMessage& msg,
                                       uint32_t assocStreamId = 0,
                                       bool eom = false,
                                       HTTPHeaderSize* size = nullptr) {
-  coral::IOBufQueue output(coral::IOBufQueue::cacheChainLength());
+  folly::IOBufQueue output(folly::IOBufQueue::cacheChainLength());
   egressCodec.generateHeader(output, streamID, msg, assocStreamId, eom, size);
   return output.move();
 }
 
 template <typename Codec>
-unique_ptr<coral::IOBuf> getSynStream(Codec& egressCodec,
+unique_ptr<folly::IOBuf> getSynStream(Codec& egressCodec,
                                       uint32_t streamID) {
   HTTPMessage msg;
   msg.setMethod("GET");
@@ -333,10 +333,10 @@ void callFunction(F f, V version) {
 /**
  * Returns a SPDY frame with the specified version
  */
-unique_ptr<coral::IOBuf> getVersionedSpdyFrame(const uint8_t* bytes,
+unique_ptr<folly::IOBuf> getVersionedSpdyFrame(const uint8_t* bytes,
                                                size_t len,
                                                uint8_t version) {
-  auto frame = coral::IOBuf::copyBuffer(bytes, len);
+  auto frame = folly::IOBuf::copyBuffer(bytes, len);
   uint8_t* data = frame->writableData();
   data[1] = version; /* Set the version */
   return std::move(frame);
@@ -508,7 +508,7 @@ TEST(SPDYCodecTest, HeaderWithManyValues) {
   req.getHeaders().set("HOST", "www.foo.com");
   req.setURL("https://www.foo.com");
   for (unsigned i = 0; i < kNumValues; ++i) {
-    req.getHeaders().add(kMultiValued, coral::to<string>("Value", i));
+    req.getHeaders().add(kMultiValued, folly::to<string>("Value", i));
   }
   auto syn = getSynStream(egressCodec, 1, req);
   ingressCodec.onIngress(*syn);
@@ -533,7 +533,7 @@ TEST(SPDYCodecTest, LargeFrameEncoding) {
   codec.setMaxUncompressedHeaders(0);
   auto req = getGetRequest();
   for (unsigned i = 0; i < kNumValues; ++i) {
-    req.getHeaders().add(kMultiValued, coral::to<string>("Value", i));
+    req.getHeaders().add(kMultiValued, folly::to<string>("Value", i));
   }
   auto syn = getSynStream(codec, 1, req);
 }
@@ -548,7 +548,7 @@ TEST(SPDYCodecTest, InvalidSettings) {
                          SPDYVersion::SPDY3);
   ingressCodec.setCallback(&callbacks);
 
-  coral::IOBufQueue output(coral::IOBufQueue::cacheChainLength());
+  folly::IOBufQueue output(folly::IOBufQueue::cacheChainLength());
   egressCodec.getEgressSettings()->setSetting(
     SettingsId::INITIAL_WINDOW_SIZE,
     (uint32_t)std::numeric_limits<int32_t>::max() + 1);
@@ -657,7 +657,7 @@ TEST(SPDYCodecTest, ServerPushHostMissing) {
                          SPDYVersion::SPDY3);
   ingressCodec.setCallback(&callbacks);
 
-  auto syn = coral::IOBuf::copyBuffer(pushStreamWithHostMissing,
+  auto syn = folly::IOBuf::copyBuffer(pushStreamWithHostMissing,
                                       sizeof(pushStreamWithHostMissing));
   ingressCodec.onIngress(*syn);
   EXPECT_EQ(callbacks.messageBegin, 0);
@@ -700,7 +700,7 @@ TEST(SPDYCodecTest, ServerPushInvalidId) {
                          SPDYVersion::SPDY3);
   ingressCodec.setCallback(&callbacks);
 
-  auto syn = coral::IOBuf::copyBuffer(pushStreamWithOddId,
+  auto syn = folly::IOBuf::copyBuffer(pushStreamWithOddId,
                                       sizeof(pushStreamWithOddId));
   ingressCodec.onIngress(*syn);
   EXPECT_EQ(callbacks.messageBegin, 0);
@@ -743,7 +743,7 @@ TEST(SPDYCodecTest, ServerPushInvalidFlags) {
                          SPDYVersion::SPDY3);
   ingressCodec.setCallback(&callbacks);
 
-  auto syn = coral::IOBuf::copyBuffer(pushStreamWithoutUnidirectional,
+  auto syn = folly::IOBuf::copyBuffer(pushStreamWithoutUnidirectional,
                                       sizeof(pushStreamWithoutUnidirectional));
   ingressCodec.onIngress(*syn);
   EXPECT_EQ(callbacks.messageBegin, 0);
@@ -786,7 +786,7 @@ TEST(SPDYCodecTest, ServerPushWithoutAssoc) {
                          SPDYVersion::SPDY3);
   ingressCodec.setCallback(&callbacks);
 
-  auto syn = coral::IOBuf::copyBuffer(pushStreamWithoutAssoc,
+  auto syn = folly::IOBuf::copyBuffer(pushStreamWithoutAssoc,
                                       sizeof(pushStreamWithoutAssoc));
   ingressCodec.onIngress(*syn);
   EXPECT_EQ(callbacks.messageBegin, 0);
@@ -862,7 +862,7 @@ TEST(SPDYCodecTest, StatusReason) {
 }
 
 TEST(SPDYCodecTest, UpstreamPing) {
-  coral::IOBufQueue buf(coral::IOBufQueue::cacheChainLength());
+  folly::IOBufQueue buf(folly::IOBufQueue::cacheChainLength());
   FakeHTTPCodecCallback callbacks;
   SPDYCodec egressCodec(TransportDirection::UPSTREAM,
                         SPDYVersion::SPDY3);
@@ -888,7 +888,7 @@ TEST(SPDYCodecTest, UpstreamPing) {
 }
 
 TEST(SPDYCodecTest, DownstreamPing) {
-  coral::IOBufQueue buf(coral::IOBufQueue::cacheChainLength());
+  folly::IOBufQueue buf(folly::IOBufQueue::cacheChainLength());
   FakeHTTPCodecCallback callbacks;
   SPDYCodec egressCodec(TransportDirection::DOWNSTREAM,
                         SPDYVersion::SPDY3);
@@ -1013,7 +1013,7 @@ TEST(SPDYCodecTest, HeaderDoS) {
                          SPDYVersion::SPDY3);
   ingressCodec.setCallback(&callbacks);
 
-  auto attack = coral::IOBuf::copyBuffer(multiValuedHeaderAttack,
+  auto attack = folly::IOBuf::copyBuffer(multiValuedHeaderAttack,
                                          sizeof(multiValuedHeaderAttack));
 
   ingressCodec.onIngress(*attack);
@@ -1039,7 +1039,7 @@ TEST(SPDYCodecTest, DoubleGoawayServer) {
 
   unsigned ack = std::numeric_limits<int32_t>::max();
   auto f = [&] () {
-    coral::IOBufQueue output(coral::IOBufQueue::cacheChainLength());
+    folly::IOBufQueue output(folly::IOBufQueue::cacheChainLength());
     egressCodec.generateGoaway(output, ack, ErrorCode::NO_ERROR);
     auto ingress = output.move();
     ingressCodec.onIngress(*ingress);
@@ -1073,7 +1073,7 @@ TEST(SPDYCodecTest, DoubleGoawayClient) {
 
   unsigned ack = std::numeric_limits<int32_t>::max();
   auto f = [&] () {
-    coral::IOBufQueue output(coral::IOBufQueue::cacheChainLength());
+    folly::IOBufQueue output(folly::IOBufQueue::cacheChainLength());
     egressCodec.generateGoaway(output, ack, ErrorCode::NO_ERROR);
     auto ingress = output.move();
     ingressCodec.onIngress(*ingress);
@@ -1108,7 +1108,7 @@ TEST(SPDYCodecTest, SingleGoawayClient) {
 
   unsigned ack = 0;
   auto f = [&] () {
-    coral::IOBufQueue output(coral::IOBufQueue::cacheChainLength());
+    folly::IOBufQueue output(folly::IOBufQueue::cacheChainLength());
     egressCodec.generateGoaway(output, ack, ErrorCode::NO_ERROR);
     auto ingress = output.move();
     ingressCodec.onIngress(*ingress);
@@ -1148,7 +1148,7 @@ TEST(SPDYCodecTest, OddHeaderListTest) {
                          SPDYVersion::SPDY3);
   ingressCodec.setCallback(&callbacks);
 
-  auto attack = coral::IOBuf::copyBuffer(invalidHeaderPlusEmptyBlock,
+  auto attack = folly::IOBuf::copyBuffer(invalidHeaderPlusEmptyBlock,
                                          sizeof(invalidHeaderPlusEmptyBlock));
 
   ingressCodec.onIngress(*attack);
@@ -1165,8 +1165,8 @@ TEST(SPDYCodecTest, SendRstParsingFrame) {
                         SPDYVersion::SPDY3_1);
   SPDYCodec ingressCodec(TransportDirection::DOWNSTREAM,
                          SPDYVersion::SPDY3_1);
-  coral::IOBufQueue egressCodecQueue(coral::IOBufQueue::cacheChainLength());
-  coral::IOBufQueue ingressCodecQueue(coral::IOBufQueue::cacheChainLength());
+  folly::IOBufQueue egressCodecQueue(folly::IOBufQueue::cacheChainLength());
+  folly::IOBufQueue ingressCodecQueue(folly::IOBufQueue::cacheChainLength());
 
   InSequence enforceOrder;
 
@@ -1216,7 +1216,7 @@ TEST(SPDYCodecTest, BadNumNameValues) {
                          SPDYVersion::SPDY3_1);
   ingressCodec.setCallback(&callbacks);
 
-  auto attack = coral::IOBuf::copyBuffer(invalidNumNameValuesBlock,
+  auto attack = folly::IOBuf::copyBuffer(invalidNumNameValuesBlock,
                                          sizeof(invalidNumNameValuesBlock));
 
   ingressCodec.onIngress(*attack);
@@ -1236,7 +1236,7 @@ TEST(SPDYCodecTest, ShortSettings) {
                          SPDYVersion::SPDY3_1);
   ingressCodec.setCallback(&callbacks);
 
-  auto attack = coral::IOBuf::copyBuffer(kShortSettings,
+  auto attack = folly::IOBuf::copyBuffer(kShortSettings,
                                          sizeof(kShortSettings));
 
   ingressCodec.onIngress(*attack);
@@ -1310,7 +1310,7 @@ TEST(SPDYCodecTest, ColonHeaders) {
                          SPDYVersion::SPDY3_1);
   ingressCodec.setCallback(&callbacks);
 
-  auto testBuf = coral::IOBuf::copyBuffer(kColonHeaders,
+  auto testBuf = folly::IOBuf::copyBuffer(kColonHeaders,
                                          sizeof(kColonHeaders));
 
   ingressCodec.onIngress(*testBuf);

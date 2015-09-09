@@ -21,7 +21,7 @@ const char* const kTypeStrings[] =  {
 };
 
 std::ostream& operator<<(std::ostream& os, const ByteEvent& be) {
-  os << coral::to<std::string>(
+  os << folly::to<std::string>(
     "(", kTypeStrings[be.eventType_], ", ", be.byteOffset_, ")");
   return os;
 }

@@ -30,56 +30,56 @@ class MockHTTPCodec: public HTTPCodec {
   MOCK_CONST_METHOD0(isBusy, bool());
   MOCK_CONST_METHOD0(hasPartialTransaction, bool());
   MOCK_METHOD1(setParserPaused, void(bool));
-  MOCK_METHOD1(onIngress, size_t(const coral::IOBuf&));
+  MOCK_METHOD1(onIngress, size_t(const folly::IOBuf&));
   MOCK_METHOD0(onIngressEOF, void());
   MOCK_CONST_METHOD0(isReusable, bool());
   MOCK_CONST_METHOD0(isWaitingToDrain, bool());
   MOCK_CONST_METHOD0(closeOnEgressComplete, bool());
   MOCK_CONST_METHOD0(supportsParallelRequests, bool());
   MOCK_CONST_METHOD0(supportsPushTransactions, bool());
-  MOCK_METHOD6(generateHeader, void(coral::IOBufQueue&,
+  MOCK_METHOD6(generateHeader, void(folly::IOBufQueue&,
                                     HTTPCodec::StreamID,
                                     const HTTPMessage&,
                                     HTTPCodec::StreamID,
                                     bool eom,
                                     HTTPHeaderSize*));
-  MOCK_METHOD5(generateBody, size_t(coral::IOBufQueue&,
+  MOCK_METHOD5(generateBody, size_t(folly::IOBufQueue&,
                                     HTTPCodec::StreamID,
-                                    std::shared_ptr<coral::IOBuf>,
+                                    std::shared_ptr<folly::IOBuf>,
                                     boost::optional<uint8_t>,
                                     bool));
-  size_t generateBody(coral::IOBufQueue& writeBuf,
+  size_t generateBody(folly::IOBufQueue& writeBuf,
                       HTTPCodec::StreamID stream,
-                      std::unique_ptr<coral::IOBuf> chain,
+                      std::unique_ptr<folly::IOBuf> chain,
                       boost::optional<uint8_t> padding,
                       bool eom) override {
     return generateBody(writeBuf,
                         stream,
-                        std::shared_ptr<coral::IOBuf>(chain.release()),
+                        std::shared_ptr<folly::IOBuf>(chain.release()),
                         padding,
                         eom);
   }
-  MOCK_METHOD3(generateChunkHeader, size_t(coral::IOBufQueue&,
+  MOCK_METHOD3(generateChunkHeader, size_t(folly::IOBufQueue&,
                                            HTTPCodec::StreamID,
                                            size_t));
-  MOCK_METHOD2(generateChunkTerminator, size_t(coral::IOBufQueue&,
+  MOCK_METHOD2(generateChunkTerminator, size_t(folly::IOBufQueue&,
                                                HTTPCodec::StreamID));
-  MOCK_METHOD3(generateTrailers, size_t(coral::IOBufQueue&,
+  MOCK_METHOD3(generateTrailers, size_t(folly::IOBufQueue&,
                                         HTTPCodec::StreamID,
                                         const HTTPHeaders&));
-  MOCK_METHOD2(generateEOM, size_t(coral::IOBufQueue&,
+  MOCK_METHOD2(generateEOM, size_t(folly::IOBufQueue&,
                                    HTTPCodec::StreamID));
-  MOCK_METHOD3(generateRstStream, size_t(coral::IOBufQueue&,
+  MOCK_METHOD3(generateRstStream, size_t(folly::IOBufQueue&,
                                          HTTPCodec::StreamID,
                                          ErrorCode));
-  MOCK_METHOD3(generateGoaway, size_t(coral::IOBufQueue&,
+  MOCK_METHOD3(generateGoaway, size_t(folly::IOBufQueue&,
                                       StreamID,
                                       ErrorCode));
-  MOCK_METHOD1(generatePingRequest, size_t(coral::IOBufQueue&));
-  MOCK_METHOD2(generatePingReply, size_t(coral::IOBufQueue&,
+  MOCK_METHOD1(generatePingRequest, size_t(folly::IOBufQueue&));
+  MOCK_METHOD2(generatePingReply, size_t(folly::IOBufQueue&,
                                          uint64_t));
-  MOCK_METHOD1(generateSettings, size_t(coral::IOBufQueue&));
-  MOCK_METHOD3(generateWindowUpdate, size_t(coral::IOBufQueue&,
+  MOCK_METHOD1(generateSettings, size_t(folly::IOBufQueue&));
+  MOCK_METHOD3(generateWindowUpdate, size_t(folly::IOBufQueue&,
                                             StreamID,
                                             uint32_t));
   MOCK_METHOD0(getEgressSettings, HTTPSettings*());
@@ -100,10 +100,10 @@ class MockHTTPCodecCallback: public HTTPCodec::Callback {
     onHeadersComplete(stream, std::shared_ptr<HTTPMessage>(msg.release()));
   }
   MOCK_METHOD3(onBody, void(HTTPCodec::StreamID,
-                            std::shared_ptr<coral::IOBuf>, uint8_t));
+                            std::shared_ptr<folly::IOBuf>, uint8_t));
   void onBody(HTTPCodec::StreamID stream,
-              std::unique_ptr<coral::IOBuf> chain, uint16_t padding) override {
-    onBody(stream, std::shared_ptr<coral::IOBuf>(chain.release()), padding);
+              std::unique_ptr<folly::IOBuf> chain, uint16_t padding) override {
+    onBody(stream, std::shared_ptr<folly::IOBuf>(chain.release()), padding);
   }
   MOCK_METHOD2(onChunkHeader, void(HTTPCodec::StreamID, size_t));
   MOCK_METHOD1(onChunkComplete, void(HTTPCodec::StreamID));

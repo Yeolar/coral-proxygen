@@ -7,9 +7,9 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  *
  */
-#include <coral/io/async/EventBase.h>
-#include <coral/io/async/test/UndelayedDestruction.h>
-#include <coral/io/async/test/Util.h>
+#include <folly/io/async/EventBase.h>
+#include <folly/io/async/test/UndelayedDestruction.h>
+#include <folly/io/async/test/Util.h>
 #include <gtest/gtest.h>
 #include <proxygen/lib/utils/AsyncTimeoutSet.h>
 #include <proxygen/lib/utils/test/MockTimeoutManager.h>
@@ -19,10 +19,10 @@
 
 using namespace proxygen;
 using namespace testing;
-using coral::AsyncTimeout;
+using folly::AsyncTimeout;
 using std::chrono::milliseconds;
 
-typedef coral::UndelayedDestruction<AsyncTimeoutSet> StackTimeoutSet;
+typedef folly::UndelayedDestruction<AsyncTimeoutSet> StackTimeoutSet;
 
 class MockTimeoutClock : public AsyncTimeoutSet::TimeoutClock {
  public:

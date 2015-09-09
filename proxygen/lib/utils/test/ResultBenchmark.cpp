@@ -7,11 +7,11 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  *
  */
-#include <coral/Benchmark.h>
+#include <folly/Benchmark.h>
 #include <proxygen/lib/utils/Result.h>
 #include <type_traits>
 
-using namespace coral;
+using namespace folly;
 using namespace proxygen;
 
 struct MediumStruct {
@@ -67,6 +67,6 @@ BENCHMARK(reference_medium_struct_or_byte, numIters) {
 }
 
 int main(int argc, char* argv[]) {
-  coral::runBenchmarks();
+  folly::runBenchmarks();
   return 0;
 }

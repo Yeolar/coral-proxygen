@@ -32,7 +32,7 @@ void HTTPChecks::onHeadersComplete(StreamID stream,
   callback_->onHeadersComplete(stream, std::move(msg));
 }
 
-void HTTPChecks::generateHeader(coral::IOBufQueue& writeBuf,
+void HTTPChecks::generateHeader(folly::IOBufQueue& writeBuf,
                                 StreamID stream,
                                 const HTTPMessage& msg,
                                 StreamID assocStream,

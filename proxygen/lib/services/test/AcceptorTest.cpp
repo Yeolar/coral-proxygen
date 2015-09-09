@@ -8,11 +8,11 @@
  *
  */
 #include <wangle/acceptor/Acceptor.h>
-#include <coral/io/async/EventBase.h>
+#include <folly/io/async/EventBase.h>
 #include <glog/logging.h>
 #include <gtest/gtest.h>
 
-using namespace coral;
+using namespace folly;
 using namespace wangle;
 
 class TestConnection : public wangle::ManagedConnection {
@@ -33,8 +33,8 @@ class TestAcceptor : public Acceptor {
   explicit TestAcceptor(const ServerSocketConfig& accConfig)
       : Acceptor(accConfig) {}
 
-  void onNewConnection(coral::AsyncSocket::UniquePtr sock,
-                       const coral::SocketAddress* address,
+  void onNewConnection(folly::AsyncSocket::UniquePtr sock,
+                       const folly::SocketAddress* address,
                        const std::string& nextProtocolName,
                        SecureTransportType secureTransportType,
                        const TransportInfo& tinfo) override {

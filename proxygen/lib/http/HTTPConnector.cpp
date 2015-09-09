@@ -14,11 +14,11 @@
 #include <proxygen/lib/http/codec/SPDYCodec.h>
 #include <proxygen/lib/http/session/HTTPTransaction.h>
 #include <proxygen/lib/http/session/HTTPUpstreamSession.h>
-#include <coral/io/async/AsyncSSLSocket.h>
+#include <folly/io/async/AsyncSSLSocket.h>
 
 
 
-using namespace coral;
+using namespace folly;
 using namespace std;
 
 namespace proxygen {
@@ -29,7 +29,7 @@ unique_ptr<HTTPCodec> makeCodec(const string& chosenProto,
                                 bool forceHTTP1xCodecTo1_1) {
   auto spdyVersion = SPDYCodec::getVersion(chosenProto);
   if (spdyVersion) {
-    return coral::make_unique<SPDYCodec>(TransportDirection::UPSTREAM,
+    return folly::make_unique<SPDYCodec>(TransportDirection::UPSTREAM,
                                          *spdyVersion);
   } else {
     if (!chosenProto.empty() &&
@@ -39,7 +39,7 @@ unique_ptr<HTTPCodec> makeCodec(const string& chosenProto,
         "Attempting to use HTTP/1.1";
     }
 
-    return coral::make_unique<HTTP1xCodec>(TransportDirection::UPSTREAM,
+    return folly::make_unique<HTTP1xCodec>(TransportDirection::UPSTREAM,
                                            forceHTTP1xCodecTo1_1);
   }
 }
@@ -72,10 +72,10 @@ void HTTPConnector::setHTTPVersionOverride(bool enabled) {
 
 void HTTPConnector::connect(
   EventBase* eventBase,
-  const coral::SocketAddress& connectAddr,
+  const folly::SocketAddress& connectAddr,
   chrono::milliseconds timeoutMs,
   const AsyncSocket::OptionMap& socketOptions,
-  const coral::SocketAddress& bindAddr) {
+  const folly::SocketAddress& bindAddr) {
 
   DCHECK(!isBusy());
   transportInfo_ = wangle::TransportInfo();
@@ -88,12 +88,12 @@ void HTTPConnector::connect(
 
 void HTTPConnector::connectSSL(
   EventBase* eventBase,
-  const coral::SocketAddress& connectAddr,
+  const folly::SocketAddress& connectAddr,
   const shared_ptr<SSLContext>& context,
   SSL_SESSION* session,
   chrono::milliseconds timeoutMs,
   const AsyncSocket::OptionMap& socketOptions,
-  const coral::SocketAddress& bindAddr) {
+  const folly::SocketAddress& bindAddr) {
 
   DCHECK(!isBusy());
   transportInfo_ = wangle::TransportInfo();
@@ -122,8 +122,8 @@ void HTTPConnector::connectSuccess() noexcept {
     return;
   }
 
-  coral::SocketAddress localAddress;
-  coral::SocketAddress peerAddress;
+  folly::SocketAddress localAddress;
+  folly::SocketAddress peerAddress;
   socket_->getLocalAddress(&localAddress);
   socket_->getPeerAddress(&peerAddress);
 

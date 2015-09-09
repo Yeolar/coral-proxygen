@@ -8,8 +8,8 @@
  *
  */
 #include <proxygen/lib/utils/RendezvousHash.h>
-#include <coral/Foreach.h>
-#include <coral/Hash.h>
+#include <folly/Foreach.h>
+#include <folly/Hash.h>
 #include <glog/logging.h>
 #include <map>
 #include <algorithm>
@@ -147,11 +147,11 @@ size_t RendezvousHash::get(const uint64_t key, const size_t rank) const {
 }
 
 uint64_t RendezvousHash::computeHash(const char* data, size_t len) const {
-  return coral::hash::fnv64_buf(data, len);
+  return folly::hash::fnv64_buf(data, len);
 }
 
 uint64_t RendezvousHash::computeHash(uint64_t i) const {
-  return coral::hash::twang_mix64(i);
+  return folly::hash::twang_mix64(i);
 }
 
 double RendezvousHash::getMaxErrorRate() const {

@@ -1,10 +1,6 @@
 #!/usr/bin/env python
 # @lint-avoid-python-3-compatibility-imports
 
-# Usage:
-#   ./gen_trace_event_constants.py --install_dir=. --input_files=TraceEventType.txt,TraceFieldType.txt --output_type=cpp --output_scope=proxygen --header_path="proxygen/lib/utils"
-#
-
 import os
 import re
 import sys

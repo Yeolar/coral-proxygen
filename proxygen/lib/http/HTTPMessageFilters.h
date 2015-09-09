@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include <coral/Memory.h>
+#include <folly/Memory.h>
 #include <proxygen/lib/http/session/HTTPTransaction.h>
 #include <proxygen/lib/utils/DestructorCheck.h>
 
@@ -31,7 +31,7 @@ class HTTPMessageFilter: public HTTPTransaction::Handler,
   void onHeadersComplete(std::unique_ptr<HTTPMessage> msg) noexcept override {
     nextTransactionHandler_->onHeadersComplete(std::move(msg));
   }
-  void onBody(std::unique_ptr<coral::IOBuf> chain) noexcept override {
+  void onBody(std::unique_ptr<folly::IOBuf> chain) noexcept override {
     nextTransactionHandler_->onBody(std::move(chain));
   }
   void onChunkHeader(size_t length) noexcept override {
@@ -73,7 +73,7 @@ class HTTPMessageFilter: public HTTPTransaction::Handler,
   void nextOnHeadersComplete(std::unique_ptr<HTTPMessage> msg) {
     nextTransactionHandler_->onHeadersComplete(std::move(msg));
   }
-  void nextOnBody(std::unique_ptr<coral::IOBuf> chain) {
+  void nextOnBody(std::unique_ptr<folly::IOBuf> chain) {
     nextTransactionHandler_->onBody(std::move(chain));
   }
   void nextOnChunkHeader(size_t length) {

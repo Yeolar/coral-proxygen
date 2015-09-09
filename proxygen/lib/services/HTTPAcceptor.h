@@ -10,7 +10,7 @@
 #pragma once
 
 #include <wangle/acceptor/Acceptor.h>
-#include <coral/io/async/AsyncServerSocket.h>
+#include <folly/io/async/AsyncServerSocket.h>
 #include <proxygen/lib/services/AcceptorConfiguration.h>
 #include <proxygen/lib/utils/AsyncTimeoutSet.h>
 
@@ -36,8 +36,8 @@ class HTTPAcceptor : public wangle::Acceptor {
     return transactionTimeouts_.get();
   }
 
-  void init(coral::AsyncServerSocket* serverSocket,
-            coral::EventBase* eventBase) override {
+  void init(folly::AsyncServerSocket* serverSocket,
+            folly::EventBase* eventBase) override {
     Acceptor::init(serverSocket, eventBase);
     transactionTimeouts_.reset(new AsyncTimeoutSet(
                                  eventBase, accConfig_.transactionIdleTimeout));

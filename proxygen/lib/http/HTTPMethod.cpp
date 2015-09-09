@@ -9,7 +9,7 @@
  */
 #include <proxygen/lib/http/HTTPMethod.h>
 
-#include <coral/Foreach.h>
+#include <folly/Foreach.h>
 #include <proxygen/lib/http/HTTPHeaders.h>
 #include <proxygen/lib/utils/UnionBasedStatic.h>
 #include <vector>
@@ -35,7 +35,7 @@ void initMethodStrings() {
 
 namespace proxygen {
 
-boost::optional<HTTPMethod> stringToMethod(coral::StringPiece method) {
+boost::optional<HTTPMethod> stringToMethod(folly::StringPiece method) {
   FOR_EACH_ENUMERATE(index, cur, s_methodStrings.data) {
     if (caseInsensitiveEqual(*cur, method)) {
       return HTTPMethod(index);

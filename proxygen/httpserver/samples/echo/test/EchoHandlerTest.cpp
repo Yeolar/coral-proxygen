@@ -27,7 +27,7 @@ class EchoHandlerFixture : public testing::Test {
  public:
   void SetUp() override {
     handler = new EchoHandler(&stats);
-    responseHandler = coral::make_unique<MockResponseHandler>(handler);
+    responseHandler = folly::make_unique<MockResponseHandler>(handler);
     handler->setResponseHandler(responseHandler.get());
   }
 
@@ -69,14 +69,14 @@ TEST_F(EchoHandlerFixture, ReplaysBodyProperly) {
   EXPECT_CALL(stats, getRequestCount()).WillOnce(Return(5));
 
   HTTPMessage response;
-  coral::fbstring body;
+  folly::fbstring body;
 
   EXPECT_CALL(*responseHandler, sendHeaders(_)).WillOnce(
       DoAll(SaveArg<0>(&response), Return()));
 
   EXPECT_CALL(*responseHandler, sendBody(_)).WillRepeatedly(
       DoAll(
-          Invoke([&] (std::shared_ptr<coral::IOBuf> b) {
+          Invoke([&] (std::shared_ptr<folly::IOBuf> b) {
             body += b->moveToFbString();
           }),
           Return()));
@@ -85,8 +85,8 @@ TEST_F(EchoHandlerFixture, ReplaysBodyProperly) {
 
   // Since we know we dont touch request, its ok to pass `nullptr` here.
   handler->onRequest(nullptr);
-  handler->onBody(coral::IOBuf::copyBuffer("part1"));
-  handler->onBody(coral::IOBuf::copyBuffer("part2"));
+  handler->onBody(folly::IOBuf::copyBuffer("part1"));
+  handler->onBody(folly::IOBuf::copyBuffer("part2"));
   handler->onEOM();
   handler->requestComplete();
 

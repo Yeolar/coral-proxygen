@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include <coral/Memory.h>
+#include <folly/Memory.h>
 #include <proxygen/httpserver/RequestHandler.h>
 
 namespace proxygen {
@@ -27,7 +27,7 @@ class EchoHandler : public proxygen::RequestHandler {
   void onRequest(std::unique_ptr<proxygen::HTTPMessage> headers)
       noexcept override;
 
-  void onBody(std::unique_ptr<coral::IOBuf> body) noexcept override;
+  void onBody(std::unique_ptr<folly::IOBuf> body) noexcept override;
 
   void onEOM() noexcept override;
 
@@ -40,7 +40,7 @@ class EchoHandler : public proxygen::RequestHandler {
  private:
   EchoStats* const stats_{nullptr};
 
-  std::unique_ptr<coral::IOBuf> body_;
+  std::unique_ptr<folly::IOBuf> body_;
 };
 
 }

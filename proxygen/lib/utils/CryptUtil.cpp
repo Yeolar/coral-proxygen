@@ -19,7 +19,7 @@
 namespace proxygen {
 
 // Base64 encode using openssl
-std::string base64Encode(coral::ByteRange text) {
+std::string base64Encode(folly::ByteRange text) {
   std::string result;
   BIO *b64 = BIO_new(BIO_f_base64());
   if (b64 == nullptr) {
@@ -58,7 +58,7 @@ std::string base64Encode(coral::ByteRange text) {
 }
 
 // MD5 encode using openssl
-std::string md5Encode(coral::ByteRange text) {
+std::string md5Encode(folly::ByteRange text) {
   static_assert(MD5_DIGEST_LENGTH == 16, "");
 
   unsigned char digest[MD5_DIGEST_LENGTH];

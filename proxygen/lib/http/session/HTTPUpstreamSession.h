@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include <coral/io/async/SSLContext.h>
+#include <folly/io/async/SSLContext.h>
 #include <proxygen/lib/http/session/HTTPSession.h>
 #include <proxygen/lib/http/session/HTTPSessionStats.h>
 
@@ -28,9 +28,9 @@ class HTTPUpstreamSession final: public HTTPSession {
    */
   HTTPUpstreamSession(
       AsyncTimeoutSet* transactionTimeouts,
-      coral::AsyncTransportWrapper::UniquePtr&& sock,
-      const coral::SocketAddress& localAddr,
-      const coral::SocketAddress& peerAddr,
+      folly::AsyncTransportWrapper::UniquePtr&& sock,
+      const folly::SocketAddress& localAddr,
+      const folly::SocketAddress& peerAddr,
       std::unique_ptr<HTTPCodec> codec,
       const wangle::TransportInfo& tinfo,
       InfoCallback* infoCallback):

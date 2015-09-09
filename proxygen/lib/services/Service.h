@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include <coral/io/async/EventBase.h>
+#include <folly/io/async/EventBase.h>
 #include <list>
 #include <memory>
 
@@ -46,7 +46,7 @@ class Service {
    * if the service is enabled and is supposed to be running, but an error
    * occurred starting it.
    */
-  virtual void start(coral::EventBase* mainEventBase,
+  virtual void start(folly::EventBase* mainEventBase,
                      const std::list<RequestWorker*>& workers) = 0;
 
   /**

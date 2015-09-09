@@ -13,7 +13,7 @@
 
 namespace proxygen {
 
-int8_t getChromeVersion(coral::StringPiece agent) {
+int8_t getChromeVersion(folly::StringPiece agent) {
   static const std::string search = "Chrome/";
   auto found = agent.find(search);
   int8_t num = -1;

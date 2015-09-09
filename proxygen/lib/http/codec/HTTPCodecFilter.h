@@ -44,7 +44,7 @@ class PassThroughHTTPCodecFilter: public HTTPCodecFilter {
                          std::unique_ptr<HTTPMessage> msg) override;
 
   void onBody(StreamID stream,
-              std::unique_ptr<coral::IOBuf> chain,
+              std::unique_ptr<folly::IOBuf> chain,
               uint16_t padding) override;
 
   void onChunkHeader(StreamID stream, size_t length) override;
@@ -102,7 +102,7 @@ class PassThroughHTTPCodecFilter: public HTTPCodecFilter {
 
   void setParserPaused(bool paused) override;
 
-  size_t onIngress(const coral::IOBuf& buf) override;
+  size_t onIngress(const folly::IOBuf& buf) override;
 
   void onIngressEOF() override;
 
@@ -116,51 +116,51 @@ class PassThroughHTTPCodecFilter: public HTTPCodecFilter {
 
   bool supportsPushTransactions() const override;
 
-  size_t generateConnectionPreface(coral::IOBufQueue& writeBuf) override;
+  size_t generateConnectionPreface(folly::IOBufQueue& writeBuf) override;
 
-  void generateHeader(coral::IOBufQueue& writeBuf,
+  void generateHeader(folly::IOBufQueue& writeBuf,
                       StreamID stream,
                       const HTTPMessage& msg,
                       StreamID assocStream,
                       bool eom,
                       HTTPHeaderSize* size) override;
 
-  size_t generateBody(coral::IOBufQueue& writeBuf,
+  size_t generateBody(folly::IOBufQueue& writeBuf,
                       StreamID stream,
-                      std::unique_ptr<coral::IOBuf> chain,
+                      std::unique_ptr<folly::IOBuf> chain,
                       boost::optional<uint8_t> padding,
                       bool eom) override;
 
-  size_t generateChunkHeader(coral::IOBufQueue& writeBuf,
+  size_t generateChunkHeader(folly::IOBufQueue& writeBuf,
                              StreamID stream,
                              size_t length) override;
 
-  size_t generateChunkTerminator(coral::IOBufQueue& writeBuf,
+  size_t generateChunkTerminator(folly::IOBufQueue& writeBuf,
                                  StreamID stream) override;
 
-  size_t generateTrailers(coral::IOBufQueue& writeBuf,
+  size_t generateTrailers(folly::IOBufQueue& writeBuf,
                           StreamID stream,
                           const HTTPHeaders& trailers) override;
 
-  size_t generateEOM(coral::IOBufQueue& writeBuf,
+  size_t generateEOM(folly::IOBufQueue& writeBuf,
                      StreamID stream) override;
 
-  size_t generateRstStream(coral::IOBufQueue& writeBuf,
+  size_t generateRstStream(folly::IOBufQueue& writeBuf,
                            StreamID stream,
                            ErrorCode statusCode) override;
 
-  size_t generateGoaway(coral::IOBufQueue& writeBuf,
+  size_t generateGoaway(folly::IOBufQueue& writeBuf,
                         StreamID lastStream,
                         ErrorCode statusCode) override;
 
-  size_t generatePingRequest(coral::IOBufQueue& writeBuf) override;
+  size_t generatePingRequest(folly::IOBufQueue& writeBuf) override;
 
-  size_t generatePingReply(coral::IOBufQueue& writeBuf,
+  size_t generatePingReply(folly::IOBufQueue& writeBuf,
                            uint64_t uniqueID) override;
 
-  size_t generateSettings(coral::IOBufQueue& writeBuf) override;
+  size_t generateSettings(folly::IOBufQueue& writeBuf) override;
 
-  size_t generateWindowUpdate(coral::IOBufQueue& writeBuf,
+  size_t generateWindowUpdate(folly::IOBufQueue& writeBuf,
                               StreamID stream,
                               uint32_t delta) override;
 

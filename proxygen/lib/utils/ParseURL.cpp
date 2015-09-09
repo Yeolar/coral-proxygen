@@ -16,7 +16,7 @@
 
 #include "proxygen/external/http_parser/http_parser.h"
 
-using coral::fbstring;
+using folly::fbstring;
 using std::string;
 
 namespace proxygen {
@@ -55,7 +55,7 @@ void ParseURL::parse() noexcept {
       fragment_ = url_.subpiece(u.field_data[UF_FRAGMENT].off,
                                 u.field_data[UF_FRAGMENT].len);
 
-      authority_ = (port_) ? coral::to<std::string>(host_, ":", port_)
+      authority_ = (port_) ? folly::to<std::string>(host_, ":", port_)
                            : host_.str();
     }
   } else {
@@ -118,8 +118,8 @@ bool ParseURL::parseAuthority() noexcept {
   auto pos = authority_.find(":", right != std::string::npos ? right : 0);
   if (pos != std::string::npos) {
     try {
-      port_ = coral::to<uint16_t>(
-        coral::StringPiece(authority_, pos+1, std::string::npos));
+      port_ = folly::to<uint16_t>(
+        folly::StringPiece(authority_, pos+1, std::string::npos));
     } catch (...) {
       return false;
     }
@@ -127,11 +127,11 @@ bool ParseURL::parseAuthority() noexcept {
 
   if (left == std::string::npos && right == std::string::npos) {
     // not a ipv6 literal
-    host_ = coral::StringPiece(authority_, 0, pos);
+    host_ = folly::StringPiece(authority_, 0, pos);
     return true;
   } else if (left < right && right != std::string::npos) {
     // a ipv6 literal
-    host_ = coral::StringPiece(authority_, left, right - left + 1);
+    host_ = folly::StringPiece(authority_, left, right - left + 1);
     return true;
   } else {
     return false;

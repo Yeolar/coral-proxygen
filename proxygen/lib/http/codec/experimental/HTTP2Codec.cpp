@@ -13,13 +13,13 @@
 #include <proxygen/lib/utils/ChromeUtils.h>
 #include <proxygen/lib/utils/Logging.h>
 
-#include <coral/Conv.h>
-#include <coral/io/Cursor.h>
-#include <coral/Random.h>
+#include <folly/Conv.h>
+#include <folly/io/Cursor.h>
+#include <folly/Random.h>
 
 using namespace proxygen::compress;
-using namespace coral::io;
-using namespace coral;
+using namespace folly::io;
+using namespace folly;
 
 using std::string;
 
@@ -60,7 +60,7 @@ HTTP2Codec::~HTTP2Codec() {}
 
 // HTTPCodec API
 
-size_t HTTP2Codec::onIngress(const coral::IOBuf& buf) {
+size_t HTTP2Codec::onIngress(const folly::IOBuf& buf) {
   // TODO: ensure only 1 parse at a time on stack.
 
   Cursor cursor(&buf);
@@ -91,7 +91,7 @@ size_t HTTP2Codec::onIngress(const coral::IOBuf& buf) {
             curHeader_.type != http2::FrameType::SETTINGS) {
           VLOG(4) << "Invalid connection preface frame type="
                   << getFrameTypeString(curHeader_.type) << "("
-                  << coral::to<string>(curHeader_.type) << ")";
+                  << folly::to<string>(curHeader_.type) << ")";
           connError = ErrorCode::PROTOCOL_ERROR;
         }
         if (curHeader_.length > maxRecvFrameSize()) {
@@ -145,14 +145,14 @@ size_t HTTP2Codec::onIngress(const coral::IOBuf& buf) {
   return parsed;
 }
 
-ErrorCode HTTP2Codec::parseFrame(coral::io::Cursor& cursor) {
+ErrorCode HTTP2Codec::parseFrame(folly::io::Cursor& cursor) {
   if (expectedContinuationStream_ != 0 &&
        (curHeader_.type != http2::FrameType::CONTINUATION ||
         expectedContinuationStream_ != curHeader_.stream)) {
     VLOG(4) << "Expected CONTINUATION with stream="
             << expectedContinuationStream_ << " got type="
             << getFrameTypeString(curHeader_.type) << "("
-            << coral::to<string>(curHeader_.type)
+            << folly::to<string>(curHeader_.type)
             << ") stream=" << curHeader_.stream;
     return ErrorCode::PROTOCOL_ERROR;
   }
@@ -289,7 +289,7 @@ ErrorCode HTTP2Codec::parseHeadersImpl(
     Cursor headerCursor(curHeaderBlock_.front());
     bool isRequest = (transportDirection_ == TransportDirection::DOWNSTREAM ||
                       promisedStream);
-    msg = coral::make_unique<HTTPMessage>();
+    msg = folly::make_unique<HTTPMessage>();
     if (priority) {
       msg->setHTTP2Priority(std::make_tuple(priority->streamDependency,
                                             priority->exclusive,
@@ -300,24 +300,24 @@ ErrorCode HTTP2Codec::parseHeadersImpl(
                                  curHeaderBlock_.chainLength(),
                                  this);
     // Saving this in case we need to log it on error
-    coral::ScopeGuard g = coral::makeGuard([this] {
+    folly::ScopeGuard g = folly::makeGuard([this] {
         curHeaderBlock_.move();
       });
     // Check decoding error
     if (decodeInfo_.decodeError != HeaderDecodeError::NONE) {
       LOG(ERROR) << "Failed decoding header block for stream="
                  << curHeader_.stream << " header block=" << std::endl
-                 << IOBufPrinter::printHexCoral(curHeaderBlock_.front(), true);;
+                 << IOBufPrinter::printHexFolly(curHeaderBlock_.front(), true);;
       return ErrorCode::COMPRESSION_ERROR;
     }
     // Check parsing error
     if (decodeInfo_.parsingError != "") {
       LOG(ERROR) << "Failed parsing header list for stream="
                  << curHeader_.stream << " header block=" << std::endl
-                 << IOBufPrinter::printHexCoral(curHeaderBlock_.front(), true)
+                 << IOBufPrinter::printHexFolly(curHeaderBlock_.front(), true)
                  << " error=" << decodeInfo_.parsingError;
       HTTPException err(HTTPException::Direction::INGRESS,
-                        coral::to<std::string>(
+                        folly::to<std::string>(
                           "HTTP2Codec stream error: stream=",
                           curHeader_.stream, " status=", 400,
                           " error: ", decodeInfo_.parsingError));
@@ -366,14 +366,14 @@ void HTTP2Codec::onHeader(const std::string& name,
       || decodeInfo_.parsingError != "") {
     return;
   }
-  coral::StringPiece nameSp(name);
-  coral::StringPiece valueSp(value);
+  folly::StringPiece nameSp(name);
+  folly::StringPiece valueSp(value);
 
   HTTPRequestVerifier& verifier = decodeInfo_.verifier;
   if (nameSp.startsWith(':')) {
     if (decodeInfo_.regularHeaderSeen) {
       decodeInfo_.parsingError =
-        coral::to<string>("Illegal pseudo header name=", nameSp);
+        folly::to<string>("Illegal pseudo header name=", nameSp);
       return;
     }
     if (decodeInfo_.isRequest) {
@@ -395,7 +395,7 @@ void HTTP2Codec::onHeader(const std::string& name,
         }
       } else {
         decodeInfo_.parsingError =
-          coral::to<string>("Invalid header name=", nameSp);
+          folly::to<string>("Invalid header name=", nameSp);
         return;
       }
     } else {
@@ -407,7 +407,7 @@ void HTTP2Codec::onHeader(const std::string& name,
         decodeInfo_.hasStatus = true;
         int32_t code = -1;
         try {
-          code = coral::to<unsigned int>(valueSp);
+          code = folly::to<unsigned int>(valueSp);
         } catch (const std::range_error& ex) {
         }
         if (code >= 100 && code <= 999) {
@@ -416,12 +416,12 @@ void HTTP2Codec::onHeader(const std::string& name,
               HTTPMessage::getDefaultReason(code));
         } else {
           decodeInfo_.parsingError =
-            coral::to<string>("Malformed status code=", valueSp);
+            folly::to<string>("Malformed status code=", valueSp);
           return;
         }
       } else {
         decodeInfo_.parsingError =
-          coral::to<string>("Invalid header name=", nameSp);
+          folly::to<string>("Invalid header name=", nameSp);
         return;
       }
     }
@@ -435,7 +435,7 @@ void HTTP2Codec::onHeader(const std::string& name,
     bool nameOk = SPDYUtil::validateHeaderName(nameSp);
     bool valueOk = SPDYUtil::validateHeaderValue(valueSp, SPDYUtil::STRICT);
     if (!nameOk || !valueOk) {
-      decodeInfo_.parsingError = coral::to<string>("Bad header value: name=",
+      decodeInfo_.parsingError = folly::to<string>("Bad header value: name=",
           nameSp, " value=", valueSp);
       return;
     }
@@ -664,7 +664,7 @@ ErrorCode HTTP2Codec::parseWindowUpdate(Cursor& cursor) {
       // and send a rst stream
       VLOG(4) << "parseWindowUpdate Invalid 0 length";
       HTTPException error(HTTPException::Direction::INGRESS_AND_EGRESS,
-                        coral::to<std::string>(
+                        folly::to<std::string>(
                           "HTTP2Codec stream error: stream=",
                           curHeader_.stream,
                           " window update delta=", delta));
@@ -698,7 +698,7 @@ ErrorCode HTTP2Codec::checkNewStream(uint32_t streamId) {
   }
 }
 
-size_t HTTP2Codec::generateConnectionPreface(coral::IOBufQueue& writeBuf) {
+size_t HTTP2Codec::generateConnectionPreface(folly::IOBufQueue& writeBuf) {
   if (transportDirection_ == TransportDirection::UPSTREAM) {
     VLOG(4) << "generating connection preface";
     writeBuf.append(http2::kConnectionPreface);
@@ -707,7 +707,7 @@ size_t HTTP2Codec::generateConnectionPreface(coral::IOBufQueue& writeBuf) {
   return 0;
 }
 
-void HTTP2Codec::generateHeader(coral::IOBufQueue& writeBuf,
+void HTTP2Codec::generateHeader(folly::IOBufQueue& writeBuf,
                                 StreamID stream,
                                 const HTTPMessage& msg,
                                 StreamID assocStream,
@@ -737,7 +737,7 @@ void HTTP2Codec::generateHeader(coral::IOBufQueue& writeBuf,
     }
   } else {
     DCHECK(transportDirection_ == TransportDirection::DOWNSTREAM);
-    status = coral::to<string>(msg.getStatusCode());
+    status = folly::to<string>(msg.getStatusCode());
     allHeaders.emplace_back(http2::kStatus, status);
     // HEADERS frames do not include a version or reason string.
   }
@@ -826,9 +826,9 @@ void HTTP2Codec::generateHeader(coral::IOBufQueue& writeBuf,
   }
 }
 
-size_t HTTP2Codec::generateBody(coral::IOBufQueue& writeBuf,
+size_t HTTP2Codec::generateBody(folly::IOBufQueue& writeBuf,
                                 StreamID stream,
-                                std::unique_ptr<coral::IOBuf> chain,
+                                std::unique_ptr<folly::IOBuf> chain,
                                 boost::optional<uint8_t> padding,
                                 bool eom) {
   // todo: generate random padding for everything?
@@ -846,32 +846,32 @@ size_t HTTP2Codec::generateBody(coral::IOBufQueue& writeBuf,
                                     padding, eom);
 }
 
-size_t HTTP2Codec::generateChunkHeader(coral::IOBufQueue& writeBuf,
+size_t HTTP2Codec::generateChunkHeader(folly::IOBufQueue& writeBuf,
                                        StreamID stream,
                                        size_t length) {
   // HTTP/2 has no chunk headers
   return 0;
 }
 
-size_t HTTP2Codec::generateChunkTerminator(coral::IOBufQueue& writeBuf,
+size_t HTTP2Codec::generateChunkTerminator(folly::IOBufQueue& writeBuf,
                                            StreamID stream) {
   // HTTP/2 has no chunk terminators
   return 0;
 }
 
-size_t HTTP2Codec::generateTrailers(coral::IOBufQueue& writeBuf,
+size_t HTTP2Codec::generateTrailers(folly::IOBufQueue& writeBuf,
                                     StreamID stream,
                                     const HTTPHeaders& trailers) {
   return 0;
 }
 
-size_t HTTP2Codec::generateEOM(coral::IOBufQueue& writeBuf,
+size_t HTTP2Codec::generateEOM(folly::IOBufQueue& writeBuf,
                                StreamID stream) {
   VLOG(4) << "sending EOM for stream=" << stream;
   return http2::writeData(writeBuf, nullptr, stream, http2::kNoPadding, true);
 }
 
-size_t HTTP2Codec::generateRstStream(coral::IOBufQueue& writeBuf,
+size_t HTTP2Codec::generateRstStream(folly::IOBufQueue& writeBuf,
                                      StreamID stream,
                                      ErrorCode statusCode) {
   VLOG(4) << "sending RST_STREAM for stream=" << stream
@@ -879,7 +879,7 @@ size_t HTTP2Codec::generateRstStream(coral::IOBufQueue& writeBuf,
   return http2::writeRstStream(writeBuf, stream, statusCode);
 }
 
-size_t HTTP2Codec::generateGoaway(coral::IOBufQueue& writeBuf,
+size_t HTTP2Codec::generateGoaway(folly::IOBufQueue& writeBuf,
                                   StreamID lastStream,
                                   ErrorCode statusCode) {
 #ifndef NDEBUG
@@ -916,21 +916,21 @@ size_t HTTP2Codec::generateGoaway(coral::IOBufQueue& writeBuf,
   return http2::writeGoaway(writeBuf, lastStream, statusCode, nullptr);
 }
 
-size_t HTTP2Codec::generatePingRequest(coral::IOBufQueue& writeBuf) {
+size_t HTTP2Codec::generatePingRequest(folly::IOBufQueue& writeBuf) {
   // should probably let the caller specify when integrating with session
   // we know HTTPSession sets up events to track ping latency
-  uint64_t opaqueData = coral::Random::rand64();
+  uint64_t opaqueData = folly::Random::rand64();
   VLOG(4) << "Generating ping request with opaqueData=" << opaqueData;
   return http2::writePing(writeBuf, opaqueData, false /* no ack */);
 }
 
-size_t HTTP2Codec::generatePingReply(coral::IOBufQueue& writeBuf,
+size_t HTTP2Codec::generatePingReply(folly::IOBufQueue& writeBuf,
                                      uint64_t uniqueID) {
   VLOG(4) << "Generating ping reply with opaqueData=" << uniqueID;
   return http2::writePing(writeBuf, uniqueID, true /* ack */);
 }
 
-size_t HTTP2Codec::generateSettings(coral::IOBufQueue& writeBuf) {
+size_t HTTP2Codec::generateSettings(folly::IOBufQueue& writeBuf) {
   std::deque<SettingPair> settings;
   for (auto& setting: egressSettings_.getAllSettings()) {
     if (setting.isSet) {
@@ -953,12 +953,12 @@ size_t HTTP2Codec::generateSettings(coral::IOBufQueue& writeBuf) {
   return http2::writeSettings(writeBuf, settings);
 }
 
-size_t HTTP2Codec::generateSettingsAck(coral::IOBufQueue& writeBuf) {
+size_t HTTP2Codec::generateSettingsAck(folly::IOBufQueue& writeBuf) {
   VLOG(4) << "generating settings ack";
   return http2::writeSettingsAck(writeBuf);
 }
 
-size_t HTTP2Codec::generateWindowUpdate(coral::IOBufQueue& writeBuf,
+size_t HTTP2Codec::generateWindowUpdate(folly::IOBufQueue& writeBuf,
                                         StreamID stream,
                                         uint32_t delta) {
   VLOG(4) << "generating window update for stream=" << stream
@@ -966,10 +966,10 @@ size_t HTTP2Codec::generateWindowUpdate(coral::IOBufQueue& writeBuf,
   return http2::writeWindowUpdate(writeBuf, stream, delta);
 }
 
-bool HTTP2Codec::checkConnectionError(ErrorCode err, const coral::IOBuf* buf) {
+bool HTTP2Codec::checkConnectionError(ErrorCode err, const folly::IOBuf* buf) {
   if (err != ErrorCode::NO_ERROR) {
     LOG(ERROR) << "Connection error with ingress=" << std::endl
-               << IOBufPrinter::printHexCoral(buf, true);
+               << IOBufPrinter::printHexFolly(buf, true);
     if (callback_) {
       HTTPException ex(HTTPException::Direction::INGRESS_AND_EGRESS,
                        "Connection error");

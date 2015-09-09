@@ -311,7 +311,7 @@ class HTTP2PriorityQueue {
         parent = dep;
       }
     }
-    auto node = coral::make_unique<Node>(parent, id, pri.weight, txn);
+    auto node = folly::make_unique<Node>(parent, id, pri.weight, txn);
     auto result = parent->emplaceNode(std::move(node), pri.exclusive);
     return result;
   }

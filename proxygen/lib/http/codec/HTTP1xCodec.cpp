@@ -9,12 +9,12 @@
  */
 #include <proxygen/lib/http/codec/HTTP1xCodec.h>
 
-#include <coral/Memory.h>
+#include <folly/Memory.h>
 #include <proxygen/lib/http/HTTPHeaderSize.h>
 #include <proxygen/lib/http/RFC2616.h>
 
-using coral::IOBuf;
-using coral::IOBufQueue;
+using folly::IOBuf;
+using folly::IOBufQueue;
 using std::string;
 using std::unique_ptr;
 
@@ -224,7 +224,7 @@ HTTP1xCodec::onParserError(const char* what) {
   inRecvLastChunk_ = false;
   http_errno parser_errno = HTTP_PARSER_ERRNO(&parser_);
   HTTPException error(HTTPException::Direction::INGRESS,
-                      what ? what : coral::to<std::string>(
+                      what ? what : folly::to<std::string>(
                         "Error parsing message: ",
                         http_errno_description(parser_errno)
                       ));

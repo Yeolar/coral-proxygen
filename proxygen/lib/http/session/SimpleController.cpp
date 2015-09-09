@@ -27,7 +27,7 @@ HTTPTransactionHandler* SimpleController::getRequestHandler(
 HTTPTransactionHandler* SimpleController::getParseErrorHandler(
     HTTPTransaction* txn,
     const HTTPException& error,
-    const coral::SocketAddress& localAddress) {
+    const folly::SocketAddress& localAddress) {
 
   if (error.hasCodecStatusCode()) {
     return new CodecErrorResponseHandler(error.getCodecStatusCode());
@@ -41,7 +41,7 @@ HTTPTransactionHandler* SimpleController::getParseErrorHandler(
 
 HTTPTransactionHandler* SimpleController::getTransactionTimeoutHandler(
     HTTPTransaction* txn,
-    const coral::SocketAddress& localAddress) {
+    const folly::SocketAddress& localAddress) {
 
   auto errorPage = acceptor_->getErrorPage(localAddress);
   return createErrorHandler(408, "Client timeout", errorPage);

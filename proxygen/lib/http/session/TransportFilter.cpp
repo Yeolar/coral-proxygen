@@ -11,7 +11,7 @@
 
 
 
-using namespace coral;
+using namespace folly;
 
 namespace proxygen {
 
@@ -64,7 +64,7 @@ void PassThroughTransportFilter::writev(
 
 void PassThroughTransportFilter::writeChain(
     AsyncTransportWrapper::WriteCallback* callback,
-    std::unique_ptr<coral::IOBuf>&& iob, WriteFlags flags) {
+    std::unique_ptr<folly::IOBuf>&& iob, WriteFlags flags) {
   call_->writeChain(callback, std::move(iob), flags);
 }
 
@@ -132,12 +132,12 @@ uint32_t PassThroughTransportFilter::getSendTimeout() const {
 }
 
 void PassThroughTransportFilter::getLocalAddress(
-    coral::SocketAddress* address) const {
+    folly::SocketAddress* address) const {
   call_->getLocalAddress(address);
 }
 
 void PassThroughTransportFilter::getPeerAddress(
-    coral::SocketAddress* address) const {
+    folly::SocketAddress* address) const {
   call_->getPeerAddress(address);
 }
 

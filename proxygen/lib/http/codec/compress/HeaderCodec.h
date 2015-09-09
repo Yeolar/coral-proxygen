@@ -16,11 +16,11 @@
 #include <proxygen/lib/utils/Result.h>
 #include <vector>
 
-namespace coral {
+namespace folly {
 class IOBuf;
 }
 
-namespace coral { namespace io {
+namespace folly { namespace io {
 class Cursor;
 }}
 
@@ -80,7 +80,7 @@ class HeaderCodec {
    * The list of headers might be mutated during the encode, like order
    * of the elements might change.
    */
-  virtual std::unique_ptr<coral::IOBuf> encode(
+  virtual std::unique_ptr<folly::IOBuf> encode(
     std::vector<compress::Header>& headers) noexcept = 0;
 
   /**
@@ -91,12 +91,12 @@ class HeaderCodec {
    * fatal and no more bytes may be parsed from the cursor.
    */
   virtual Result<HeaderDecodeResult, HeaderDecodeError>
-  decode(coral::io::Cursor& cursor, uint32_t length) noexcept = 0;
+  decode(folly::io::Cursor& cursor, uint32_t length) noexcept = 0;
 
   /**
    * Decode headers given a Cursor and an amount of bytes to consume.
    */
-  virtual void decodeStreaming(coral::io::Cursor& cursor, uint32_t length,
+  virtual void decodeStreaming(folly::io::Cursor& cursor, uint32_t length,
       StreamingCallback* streamingCb) noexcept = 0;
 
   /**

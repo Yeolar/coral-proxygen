@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include <coral/Conv.h>
+#include <folly/Conv.h>
 #include <ostream>
 #include <string>
 
@@ -31,7 +31,7 @@ class HPACKHeader {
    * size in bytes of the header entry, as defined in the HPACK spec
    */
   uint32_t bytes() const {
-    return coral::to<uint32_t>(kMinLength + name.size() + value.size());
+    return folly::to<uint32_t>(kMinLength + name.size() + value.size());
   }
 
   bool operator==(const HPACKHeader& other) const {

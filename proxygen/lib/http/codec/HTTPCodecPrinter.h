@@ -44,7 +44,7 @@ class HTTPCodecPrinter: public PassThroughHTTPCodecFilter {
    *             HTTP2Codec::parseData()
    */
   void onBody(StreamID stream,
-              std::unique_ptr<coral::IOBuf> chain,
+              std::unique_ptr<folly::IOBuf> chain,
               uint16_t padding) override;
 
   /*

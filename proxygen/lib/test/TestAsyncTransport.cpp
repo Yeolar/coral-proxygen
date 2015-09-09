@@ -9,17 +9,17 @@
  */
 #include <proxygen/lib/test/TestAsyncTransport.h>
 
-#include <coral/SocketAddress.h>
-#include <coral/io/IOBuf.h>
-#include <coral/io/async/EventBase.h>
-#include <coral/io/async/AsyncSocketException.h>
+#include <folly/SocketAddress.h>
+#include <folly/io/IOBuf.h>
+#include <folly/io/async/EventBase.h>
+#include <folly/io/async/AsyncSocketException.h>
 
-using coral::WriteFlags;
-using coral::AsyncSocketException;
-using coral::AsyncTimeout;
-using coral::EventBase;
-using coral::IOBuf;
-using coral::SocketAddress;
+using folly::WriteFlags;
+using folly::AsyncSocketException;
+using folly::AsyncTimeout;
+using folly::EventBase;
+using folly::IOBuf;
+using folly::SocketAddress;
 using proxygen::TimePoint;
 using std::shared_ptr;
 using std::unique_ptr;
@@ -35,7 +35,7 @@ class TestAsyncTransport::ReadEvent {
       readStart_(nullptr),
       dataEnd_(nullptr),
       isError_(false),
-      exception_(coral::AsyncSocketException::UNKNOWN, ""),
+      exception_(folly::AsyncSocketException::UNKNOWN, ""),
       delay_(delay) {
     if (buflen == 0) {
       // This means EOF
@@ -52,7 +52,7 @@ class TestAsyncTransport::ReadEvent {
     dataEnd_ = buffer_ + buflen;
   }
 
-  ReadEvent(const coral::AsyncSocketException& ex, std::chrono::milliseconds delay)
+  ReadEvent(const folly::AsyncSocketException& ex, std::chrono::milliseconds delay)
     : buffer_(nullptr),
       readStart_(nullptr),
       dataEnd_(nullptr),
@@ -89,7 +89,7 @@ class TestAsyncTransport::ReadEvent {
     return isError_;
   }
 
-  const coral::AsyncSocketException& getException() const {
+  const folly::AsyncSocketException& getException() const {
     return exception_;
   }
 
@@ -99,7 +99,7 @@ class TestAsyncTransport::ReadEvent {
   char* dataEnd_;
 
   bool isError_;
-  coral::AsyncSocketException exception_;
+  folly::AsyncSocketException exception_;
 
   std::chrono::milliseconds delay_;
 };
@@ -194,7 +194,7 @@ TestAsyncTransport::setReadCB(AsyncTransportWrapper::ReadCallback* callback) {
     callback->readEOF();
     return;
   } else if (readState_ == kStateError) {
-    coral::AsyncSocketException ex(coral::AsyncSocketException::NOT_OPEN,
+    folly::AsyncSocketException ex(folly::AsyncSocketException::NOT_OPEN,
                            "setReadCB() called with socket in "
                            "invalid state");
     callback->readErr(ex);
@@ -266,7 +266,7 @@ TestAsyncTransport::writev(AsyncTransportWrapper::WriteCallback* callback,
 
 void
 TestAsyncTransport::writeChain(AsyncTransportWrapper::WriteCallback* callback,
-                               std::unique_ptr<coral::IOBuf>&& iob,
+                               std::unique_ptr<folly::IOBuf>&& iob,
                                WriteFlags flags) {
   size_t count = iob->countChainElements();
   iovec vec[count];
@@ -292,7 +292,7 @@ TestAsyncTransport::closeNow() {
     readState_ = kStateClosed;
 
     if (readCallback_ != nullptr) {
-      coral::AsyncTransportWrapper::ReadCallback* callback = readCallback_;
+      folly::AsyncTransportWrapper::ReadCallback* callback = readCallback_;
       readCallback_ = nullptr;
       callback->readEOF();
     }
@@ -423,7 +423,7 @@ TestAsyncTransport::failPendingWrites() {
 }
 
 void
-TestAsyncTransport::addReadEvent(coral::IOBufQueue& chain,
+TestAsyncTransport::addReadEvent(folly::IOBufQueue& chain,
                                  std::chrono::milliseconds delayFromPrevious) {
   while (true) {
     unique_ptr<IOBuf> cur = chain.pop_front();
@@ -457,7 +457,7 @@ TestAsyncTransport::addReadEOF(std::chrono::milliseconds delayFromPrevious) {
 }
 
 void
-TestAsyncTransport::addReadError(const coral::AsyncSocketException& ex,
+TestAsyncTransport::addReadError(const folly::AsyncSocketException& ex,
                                  std::chrono::milliseconds delayFromPrevious) {
   if (!readEvents_.empty() && readEvents_.back()->isFinalEvent()) {
     LOG(FATAL) << "cannot add a read error after an error or EOF";

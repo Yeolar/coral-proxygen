@@ -19,7 +19,7 @@ class HTTPRequestVerifier {
  public:
   explicit HTTPRequestVerifier() {}
 
-  bool setMethod(coral::StringPiece method) {
+  bool setMethod(folly::StringPiece method) {
     if (hasMethod_) {
       error = "Duplicate method";
       return false;
@@ -34,7 +34,7 @@ class HTTPRequestVerifier {
     return true;
   }
 
-  bool setPath(coral::StringPiece path) {
+  bool setPath(folly::StringPiece path) {
     if (hasPath_) {
       error = "Duplicate path";
       return false;
@@ -49,7 +49,7 @@ class HTTPRequestVerifier {
     return true;
   }
 
-  bool setScheme(coral::StringPiece scheme) {
+  bool setScheme(folly::StringPiece scheme) {
     if (hasScheme_) {
       error = "Duplicate scheme";
       return false;
@@ -68,7 +68,7 @@ class HTTPRequestVerifier {
     return true;
   }
 
-  bool setAuthority(coral::StringPiece authority) {
+  bool setAuthority(folly::StringPiece authority) {
     if (hasAuthority_) {
       error = "Duplicate authority";
       return false;
@@ -89,11 +89,11 @@ class HTTPRequestVerifier {
     }
     if (msg_->getMethod() == HTTPMethod::CONNECT &&
         (!hasMethod_ || !hasAuthority_ || hasScheme_ || hasPath_)) {
-      error = coral::to<std::string>("Malformed CONNECT request m/a/s/p=",
+      error = folly::to<std::string>("Malformed CONNECT request m/a/s/p=",
                                 hasMethod_, hasAuthority_,
                                 hasScheme_, hasPath_);
     } else if (!hasMethod_ || !hasScheme_ || !hasPath_) {
-      error = coral::to<std::string>("Malformed request m/a/s/p=",
+      error = folly::to<std::string>("Malformed request m/a/s/p=",
                                 hasMethod_, hasAuthority_,
                                 hasScheme_, hasPath_);
     }

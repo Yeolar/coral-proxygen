@@ -7,13 +7,13 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  *
  */
-#include <coral/Conv.h>
-#include <coral/Foreach.h>
+#include <folly/Conv.h>
+#include <folly/Foreach.h>
 #include <wangle/acceptor/ConnectionManager.h>
-#include <coral/io/Cursor.h>
-#include <coral/io/async/EventBase.h>
-#include <coral/io/async/EventBaseManager.h>
-#include <coral/io/async/TimeoutManager.h>
+#include <folly/io/Cursor.h>
+#include <folly/io/async/EventBase.h>
+#include <folly/io/async/EventBaseManager.h>
+#include <folly/io/async/TimeoutManager.h>
 #include <gtest/gtest.h>
 #include <proxygen/lib/http/codec/test/MockHTTPCodec.h>
 #include <proxygen/lib/http/codec/test/TestUtils.h>
@@ -27,15 +27,15 @@
 #include <proxygen/lib/test/TestAsyncTransport.h>
 #include <string>
 #include <strstream>
-#include <coral/io/async/test/MockAsyncTransport.h>
+#include <folly/io/async/test/MockAsyncTransport.h>
 #include <vector>
 
 
 
 
-using namespace coral::io;
+using namespace folly::io;
 using namespace wangle;
-using namespace coral;
+using namespace folly;
 using namespace proxygen;
 using namespace std;
 using namespace testing;
@@ -88,7 +88,7 @@ class HTTPDownstreamTest : public testing::Test {
   }
 
   void SetUp() override {
-    coral::EventBaseManager::get()->clearEventBase();
+    folly::EventBaseManager::get()->clearEventBase();
     HTTPSession::setPendingWriteMax(65536);
   }
 
@@ -592,7 +592,7 @@ TEST(HTTPDownstreamTest, parse_error_no_txn) {
   EXPECT_CALL(*transport, closeNow())
     .WillRepeatedly(Assign(&transportGood, false));
   EXPECT_CALL(*transport, writeChain(_, _, _))
-    .WillRepeatedly(Invoke([&] (coral::AsyncTransportWrapper::WriteCallback* callback,
+    .WillRepeatedly(Invoke([&] (folly::AsyncTransportWrapper::WriteCallback* callback,
                                 const shared_ptr<IOBuf> iob,
                                 WriteFlags flags) {
                              callback->writeSuccess();
@@ -914,7 +914,7 @@ TEST_F(HTTPDownstreamSessionTest, http_writes_draining_timeout) {
     .WillOnce(Invoke([&] (const HTTPException& ex) {
           ASSERT_EQ(ex.getProxygenError(), kErrorWriteTimeout);
           ASSERT_EQ(
-            coral::to<std::string>("WriteTimeout on transaction id: ",
+            folly::to<std::string>("WriteTimeout on transaction id: ",
               handler1.txn_->getID()),
             std::string(ex.what()));
           handler1.txn_->sendAbort();
@@ -929,7 +929,7 @@ TEST_F(HTTPDownstreamSessionTest, http_writes_draining_timeout) {
 TEST_F(HTTPDownstreamSessionTest, http_rate_limit_normal) {
   // The rate-limiting code grabs the event base from the EventBaseManager,
   // so we need to set it.
-  coral::EventBaseManager::get()->setEventBase(&eventBase_, false);
+  folly::EventBaseManager::get()->setEventBase(&eventBase_, false);
 
   // Create a request
   IOBufQueue requests{IOBufQueue::cacheChainLength()};
@@ -988,7 +988,7 @@ TEST_F(HTTPDownstreamSessionTest, http_rate_limit_normal) {
 TEST_F(SPDY3DownstreamSessionTest, spdy_rate_limit_normal) {
   // The rate-limiting code grabs the event base from the EventBaseManager,
   // so we need to set it.
-  coral::EventBaseManager::get()->setEventBase(&eventBase_, false);
+  folly::EventBaseManager::get()->setEventBase(&eventBase_, false);
 
   IOBufQueue requests{IOBufQueue::cacheChainLength()};
   HTTPMessage req = getGetRequest();
@@ -1050,7 +1050,7 @@ TEST_F(SPDY3DownstreamSessionTest, spdy_rate_limit_normal) {
 TEST_F(SPDY3DownstreamSessionTest, spdy_rate_limit_rst) {
   // The rate-limiting code grabs the event base from the EventBaseManager,
   // so we need to set it.
-  coral::EventBaseManager::get()->setEventBase(&eventBase_, false);
+  folly::EventBaseManager::get()->setEventBase(&eventBase_, false);
 
   IOBufQueue requests{IOBufQueue::cacheChainLength()};
   IOBufQueue rst{IOBufQueue::cacheChainLength()};
@@ -1131,7 +1131,7 @@ TEST_F(HTTPDownstreamSessionTest, write_timeout) {
     .WillOnce(Invoke([&] (const HTTPException& ex) {
           ASSERT_EQ(ex.getProxygenError(), kErrorWriteTimeout);
           ASSERT_EQ(
-            coral::to<std::string>("WriteTimeout on transaction id: ",
+            folly::to<std::string>("WriteTimeout on transaction id: ",
               handler1.txn_->getID()),
             std::string(ex.what()));
         }));
@@ -1175,7 +1175,7 @@ TEST_F(HTTPDownstreamSessionTest, write_timeout_pipeline) {
     .WillOnce(Invoke([&] (const HTTPException& ex) {
           ASSERT_EQ(ex.getProxygenError(), kErrorWriteTimeout);
           ASSERT_EQ(
-            coral::to<std::string>("WriteTimeout on transaction id: ",
+            folly::to<std::string>("WriteTimeout on transaction id: ",
               handler1.txn_->getID()),
             std::string(ex.what()));
           handler1.txn_->sendAbort();
@@ -1470,7 +1470,7 @@ TEST_F(SPDY3DownstreamSessionTest, spdy_timeout_win) {
     .WillOnce(Invoke([&] (const HTTPException& ex) {
           ASSERT_EQ(ex.getProxygenError(), kErrorWriteTimeout);
           ASSERT_EQ(
-            coral::to<std::string>("ingress timeout, streamID=", streamID),
+            folly::to<std::string>("ingress timeout, streamID=", streamID),
             std::string(ex.what()));
           handler.terminate();
         }));

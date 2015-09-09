@@ -12,7 +12,7 @@
 #include <proxygen/lib/http/Window.h>
 #include <proxygen/lib/http/codec/HTTPCodecFilter.h>
 
-namespace coral {
+namespace folly {
 class IOBufQueue;
 }
 
@@ -52,7 +52,7 @@ class FlowControlFilter:
    */
   explicit
   FlowControlFilter(Callback& callback,
-                    coral::IOBufQueue& writeBuf,
+                    folly::IOBufQueue& writeBuf,
                     HTTPCodec* codec,
                     uint32_t recvCapacity = kDefaultCapacity);
 
@@ -64,7 +64,7 @@ class FlowControlFilter:
    * @param capacity     The initial size of the conn-level recv window.
    *                     It must be >= 65536.
    */
-  void setReceiveWindowSize(coral::IOBufQueue& writeBuf, uint32_t capacity);
+  void setReceiveWindowSize(folly::IOBufQueue& writeBuf, uint32_t capacity);
 
   /**
    * Notify the flow control filter that some ingress bytes were
@@ -75,7 +75,7 @@ class FlowControlFilter:
    * @param delta    The number of bytes that were processed.
    * @returns true iff we wrote a WINDOW_UPDATE frame to the write buf.
    */
-  bool ingressBytesProcessed(coral::IOBufQueue& writeBuf, uint32_t delta);
+  bool ingressBytesProcessed(folly::IOBufQueue& writeBuf, uint32_t delta);
 
   /**
    * @returns the number of bytes available in the connection-level send window
@@ -86,18 +86,18 @@ class FlowControlFilter:
 
   bool isReusable() const override;
 
-  void onBody(StreamID stream, std::unique_ptr<coral::IOBuf> chain,
+  void onBody(StreamID stream, std::unique_ptr<folly::IOBuf> chain,
               uint16_t padding) override;
 
   void onWindowUpdate(StreamID stream, uint32_t amount) override;
 
-  size_t generateBody(coral::IOBufQueue& writeBuf,
+  size_t generateBody(folly::IOBufQueue& writeBuf,
                       StreamID stream,
-                      std::unique_ptr<coral::IOBuf> chain,
+                      std::unique_ptr<folly::IOBuf> chain,
                       boost::optional<uint8_t> padding,
                       bool eom) override;
 
-  size_t generateWindowUpdate(coral::IOBufQueue& writeBuf,
+  size_t generateWindowUpdate(folly::IOBufQueue& writeBuf,
                               StreamID stream,
                               uint32_t delta) override;
 

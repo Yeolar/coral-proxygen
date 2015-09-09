@@ -14,7 +14,7 @@
 #include <proxygen/lib/http/codec/HTTP1xCodec.h>
 #include <proxygen/lib/http/session/HTTPDownstreamSession.h>
 
-using coral::SocketAddress;
+using folly::SocketAddress;
 
 namespace proxygen {
 

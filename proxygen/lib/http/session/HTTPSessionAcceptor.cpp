@@ -12,8 +12,8 @@
 #include <proxygen/lib/http/codec/experimental/HTTP2Codec.h>
 #include <proxygen/lib/http/session/HTTPDirectResponseHandler.h>
 
-using coral::AsyncSocket;
-using coral::SocketAddress;
+using folly::AsyncSocket;
+using folly::SocketAddress;
 using std::list;
 using std::string;
 using std::unique_ptr;
@@ -52,7 +52,7 @@ const HTTPErrorPage* HTTPSessionAcceptor::getErrorPage(
 }
 
 void HTTPSessionAcceptor::onNewConnection(
-  coral::AsyncSocket::UniquePtr ssock,
+  folly::AsyncSocket::UniquePtr ssock,
   const SocketAddress* peerAddress,
   const string& nextProtocol,
   SecureTransportType secureTransportType,
@@ -62,20 +62,20 @@ void HTTPSessionAcceptor::onNewConnection(
   AsyncSocket::UniquePtr sock(dynamic_cast<AsyncSocket*>(ssock.release()));
 
   if (!isSSL() && alwaysUseSPDYVersion_) {
-    codec = coral::make_unique<SPDYCodec>(
+    codec = folly::make_unique<SPDYCodec>(
       TransportDirection::DOWNSTREAM,
       alwaysUseSPDYVersion_.value(),
       accConfig_.spdyCompressionLevel);
   } else if (nextProtocol.empty() ||
              HTTP1xCodec::supportsNextProtocol(nextProtocol)) {
-    codec = coral::make_unique<HTTP1xCodec>(TransportDirection::DOWNSTREAM);
+    codec = folly::make_unique<HTTP1xCodec>(TransportDirection::DOWNSTREAM);
   } else if (auto version = SPDYCodec::getVersion(nextProtocol)) {
-    codec = coral::make_unique<SPDYCodec>(
+    codec = folly::make_unique<SPDYCodec>(
       TransportDirection::DOWNSTREAM,
       *version,
       accConfig_.spdyCompressionLevel);
   } else if (nextProtocol == "h2-14") {
-    codec = coral::make_unique<HTTP2Codec>(TransportDirection::DOWNSTREAM);
+    codec = folly::make_unique<HTTP2Codec>(TransportDirection::DOWNSTREAM);
   } else {
     // Either we advertised a protocol we don't support or the
     // client requested a protocol we didn't advertise.

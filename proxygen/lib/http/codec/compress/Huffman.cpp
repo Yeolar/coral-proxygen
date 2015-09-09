@@ -12,7 +12,7 @@
 
 #include <arpa/inet.h>
 
-using coral::IOBuf;
+using folly::IOBuf;
 using std::pair;
 using std::string;
 
@@ -131,7 +131,7 @@ void HuffTree::buildTree() {
 }
 
 uint32_t HuffTree::encode(const std::string& literal,
-                          coral::io::QueueAppender& buf) const {
+                          folly::io::QueueAppender& buf) const {
   uint32_t code;  // the huffman code of a given character
   uint8_t bits;   // on how many bits code is represented
   uint32_t w = 0; // 4-byte word used for packing bits and write it to memory

@@ -61,7 +61,7 @@ void RequestHandlerAdaptor::onHeadersComplete(std::unique_ptr<HTTPMessage> msg)
   }
 }
 
-void RequestHandlerAdaptor::onBody(std::unique_ptr<coral::IOBuf> c) noexcept {
+void RequestHandlerAdaptor::onBody(std::unique_ptr<folly::IOBuf> c) noexcept {
   upstream_->onBody(std::move(c));
 }
 
@@ -139,7 +139,7 @@ void RequestHandlerAdaptor::sendChunkHeader(size_t len) noexcept {
   txn_->sendChunkHeader(len);
 }
 
-void RequestHandlerAdaptor::sendBody(std::unique_ptr<coral::IOBuf> b) noexcept {
+void RequestHandlerAdaptor::sendBody(std::unique_ptr<folly::IOBuf> b) noexcept {
   txn_->sendBody(std::move(b));
 }
 

@@ -12,7 +12,7 @@
 #include <proxygen/lib/http/codec/SPDYVersion.h>
 #include <string>
 
-namespace coral { namespace io {
+namespace folly { namespace io {
 class Cursor;
 }}
 
@@ -29,7 +29,7 @@ struct SPDYVersionSettings {
   const std::string schemeStr;
   const std::string hostStr;
   const std::string protoName;
-  uint32_t (*parseSizeFun)(coral::io::Cursor*);
+  uint32_t (*parseSizeFun)(folly::io::Cursor*);
   void (*appendSizeFun)(uint8_t*&, size_t);
   const unsigned char* dict;
   size_t dictSize;

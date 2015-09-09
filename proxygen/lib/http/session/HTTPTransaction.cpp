@@ -10,14 +10,14 @@
 #include <proxygen/lib/http/session/HTTPTransaction.h>
 
 #include <algorithm>
-#include <coral/Conv.h>
-#include <coral/io/async/EventBaseManager.h>
+#include <folly/Conv.h>
+#include <folly/io/async/EventBaseManager.h>
 #include <glog/logging.h>
 #include <proxygen/lib/http/HTTPHeaderSize.h>
 #include <proxygen/lib/http/codec/SPDYConstants.h>
 #include <proxygen/lib/http/session/HTTPSessionStats.h>
 
-using coral::IOBuf;
+using folly::IOBuf;
 using std::unique_ptr;
 
 namespace proxygen {
@@ -39,7 +39,7 @@ HTTPTransaction::HTTPTransaction(TransportDirection direction,
                                  uint32_t sendInitialWindowSize,
                                  int8_t priority,
                                  HTTPCodec::StreamID assocId):
-    deferredEgressBody_(coral::IOBufQueue::cacheChainLength()),
+    deferredEgressBody_(folly::IOBufQueue::cacheChainLength()),
     direction_(direction),
     id_(id),
     seqNo_(seqNo),
@@ -482,14 +482,14 @@ void HTTPTransaction::onIngressTimeout() {
   if (handler_) {
     if (windowUpdateTimeout) {
       HTTPException ex(HTTPException::Direction::INGRESS_AND_EGRESS,
-          coral::to<std::string>("ingress timeout, streamID=", id_));
+          folly::to<std::string>("ingress timeout, streamID=", id_));
       ex.setProxygenError(kErrorWriteTimeout);
       // This is a protocol error
       ex.setCodecStatusCode(ErrorCode::PROTOCOL_ERROR);
       onError(ex);
     } else {
       HTTPException ex(HTTPException::Direction::INGRESS,
-          coral::to<std::string>("ingress timeout, streamID=", id_));
+          folly::to<std::string>("ingress timeout, streamID=", id_));
       ex.setProxygenError(kErrorTimeout);
       onError(ex);
     }
@@ -530,7 +530,7 @@ void HTTPTransaction::onEgressTimeout() {
   VLOG(4) << "egress timeout on " << *this;
   if (handler_) {
     HTTPException ex(HTTPException::Direction::EGRESS,
-      coral::to<std::string>("egress timeout, streamID=", id_));
+      folly::to<std::string>("egress timeout, streamID=", id_));
     ex.setProxygenError(kErrorTimeout);
     handler_->onError(ex);
   } else {
@@ -581,7 +581,7 @@ void HTTPTransaction::sendHeaders(const HTTPMessage& headers) {
   flushWindowUpdate();
 }
 
-void HTTPTransaction::sendBody(std::unique_ptr<coral::IOBuf> body) {
+void HTTPTransaction::sendBody(std::unique_ptr<folly::IOBuf> body) {
   CHECK(HTTPTransactionEgressSM::transit(
       egressState_, HTTPTransactionEgressSM::Event::sendBody));
   if (body && isEnqueued()) {
@@ -658,7 +658,7 @@ size_t HTTPTransaction::sendDeferredBody(const uint32_t maxEgress) {
         chunk.headerSent = true;
       }
       curLen = std::min<size_t>(chunk.length, canSend);
-      std::unique_ptr<coral::IOBuf> cur = deferredEgressBody_.split(curLen);
+      std::unique_ptr<folly::IOBuf> cur = deferredEgressBody_.split(curLen);
       VLOG(4) << "sending " << curLen << " fin=false";
       nbytes += sendBodyNow(std::move(cur), curLen, false);
       canSend -= curLen;
@@ -732,7 +732,7 @@ bool HTTPTransaction::maybeDelayForRateLimit() {
   // Make a reference first so we only end up making one copy of the ptr
   std::shared_ptr<bool> &cancelled = cancelled_;
 
-  coral::EventBaseManager::get()->getEventBase()->runAfterDelay(
+  folly::EventBaseManager::get()->getEventBase()->runAfterDelay(
     [this, cancelled]() {
       if (*cancelled) {
         return;
@@ -763,7 +763,7 @@ size_t HTTPTransaction::sendEOMNow() {
   return nbytes;
 }
 
-size_t HTTPTransaction::sendBodyNow(std::unique_ptr<coral::IOBuf> body,
+size_t HTTPTransaction::sendBodyNow(std::unique_ptr<folly::IOBuf> body,
                                     size_t bodyLen, bool sendEom) {
   static const std::string noneStr = "None";
   DCHECK(body);
@@ -775,7 +775,7 @@ size_t HTTPTransaction::sendBodyNow(std::unique_ptr<coral::IOBuf> body,
   VLOG(4) << *this << " Sending " << bodyLen << " bytes of body. eom="
           << ((sendEom) ? "yes" : "no") << " send_window is "
           << ( useFlowControl_ ?
-               coral::to<std::string>(sendWindow_.getSize(), " / ",
+               folly::to<std::string>(sendWindow_.getSize(), " / ",
                                       sendWindow_.getCapacity()) : noneStr);
   if (sendEom) {
     CHECK(HTTPTransactionEgressSM::transit(
@@ -1012,7 +1012,7 @@ bool HTTPTransaction::mustQueueIngress() const {
 
 void HTTPTransaction::checkCreateDeferredIngress() {
   if (!deferredIngress_) {
-    deferredIngress_ = coral::make_unique<std::queue<HTTPEvent>>();
+    deferredIngress_ = folly::make_unique<std::queue<HTTPEvent>>();
   }
 }
 

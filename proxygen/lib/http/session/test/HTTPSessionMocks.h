@@ -38,7 +38,7 @@ class HTTPHandlerBase {
     reply.setHTTPVersion(1, 1);
     reply.setWantsKeepalive(keepalive);
     reply.getHeaders().add(HTTP_HEADER_CONTENT_LENGTH,
-                           coral::to<std::string>(content_length));
+                           folly::to<std::string>(content_length));
     txn_->sendHeaders(reply);
   }
 
@@ -56,7 +56,7 @@ class HTTPHandlerBase {
       uint32_t toSend = std::min(content_length, uint32_t(4096));
       char buf[toSend];
       memset(buf, 'a', toSend);
-      txn_->sendBody(std::move(coral::IOBuf::copyBuffer(buf, toSend)));
+      txn_->sendBody(std::move(folly::IOBuf::copyBuffer(buf, toSend)));
       content_length -= toSend;
     }
   }
@@ -80,7 +80,7 @@ class HTTPHandlerBase {
       char buf[toSend];
       memset(buf, 'a', toSend);
       txn_->sendChunkHeader(toSend);
-      txn_->sendBody(std::move(coral::IOBuf::copyBuffer(buf, toSend)));
+      txn_->sendBody(std::move(folly::IOBuf::copyBuffer(buf, toSend)));
       txn_->sendChunkTerminator();
       content_length -= toSend;
     }
@@ -101,7 +101,7 @@ class MockHTTPHandler : public HTTPHandlerBase,
  public:
   MockHTTPHandler() {}
   MockHTTPHandler(HTTPTransaction& txn, HTTPMessage* msg,
-                  const coral::SocketAddress&) :
+                  const folly::SocketAddress&) :
       HTTPHandlerBase(&txn, msg) {}
 
   GMOCK_NOEXCEPT_METHOD1(setTransaction, void(HTTPTransaction* txn));
@@ -115,10 +115,10 @@ class MockHTTPHandler : public HTTPHandlerBase,
   GMOCK_NOEXCEPT_METHOD1(onHeadersComplete,
                          void(std::shared_ptr<HTTPMessage> msg));
 
-  void onBody(std::unique_ptr<coral::IOBuf> chain) noexcept override {
-    onBody(std::shared_ptr<coral::IOBuf>(chain.release()));
+  void onBody(std::unique_ptr<folly::IOBuf> chain) noexcept override {
+    onBody(std::shared_ptr<folly::IOBuf>(chain.release()));
   }
-  GMOCK_NOEXCEPT_METHOD1(onBody, void(std::shared_ptr<coral::IOBuf> chain));
+  GMOCK_NOEXCEPT_METHOD1(onBody, void(std::shared_ptr<folly::IOBuf> chain));
 
   GMOCK_NOEXCEPT_METHOD1(onChunkHeader, void(size_t length));
 
@@ -150,7 +150,7 @@ class MockHTTPPushHandler : public HTTPHandlerBase,
  public:
   MockHTTPPushHandler() {}
   MockHTTPPushHandler(HTTPTransaction& txn, HTTPMessage* msg,
-                  const coral::SocketAddress&) :
+                  const folly::SocketAddress&) :
       HTTPHandlerBase(&txn, msg) {}
 
   GMOCK_NOEXCEPT_METHOD1(setTransaction, void(HTTPTransaction* txn));
@@ -170,7 +170,7 @@ class MockHTTPPushHandler : public HTTPHandlerBase,
     push.setURL(path);
     push.getHeaders().set(HTTP_HEADER_HOST, host);
     push.getHeaders().add(HTTP_HEADER_CONTENT_LENGTH,
-                          coral::to<std::string>(content_length));
+                          folly::to<std::string>(content_length));
     txn_->sendHeaders(push);
   }
 };
@@ -183,11 +183,11 @@ class MockController : public HTTPSessionController {
   MOCK_METHOD3(getParseErrorHandler, HTTPTransactionHandler*(
       HTTPTransaction*,
       const HTTPException&,
-      const coral::SocketAddress&));
+      const folly::SocketAddress&));
 
   MOCK_METHOD2(getTransactionTimeoutHandler, HTTPTransactionHandler*(
       HTTPTransaction* txn,
-      const coral::SocketAddress&));
+      const folly::SocketAddress&));
 
   MOCK_METHOD1(attachSession, void(HTTPSession*));
   MOCK_METHOD1(detachSession, void(const HTTPSession*));

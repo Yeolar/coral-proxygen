@@ -10,14 +10,14 @@
 #pragma once
 
 #include <deque>
-#include <coral/SocketAddress.h>
-#include <coral/io/IOBufQueue.h>
-#include <coral/io/async/AsyncTimeout.h>
+#include <folly/SocketAddress.h>
+#include <folly/io/IOBufQueue.h>
+#include <folly/io/async/AsyncTimeout.h>
 #include <proxygen/lib/utils/Time.h>
-#include <coral/io/async/AsyncTransport.h>
+#include <folly/io/async/AsyncTransport.h>
 
-class TestAsyncTransport : public coral::AsyncTransportWrapper,
-                           private coral::AsyncTimeout {
+class TestAsyncTransport : public folly::AsyncTransportWrapper,
+                           private folly::AsyncTimeout {
  public:
   class WriteEvent {
    public:
@@ -45,51 +45,51 @@ class TestAsyncTransport : public coral::AsyncTransportWrapper,
     struct iovec vec_[];
   };
 
-  explicit TestAsyncTransport(coral::EventBase* eventBase);
+  explicit TestAsyncTransport(folly::EventBase* eventBase);
 
   // AsyncTransport methods
   void setReadCB(AsyncTransportWrapper::ReadCallback* callback) override;
   ReadCallback* getReadCallback() const override;
   void write(AsyncTransportWrapper::WriteCallback* callback,
              const void* buf, size_t bytes,
-             coral::WriteFlags flags =
-             coral::WriteFlags::NONE) override;
+             folly::WriteFlags flags =
+             folly::WriteFlags::NONE) override;
   void writev(AsyncTransportWrapper::WriteCallback* callback,
               const struct iovec* vec, size_t count,
-              coral::WriteFlags flags =
-              coral::WriteFlags::NONE) override;
+              folly::WriteFlags flags =
+              folly::WriteFlags::NONE) override;
   void writeChain(AsyncTransportWrapper::WriteCallback* callback,
-                  std::unique_ptr<coral::IOBuf>&& iob,
-                  coral::WriteFlags flags =
-                  coral::WriteFlags::NONE) override;
+                  std::unique_ptr<folly::IOBuf>&& iob,
+                  folly::WriteFlags flags =
+                  folly::WriteFlags::NONE) override;
   void close() override;
   void closeNow() override;
   void shutdownWrite() override;
   void shutdownWriteNow() override;
-  void getPeerAddress(coral::SocketAddress* addr)
+  void getPeerAddress(folly::SocketAddress* addr)
     const override;
-  void getLocalAddress(coral::SocketAddress* addr)
+  void getLocalAddress(folly::SocketAddress* addr)
     const override;
   bool good() const override;
   bool readable() const override;
   bool connecting() const override;
   bool error() const override;
-  void attachEventBase(coral::EventBase* eventBase) override;
+  void attachEventBase(folly::EventBase* eventBase) override;
   void detachEventBase() override;
   bool isDetachable() const override;
-  coral::EventBase* getEventBase() const override;
+  folly::EventBase* getEventBase() const override;
   void setSendTimeout(uint32_t milliseconds) override;
   uint32_t getSendTimeout() const override;
 
   // Methods to control read events
   void addReadEvent(const void* buf, size_t buflen,
                     std::chrono::milliseconds delayFromPrevious);
-  void addReadEvent(coral::IOBufQueue& chain,
+  void addReadEvent(folly::IOBufQueue& chain,
                     std::chrono::milliseconds delayFromPrevious);
   void addReadEvent(const char* buf,
                     std::chrono::milliseconds delayFromPrevious);
   void addReadEOF(std::chrono::milliseconds delayFromPrevious);
-  void addReadError(const coral::AsyncSocketException& ex,
+  void addReadError(const folly::AsyncSocketException& ex,
                     std::chrono::milliseconds delayFromPrevious);
   void startReadEvents();
 
@@ -142,8 +142,8 @@ class TestAsyncTransport : public coral::AsyncTransportWrapper,
   // AsyncTimeout methods
   void timeoutExpired() noexcept override;
 
-  coral::EventBase* eventBase_;
-  coral::AsyncTransportWrapper::ReadCallback* readCallback_;
+  folly::EventBase* eventBase_;
+  folly::AsyncTransportWrapper::ReadCallback* readCallback_;
   uint32_t sendTimeout_;
 
   proxygen::TimePoint prevReadEventTime_{};

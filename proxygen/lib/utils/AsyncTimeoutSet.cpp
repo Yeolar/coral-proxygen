@@ -10,8 +10,8 @@
 #include <proxygen/lib/utils/AsyncTimeoutSet.h>
 
 #include <cassert>
-#include <coral/ScopeGuard.h>
-#include <coral/io/async/Request.h>
+#include <folly/ScopeGuard.h>
+#include <folly/io/async/Request.h>
 
 using std::chrono::milliseconds;
 
@@ -74,11 +74,11 @@ void AsyncTimeoutSet::Callback::cancelTimeoutImpl() {
   expiration_ = {};
 }
 
-AsyncTimeoutSet::AsyncTimeoutSet(coral::TimeoutManager* timeoutManager,
+AsyncTimeoutSet::AsyncTimeoutSet(folly::TimeoutManager* timeoutManager,
                                  milliseconds intervalMS,
                                  milliseconds atMostEveryN,
                                  TimeoutClock* timeoutClock)
-    : coral::AsyncTimeout(timeoutManager),
+    : folly::AsyncTimeout(timeoutManager),
       timeoutClock_(timeoutClock ? *timeoutClock : getTimeoutClock()),
       head_(nullptr),
       tail_(nullptr),
@@ -86,11 +86,11 @@ AsyncTimeoutSet::AsyncTimeoutSet(coral::TimeoutManager* timeoutManager,
       atMostEveryN_(atMostEveryN) {
 }
 
-AsyncTimeoutSet::AsyncTimeoutSet(coral::TimeoutManager* timeoutManager,
+AsyncTimeoutSet::AsyncTimeoutSet(folly::TimeoutManager* timeoutManager,
                                  InternalEnum internal,
                                  milliseconds intervalMS,
                                  milliseconds atMostEveryN)
-    : coral::AsyncTimeout(timeoutManager, internal),
+    : folly::AsyncTimeout(timeoutManager, internal),
       timeoutClock_(getTimeoutClock()),
       head_(nullptr),
       tail_(nullptr),
@@ -132,7 +132,7 @@ void AsyncTimeoutSet::scheduleTimeout(Callback* callback) {
   assert(callback->prev_ == nullptr);
   assert(callback->next_ == nullptr);
 
-  callback->context_ = coral::RequestContext::saveContext();
+  callback->context_ = folly::RequestContext::saveContext();
 
   Callback* old_tail = tail_;
   if (head_ == nullptr) {
@@ -141,7 +141,7 @@ void AsyncTimeoutSet::scheduleTimeout(Callback* callback) {
     assert(tail_ == nullptr);
     assert(!isScheduled());
     if (!inTimeoutExpired_) {
-      this->coral::AsyncTimeout::scheduleTimeout(interval_.count());
+      this->folly::AsyncTimeout::scheduleTimeout(interval_.count());
     }
     head_ = callback;
     tail_ = callback;
@@ -165,11 +165,11 @@ void AsyncTimeoutSet::headChanged() {
   }
 
   if (!head_) {
-    this->coral::AsyncTimeout::cancelTimeout();
+    this->folly::AsyncTimeout::cancelTimeout();
   } else {
     milliseconds delta =
       head_->getTimeRemaining(timeoutClock_.millisecondsSinceEpoch());
-    this->coral::AsyncTimeout::scheduleTimeout(delta.count());
+    this->folly::AsyncTimeout::scheduleTimeout(delta.count());
   }
 }
 
@@ -210,7 +210,7 @@ void AsyncTimeoutSet::timeoutExpired() noexcept {
       if (delta < atMostEveryN_) {
         delta = atMostEveryN_;
       }
-      this->coral::AsyncTimeout::scheduleTimeout(delta.count());
+      this->folly::AsyncTimeout::scheduleTimeout(delta.count());
       break;
     }
 
@@ -219,9 +219,9 @@ void AsyncTimeoutSet::timeoutExpired() noexcept {
     Callback* cb = head_;
     head_->cancelTimeout();
     auto old_ctx =
-      coral::RequestContext::setContext(cb->context_);
+      folly::RequestContext::setContext(cb->context_);
     cb->timeoutExpired();
-    coral::RequestContext::setContext(old_ctx);
+    folly::RequestContext::setContext(old_ctx);
   }
 }
 

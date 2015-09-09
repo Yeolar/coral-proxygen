@@ -10,7 +10,7 @@
 #pragma once
 
 #include <deque>
-#include <coral/Range.h>
+#include <folly/Range.h>
 
 namespace proxygen { namespace compress {
 
@@ -49,7 +49,7 @@ class HeaderPiece {
   }
 
   // should be const, but for one use in GzipHeaderCodec
-  coral::StringPiece str;
+  folly::StringPiece str;
 
  private:
   bool owner;

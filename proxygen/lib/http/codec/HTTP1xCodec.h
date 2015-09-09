@@ -35,7 +35,7 @@ class HTTP1xCodec : public HTTPCodec {
   void setCallback(Callback* callback) override { callback_ = callback; }
   bool isBusy() const override;
   void setParserPaused(bool paused) override;
-  size_t onIngress(const coral::IOBuf& buf) override;
+  size_t onIngress(const folly::IOBuf& buf) override;
   void onIngressEOF() override;
   bool isReusable() const override;
   bool isWaitingToDrain() const override { return false; }
@@ -44,31 +44,31 @@ class HTTP1xCodec : public HTTPCodec {
   bool closeOnEgressComplete() const override { return egressUpgrade_; }
   bool supportsParallelRequests() const override { return false; }
   bool supportsPushTransactions() const override { return false; }
-  void generateHeader(coral::IOBufQueue& writeBuf,
+  void generateHeader(folly::IOBufQueue& writeBuf,
                       StreamID txn,
                       const HTTPMessage& msg,
                       StreamID assocStream = 0,
                       bool eom = false,
                       HTTPHeaderSize* size = nullptr) override;
-  size_t generateBody(coral::IOBufQueue& writeBuf,
+  size_t generateBody(folly::IOBufQueue& writeBuf,
                       StreamID txn,
-                      std::unique_ptr<coral::IOBuf> chain,
+                      std::unique_ptr<folly::IOBuf> chain,
                       boost::optional<uint8_t> padding,
                       bool eom) override;
-  size_t generateChunkHeader(coral::IOBufQueue& writeBuf,
+  size_t generateChunkHeader(folly::IOBufQueue& writeBuf,
                              StreamID txn,
                              size_t length) override;
-  size_t generateChunkTerminator(coral::IOBufQueue& writeBuf,
+  size_t generateChunkTerminator(folly::IOBufQueue& writeBuf,
                                  StreamID txn) override;
-  size_t generateTrailers(coral::IOBufQueue& writeBuf,
+  size_t generateTrailers(folly::IOBufQueue& writeBuf,
                           StreamID txn,
                           const HTTPHeaders& trailers) override;
-  size_t generateEOM(coral::IOBufQueue& writeBuf,
+  size_t generateEOM(folly::IOBufQueue& writeBuf,
                      StreamID txn) override;
-  size_t generateRstStream(coral::IOBufQueue& writeBuf,
+  size_t generateRstStream(folly::IOBufQueue& writeBuf,
                            StreamID txn,
                            ErrorCode statusCode) override;
-  size_t generateGoaway(coral::IOBufQueue& writeBuf,
+  size_t generateGoaway(folly::IOBufQueue& writeBuf,
                         StreamID lastStream,
                         ErrorCode statusCode) override;
 
@@ -98,7 +98,7 @@ class HTTP1xCodec : public HTTPCodec {
     DISABLED,   // incoming message disabled keepalive
   };
 
-  void addDateHeader(coral::IOBufQueue& writeBuf, size_t& len);
+  void addDateHeader(folly::IOBufQueue& writeBuf, size_t& len);
 
   /** Check whether we're currently parsing ingress message headers */
   bool isParsingHeaders() const {
@@ -137,11 +137,11 @@ class HTTP1xCodec : public HTTPCodec {
   StreamID ingressTxnID_;
   StreamID egressTxnID_;
   http_parser parser_;
-  const coral::IOBuf* currentIngressBuf_;
+  const folly::IOBuf* currentIngressBuf_;
   std::unique_ptr<HTTPMessage> msg_;
   std::unique_ptr<HTTPHeaders> trailers_;
   std::string currentHeaderName_;
-  coral::StringPiece currentHeaderNameStringPiece_;
+  folly::StringPiece currentHeaderNameStringPiece_;
   std::string currentHeaderValue_;
   std::string url_;
   std::string reason_;

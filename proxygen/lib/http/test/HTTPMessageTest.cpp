@@ -199,8 +199,8 @@ TEST(HTTPMessage, TestCombine) {
 TEST(HTTPMessage, TestProxification) {
   HTTPMessage msg;
 
-  coral::SocketAddress dstAddr("192.168.1.1", 1887);
-  coral::SocketAddress clientAddr("74.125.127.9", 1987);
+  folly::SocketAddress dstAddr("192.168.1.1", 1887);
+  folly::SocketAddress clientAddr("74.125.127.9", 1987);
   msg.setDstAddress(dstAddr);
   msg.setLocalIp("10.0.0.1");
   msg.ensureHostHeader();
@@ -377,8 +377,8 @@ TEST(HTTPHeaders, AddStringPiece) {
   const char foo[] = "name:value";
   HTTPHeaders headers;
 
-  coral::StringPiece str(foo);
-  coral::StringPiece name = str.split_step(':');
+  folly::StringPiece str(foo);
+  folly::StringPiece name = str.split_step(':');
   headers.add(name, str);
   EXPECT_EQ("value", headers.getSingleOrEmpty("name"));
 }

@@ -30,7 +30,7 @@ void PassThroughHTTPCodecFilter::onHeadersComplete(
 }
 
 void PassThroughHTTPCodecFilter::onBody(StreamID stream,
-                                        std::unique_ptr<coral::IOBuf> chain,
+                                        std::unique_ptr<folly::IOBuf> chain,
                                         uint16_t padding) {
   callback_->onBody(stream, std::move(chain), padding);
 }
@@ -142,7 +142,7 @@ void PassThroughHTTPCodecFilter::setParserPaused(bool paused) {
   call_->setParserPaused(paused);
 }
 
-size_t PassThroughHTTPCodecFilter::onIngress(const coral::IOBuf& buf) {
+size_t PassThroughHTTPCodecFilter::onIngress(const folly::IOBuf& buf) {
   return call_->onIngress(buf);
 }
 
@@ -171,12 +171,12 @@ bool PassThroughHTTPCodecFilter::supportsPushTransactions() const {
 }
 
 size_t PassThroughHTTPCodecFilter::generateConnectionPreface(
-  coral::IOBufQueue& writeBuf) {
+  folly::IOBufQueue& writeBuf) {
   return call_->generateConnectionPreface(writeBuf);
 }
 
 
-void PassThroughHTTPCodecFilter::generateHeader(coral::IOBufQueue& writeBuf,
+void PassThroughHTTPCodecFilter::generateHeader(folly::IOBufQueue& writeBuf,
                                                 StreamID stream,
                                                 const HTTPMessage& msg,
                                                 StreamID assocStream,
@@ -186,9 +186,9 @@ void PassThroughHTTPCodecFilter::generateHeader(coral::IOBufQueue& writeBuf,
 }
 
 size_t PassThroughHTTPCodecFilter::generateBody(
-    coral::IOBufQueue& writeBuf,
+    folly::IOBufQueue& writeBuf,
     StreamID stream,
-    std::unique_ptr<coral::IOBuf> chain,
+    std::unique_ptr<folly::IOBuf> chain,
     boost::optional<uint8_t> padding,
     bool eom) {
   return call_->generateBody(writeBuf, stream, std::move(chain), padding,
@@ -196,61 +196,61 @@ size_t PassThroughHTTPCodecFilter::generateBody(
 }
 
 size_t PassThroughHTTPCodecFilter::generateChunkHeader(
-    coral::IOBufQueue& writeBuf,
+    folly::IOBufQueue& writeBuf,
     StreamID stream,
     size_t length) {
   return call_->generateChunkHeader(writeBuf, stream, length);
 }
 
 size_t PassThroughHTTPCodecFilter::generateChunkTerminator(
-    coral::IOBufQueue& writeBuf,
+    folly::IOBufQueue& writeBuf,
     StreamID stream) {
   return call_->generateChunkTerminator(writeBuf, stream);
 }
 
 size_t PassThroughHTTPCodecFilter::generateTrailers(
-    coral::IOBufQueue& writeBuf,
+    folly::IOBufQueue& writeBuf,
     StreamID stream,
     const HTTPHeaders& trailers) {
   return call_->generateTrailers(writeBuf, stream, trailers);
 }
 
-size_t PassThroughHTTPCodecFilter::generateEOM(coral::IOBufQueue& writeBuf,
+size_t PassThroughHTTPCodecFilter::generateEOM(folly::IOBufQueue& writeBuf,
                                                StreamID stream) {
   return call_->generateEOM(writeBuf, stream);
 }
 
 size_t PassThroughHTTPCodecFilter::generateRstStream(
-    coral::IOBufQueue& writeBuf,
+    folly::IOBufQueue& writeBuf,
     StreamID stream,
     ErrorCode code) {
   return call_->generateRstStream(writeBuf, stream, code);
 }
 
 size_t PassThroughHTTPCodecFilter::generateGoaway(
-    coral::IOBufQueue& writeBuf,
+    folly::IOBufQueue& writeBuf,
     StreamID lastStream,
     ErrorCode statusCode) {
   return call_->generateGoaway(writeBuf, lastStream, statusCode);
 }
 
 size_t PassThroughHTTPCodecFilter::generatePingRequest(
-    coral::IOBufQueue& writeBuf) {
+    folly::IOBufQueue& writeBuf) {
   return call_->generatePingRequest(writeBuf);
 }
 
 size_t PassThroughHTTPCodecFilter::generatePingReply(
-    coral::IOBufQueue& writeBuf,
+    folly::IOBufQueue& writeBuf,
     uint64_t uniqueID) {
   return call_->generatePingReply(writeBuf, uniqueID);
 }
 
-size_t PassThroughHTTPCodecFilter::generateSettings(coral::IOBufQueue& buf) {
+size_t PassThroughHTTPCodecFilter::generateSettings(folly::IOBufQueue& buf) {
   return call_->generateSettings(buf);
 }
 
 size_t PassThroughHTTPCodecFilter::generateWindowUpdate(
-  coral::IOBufQueue& buf,
+  folly::IOBufQueue& buf,
   StreamID stream,
   uint32_t delta) {
   return call_->generateWindowUpdate(buf, stream, delta);

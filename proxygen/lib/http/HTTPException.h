@@ -9,8 +9,8 @@
  */
 #pragma once
 
-#include <coral/Memory.h>
-#include <coral/io/IOBufQueue.h>
+#include <folly/Memory.h>
+#include <folly/io/IOBufQueue.h>
 #include <proxygen/lib/http/HTTPMessage.h>
 #include <proxygen/lib/http/ProxygenErrorEnum.h>
 #include <proxygen/lib/http/codec/ErrorCode.h>
@@ -55,7 +55,7 @@ class HTTPException : public proxygen::Exception {
       currentIngressBuf_ = std::move(ex.currentIngressBuf_->clone());
     }
     if (ex.partialMsg_) {
-      partialMsg_ = coral::make_unique<HTTPMessage>(*ex.partialMsg_.get());
+      partialMsg_ = folly::make_unique<HTTPMessage>(*ex.partialMsg_.get());
     }
   }
 
@@ -129,11 +129,11 @@ class HTTPException : public proxygen::Exception {
     return errno_;
   }
 
-  void setCurrentIngressBuf(std::unique_ptr<coral::IOBuf> buf) {
+  void setCurrentIngressBuf(std::unique_ptr<folly::IOBuf> buf) {
     currentIngressBuf_ = std::move(buf);
   }
 
-  std::unique_ptr<coral::IOBuf> moveCurrentIngressBuf() {
+  std::unique_ptr<folly::IOBuf> moveCurrentIngressBuf() {
     return std::move(currentIngressBuf_);
   }
 
@@ -150,10 +150,10 @@ class HTTPException : public proxygen::Exception {
   Direction dir_;
   ProxygenError proxygenError_{kErrorNone};
   uint32_t httpStatusCode_{0};
-  coral::Optional<ErrorCode> codecStatusCode_;
+  folly::Optional<ErrorCode> codecStatusCode_;
   uint32_t errno_{0};
   // current ingress buffer, may be compressed
-  std::unique_ptr<coral::IOBuf> currentIngressBuf_;
+  std::unique_ptr<folly::IOBuf> currentIngressBuf_;
   // partial message that is being parsed
   std::unique_ptr<HTTPMessage> partialMsg_;
 };

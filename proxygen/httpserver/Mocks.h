@@ -30,7 +30,7 @@ class MockResponseHandler : public ResponseHandler {
 #endif
   GMOCK_METHOD1_(, noexcept, , sendHeaders, void(HTTPMessage&));
   GMOCK_METHOD1_(, noexcept, , sendChunkHeader, void(size_t));
-  GMOCK_METHOD1_(, noexcept, , sendBody, void(std::shared_ptr<coral::IOBuf>));
+  GMOCK_METHOD1_(, noexcept, , sendBody, void(std::shared_ptr<folly::IOBuf>));
   GMOCK_METHOD0_(, noexcept, , sendChunkTerminator, void());
   GMOCK_METHOD0_(, noexcept, , sendEOM, void());
   GMOCK_METHOD0_(, noexcept, , sendAbort, void());
@@ -47,11 +47,11 @@ class MockResponseHandler : public ResponseHandler {
     return transportInfo;
   }
 
-  void sendBody(std::unique_ptr<coral::IOBuf> body) noexcept override {
+  void sendBody(std::unique_ptr<folly::IOBuf> body) noexcept override {
     if (body) {
-      sendBody(std::shared_ptr<coral::IOBuf>(body.release()));
+      sendBody(std::shared_ptr<folly::IOBuf>(body.release()));
     } else {
-      sendBody(std::shared_ptr<coral::IOBuf>(nullptr));
+      sendBody(std::shared_ptr<folly::IOBuf>(nullptr));
     }
   }
 
@@ -68,7 +68,7 @@ class MockRequestHandler : public RequestHandler {
 #endif
   GMOCK_METHOD1_(, noexcept, , setResponseHandler, void(ResponseHandler*));
   GMOCK_METHOD1_(, noexcept, , onRequest, void(std::shared_ptr<HTTPMessage>));
-  GMOCK_METHOD1_(, noexcept, , onBody, void(std::shared_ptr<coral::IOBuf>));
+  GMOCK_METHOD1_(, noexcept, , onBody, void(std::shared_ptr<folly::IOBuf>));
   GMOCK_METHOD1_(, noexcept, , onUpgrade, void(UpgradeProtocol));
   GMOCK_METHOD0_(, noexcept, , onEOM, void());
   GMOCK_METHOD0_(, noexcept, , requestComplete, void());
@@ -83,11 +83,11 @@ class MockRequestHandler : public RequestHandler {
     onRequest(std::shared_ptr<HTTPMessage>(headers.release()));
   }
 
-  void onBody(std::unique_ptr<coral::IOBuf> body) noexcept override {
+  void onBody(std::unique_ptr<folly::IOBuf> body) noexcept override {
     if (body) {
-      onBody(std::shared_ptr<coral::IOBuf>(body.release()));
+      onBody(std::shared_ptr<folly::IOBuf>(body.release()));
     } else {
-      onBody(std::shared_ptr<coral::IOBuf>(nullptr));
+      onBody(std::shared_ptr<folly::IOBuf>(nullptr));
     }
   }
 };

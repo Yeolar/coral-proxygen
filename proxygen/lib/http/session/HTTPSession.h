@@ -9,11 +9,11 @@
  */
 #pragma once
 
-#include <coral/IntrusiveList.h>
+#include <folly/IntrusiveList.h>
 #include <wangle/acceptor/ManagedConnection.h>
 #include <wangle/acceptor/TransportInfo.h>
-#include <coral/io/IOBufQueue.h>
-#include <coral/io/async/EventBase.h>
+#include <folly/io/IOBufQueue.h>
+#include <folly/io/async/EventBase.h>
 #include <proxygen/lib/http/HTTPConstants.h>
 #include <proxygen/lib/http/HTTPHeaderSize.h>
 #include <proxygen/lib/http/codec/FlowControlFilter.h>
@@ -25,7 +25,7 @@
 #include <proxygen/lib/utils/Time.h>
 #include <queue>
 #include <set>
-#include <coral/io/async/AsyncSocket.h>
+#include <folly/io/async/AsyncSocket.h>
 #include <vector>
 
 namespace proxygen {
@@ -36,10 +36,10 @@ class HTTPSessionStats;
 class HTTPSession:
   private FlowControlFilter::Callback,
   private HTTPCodec::Callback,
-  private coral::EventBase::LoopCallback,
+  private folly::EventBase::LoopCallback,
   public ByteEventTracker::Callback,
   public HTTPTransaction::Transport,
-  public coral::AsyncTransportWrapper::ReadCallback,
+  public folly::AsyncTransportWrapper::ReadCallback,
   public wangle::ManagedConnection {
  public:
   typedef std::unique_ptr<HTTPSession, Destructor> UniquePtr;
@@ -118,11 +118,11 @@ class HTTPSession:
 
   void setSessionStats(HTTPSessionStats* stats);
 
-  coral::AsyncTransportWrapper* getTransport() {
+  folly::AsyncTransportWrapper* getTransport() {
     return sock_.get();
   }
 
-  const coral::AsyncTransportWrapper* getTransport() const {
+  const folly::AsyncTransportWrapper* getTransport() const {
     return sock_.get();
   }
 
@@ -350,9 +350,9 @@ class HTTPSession:
    */
   HTTPSession(
       AsyncTimeoutSet* transactionTimeouts,
-      coral::AsyncTransportWrapper::UniquePtr sock,
-      const coral::SocketAddress& localAddr,
-      const coral::SocketAddress& peerAddr,
+      folly::AsyncTransportWrapper::UniquePtr sock,
+      const folly::SocketAddress& localAddr,
+      const folly::SocketAddress& peerAddr,
       HTTPSessionController* controller,
       std::unique_ptr<HTTPCodec> codec,
       const wangle::TransportInfo& tinfo,
@@ -403,7 +403,7 @@ class HTTPSession:
    * Gets the next IOBuf to send (either writeBuf_ or new egress from
    * the priority queue), and sets cork appropriately
    */
-  std::unique_ptr<coral::IOBuf> getNextToSend(bool* cork, bool* eom);
+  std::unique_ptr<folly::IOBuf> getNextToSend(bool* cork, bool* eom);
 
   void decrementTransactionCount(HTTPTransaction* txn,
                                  bool ingressEOM, bool egressEOM);
@@ -424,23 +424,23 @@ class HTTPSession:
    * can be deleted.
    */
   class WriteSegment :
-    public coral::AsyncTransportWrapper::WriteCallback {
+    public folly::AsyncTransportWrapper::WriteCallback {
    public:
     WriteSegment(HTTPSession* session, uint64_t length);
 
     void setCork(bool cork) {
       if (cork) {
-        flags_ = flags_ | coral::WriteFlags::CORK;
+        flags_ = flags_ | folly::WriteFlags::CORK;
       } else {
-        unSet(flags_, coral::WriteFlags::CORK);
+        unSet(flags_, folly::WriteFlags::CORK);
       }
     }
 
     void setEOR(bool eor) {
       if (eor) {
-        flags_ = flags_ | coral::WriteFlags::EOR;
+        flags_ = flags_ | folly::WriteFlags::EOR;
       } else {
-        unSet(flags_, coral::WriteFlags::EOR);
+        unSet(flags_, folly::WriteFlags::EOR);
       }
     }
 
@@ -450,7 +450,7 @@ class HTTPSession:
      */
     void detach();
 
-    coral::WriteFlags getFlags() {
+    folly::WriteFlags getFlags() {
       return flags_;
     }
 
@@ -462,9 +462,9 @@ class HTTPSession:
     void writeSuccess() noexcept override;
     void writeErr(
         size_t bytesWritten,
-        const coral::AsyncSocketException&) noexcept override;
+        const folly::AsyncSocketException&) noexcept override;
 
-    coral::IntrusiveListHook listHook;
+    folly::IntrusiveListHook listHook;
    private:
 
     /**
@@ -474,10 +474,10 @@ class HTTPSession:
 
     HTTPSession* session_;
     uint64_t length_;
-    coral::WriteFlags flags_{
-      coral::WriteFlags::NONE};
+    folly::WriteFlags flags_{
+      folly::WriteFlags::NONE};
   };
-  typedef coral::IntrusiveList<WriteSegment, &WriteSegment::listHook>
+  typedef folly::IntrusiveList<WriteSegment, &WriteSegment::listHook>
     WriteSegmentList;
 
   void readTimeoutExpired() noexcept;
@@ -488,11 +488,11 @@ class HTTPSession:
   void getReadBuffer(void** buf, size_t* bufSize) override;
   void readDataAvailable(size_t readSize) noexcept override;
   bool isBufferMovable() noexcept override;
-  void readBufferAvailable(std::unique_ptr<coral::IOBuf>) noexcept override;
+  void readBufferAvailable(std::unique_ptr<folly::IOBuf>) noexcept override;
   void processReadData();
   void readEOF() noexcept override;
   void readErr(
-      const coral::AsyncSocketException&) noexcept override;
+      const folly::AsyncSocketException&) noexcept override;
 
   // HTTPCodec::Callback methods
   void onMessageBegin(HTTPCodec::StreamID streamID, HTTPMessage* msg) override;
@@ -502,7 +502,7 @@ class HTTPSession:
   void onHeadersComplete(HTTPCodec::StreamID streamID,
                          std::unique_ptr<HTTPMessage> msg) override;
   void onBody(HTTPCodec::StreamID streamID,
-              std::unique_ptr<coral::IOBuf> chain, uint16_t padding) override;
+              std::unique_ptr<folly::IOBuf> chain, uint16_t padding) override;
   void onChunkHeader(HTTPCodec::StreamID stream, size_t length) override;
   void onChunkComplete(HTTPCodec::StreamID stream) override;
   void onTrailersComplete(HTTPCodec::StreamID streamID,
@@ -528,7 +528,7 @@ class HTTPSession:
   void sendHeaders(HTTPTransaction* txn,
                    const HTTPMessage& headers,
                    HTTPHeaderSize* size) noexcept override;
-  size_t sendBody(HTTPTransaction* txn, std::unique_ptr<coral::IOBuf>,
+  size_t sendBody(HTTPTransaction* txn, std::unique_ptr<folly::IOBuf>,
                   bool includeEOM) noexcept override;
   size_t sendChunkHeader(HTTPTransaction* txn,
                          size_t length) noexcept override;
@@ -549,9 +549,9 @@ class HTTPSession:
                                         int8_t priority) noexcept override;
 
  public:
-  const coral::SocketAddress& getLocalAddress()
+  const folly::SocketAddress& getLocalAddress()
     const noexcept override;
-  const coral::SocketAddress& getPeerAddress()
+  const folly::SocketAddress& getPeerAddress()
     const noexcept override;
 
   wangle::TransportInfo& getSetupTransportInfo() noexcept;
@@ -631,7 +631,7 @@ class HTTPSession:
 
   /** Invoked by WriteSegment on write failure. */
   void onWriteError(size_t bytesWritten,
-      const coral::AsyncSocketException& ex);
+      const folly::AsyncSocketException& ex);
 
   /** Check whether to shut down the transport after a write completes. */
   void onWriteCompleted();
@@ -718,10 +718,10 @@ class HTTPSession:
   void drainImpl();
 
   /** Chain of ingress IOBufs */
-  coral::IOBufQueue readBuf_{coral::IOBufQueue::cacheChainLength()};
+  folly::IOBufQueue readBuf_{folly::IOBufQueue::cacheChainLength()};
 
   /** Queue of egress IOBufs */
-  coral::IOBufQueue writeBuf_{coral::IOBufQueue::cacheChainLength()};
+  folly::IOBufQueue writeBuf_{folly::IOBufQueue::cacheChainLength()};
 
   /** Priority queue of transactions with egress pending */
   HTTPTransaction::PriorityQueue txnEgressQueue_;
@@ -735,14 +735,14 @@ class HTTPSession:
   uint32_t transactionSeqNo_{0};
 
   /** Address of this end of the TCP connection */
-  coral::SocketAddress localAddr_;
+  folly::SocketAddress localAddr_;
 
   /** Address of the remote end of the TCP connection */
-  coral::SocketAddress peerAddr_;
+  folly::SocketAddress peerAddr_;
 
   WriteSegmentList pendingWrites_;
 
-  coral::AsyncTransportWrapper::UniquePtr sock_;
+  folly::AsyncTransportWrapper::UniquePtr sock_;
 
   HTTPSessionController* controller_{nullptr};
 
@@ -955,7 +955,7 @@ class HTTPSession:
   void onDeleteAckEvent() override;
 
   std::unique_ptr<ByteEventTracker> byteEventTracker_{
-    coral::make_unique<ByteEventTracker>(this)};
+    folly::make_unique<ByteEventTracker>(this)};
 };
 
 } // proxygen

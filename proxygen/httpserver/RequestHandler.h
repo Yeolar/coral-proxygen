@@ -43,7 +43,7 @@ class RequestHandler {
   /**
    * Invoked when we get part of body for the request.
    */
-  virtual void onBody(std::unique_ptr<coral::IOBuf> body) noexcept = 0;
+  virtual void onBody(std::unique_ptr<folly::IOBuf> body) noexcept = 0;
 
   /**
    * Invoked when the session has been upgraded to a different protocol

@@ -9,25 +9,25 @@
  */
 #pragma once
 
-#include <coral/io/async/EventBase.h>
-#include <coral/io/async/TimeoutManager.h>
+#include <folly/io/async/EventBase.h>
+#include <folly/io/async/TimeoutManager.h>
 #include <gtest/gtest.h>
 #include <proxygen/lib/http/session/HTTPSession.h>
-#include <coral/io/async/test/MockAsyncTransport.h>
+#include <folly/io/async/test/MockAsyncTransport.h>
 
 namespace proxygen {
 
 extern const wangle::TransportInfo mockTransportInfo;
-extern const coral::SocketAddress localAddr;
-extern const coral::SocketAddress peerAddr;
+extern const folly::SocketAddress localAddr;
+extern const folly::SocketAddress peerAddr;
 
 AsyncTimeoutSet::UniquePtr
-makeInternalTimeoutSet(coral::EventBase* evb);
+makeInternalTimeoutSet(folly::EventBase* evb);
 
 AsyncTimeoutSet::UniquePtr
-makeTimeoutSet(coral::EventBase* evb);
+makeTimeoutSet(folly::EventBase* evb);
 
-testing::NiceMock<coral::test::MockAsyncTransport>*
-newMockTransport(coral::EventBase* evb);
+testing::NiceMock<folly::test::MockAsyncTransport>*
+newMockTransport(folly::EventBase* evb);
 
 }

@@ -7,9 +7,9 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  *
  */
-#include <coral/Conv.h>
-#include <coral/ScopeGuard.h>
-#include <coral/io/IOBuf.h>
+#include <folly/Conv.h>
+#include <folly/ScopeGuard.h>
+#include <folly/io/IOBuf.h>
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
@@ -23,7 +23,7 @@ using namespace testing;
 
 MATCHER_P(IOBufEquals,
           expected,
-          coral::to<std::string>(
+          folly::to<std::string>(
               "IOBuf is ", negation ? "not " : "", "'", expected, "'")) {
   auto iob = arg->clone();
   auto br = iob->coalesce();
@@ -37,8 +37,8 @@ class ZlibServerFilterTest : public Test {
   void SetUp() override {
     // requesthandler is the server, responsehandler is the client
     requestHandler_ = new MockRequestHandler();
-    responseHandler_ = coral::make_unique<MockResponseHandler>(requestHandler_);
-    zd_ = coral::make_unique<ZlibStreamDecompressor>(ZlibCompressionType::GZIP);
+    responseHandler_ = folly::make_unique<MockResponseHandler>(requestHandler_);
+    zd_ = folly::make_unique<ZlibStreamDecompressor>(ZlibCompressionType::GZIP);
   }
 
   void TearDown() override {
@@ -61,7 +61,7 @@ class ZlibServerFilterTest : public Test {
                             std::string expectedEncoding,
                             std::string originalRequestBody,
                             std::string responseContentType,
-                            unique_ptr<coral::IOBuf> originalResponseBody,
+                            unique_ptr<folly::IOBuf> originalResponseBody,
                             int32_t compressionLevel = 4,
                             uint32_t minimumCompressionSize = 1) {
 
@@ -111,20 +111,20 @@ class ZlibServerFilterTest : public Test {
     }
 
     // Accumulate the body, decompressing it if it's compressed
-    std::unique_ptr<coral::IOBuf> responseBody;
+    std::unique_ptr<folly::IOBuf> responseBody;
     EXPECT_CALL(*responseHandler_, sendBody(_))
         .Times(chunkCount)
         .WillRepeatedly(DoAll(
-            Invoke([&](std::shared_ptr<coral::IOBuf> body) {
+            Invoke([&](std::shared_ptr<folly::IOBuf> body) {
 
-              std::unique_ptr<coral::IOBuf> processedBody;
+              std::unique_ptr<folly::IOBuf> processedBody;
 
               if (expectCompression) {
                 processedBody = zd_->decompress(body.get());
                 ASSERT_FALSE(zd_->hasError())
                     << "Failed to decompress body. r=" << zd_->getStatus();
               } else {
-                processedBody = coral::IOBuf::copyBuffer(
+                processedBody = folly::IOBuf::copyBuffer(
                     body->data(), body->length(), 0, 0);
               }
 
@@ -145,14 +145,14 @@ class ZlibServerFilterTest : public Test {
     msg.getHeaders().set(HTTP_HEADER_ACCEPT_ENCODING, acceptedEncoding);
 
     std::set<std::string> compressibleTypes = {"text/html"};
-    auto filterFactory = coral::make_unique<ZlibServerFilterFactory>(
+    auto filterFactory = folly::make_unique<ZlibServerFilterFactory>(
         compressionLevel, minimumCompressionSize, compressibleTypes);
 
     auto filter = filterFactory->onRequest(requestHandler_, &msg);
     filter->setResponseHandler(responseHandler_.get());
 
     // Send fake request
-    filter->onBody(coral::IOBuf::copyBuffer(originalRequestBody));
+    filter->onBody(folly::IOBuf::copyBuffer(originalRequestBody));
     filter->onEOM();
 
     // Send a fake Response
@@ -163,7 +163,7 @@ class ZlibServerFilterTest : public Test {
         .header(HTTP_HEADER_CONTENT_TYPE, responseContentType)
         .send();
 
-      coral::IOBuf* crtBuf;
+      folly::IOBuf* crtBuf;
       crtBuf = originalResponseBody.get();
 
       do {
@@ -190,13 +190,13 @@ class ZlibServerFilterTest : public Test {
 
   // Helper method to convert a vector of strings to an IOBuf chain
   // specificaly create a chain because the chain pieces are chunks
-  unique_ptr<coral::IOBuf> createResponseChain(
+  unique_ptr<folly::IOBuf> createResponseChain(
       std::vector<std::string> const& bodyStrings) {
 
-    std::unique_ptr<coral::IOBuf> responseBodyChain;
+    std::unique_ptr<folly::IOBuf> responseBodyChain;
 
     for (auto& s : bodyStrings) {
-      auto nextBody = coral::IOBuf::copyBuffer(s.c_str());
+      auto nextBody = folly::IOBuf::copyBuffer(s.c_str());
       if (responseBodyChain) {
         responseBodyChain->prependChain(std::move(nextBody));
       } else {
@@ -217,7 +217,7 @@ TEST_F(ZlibServerFilterTest, nonchunked_compression) {
                          std::string("gzip"),
                          std::string("Hello World"),
                          std::string("text/html"),
-                         std::move(coral::IOBuf::copyBuffer("Hello World")));
+                         std::move(folly::IOBuf::copyBuffer("Hello World")));
   });
 }
 
@@ -242,7 +242,7 @@ TEST_F(ZlibServerFilterTest, parameterized_contenttype) {
                          std::string("gzip"),
                          std::string("Hello World"),
                          std::string("text/html; param1"),
-                         std::move(coral::IOBuf::copyBuffer("Hello World")));
+                         std::move(folly::IOBuf::copyBuffer("Hello World")));
   });
 }
 
@@ -254,7 +254,7 @@ TEST_F(ZlibServerFilterTest, mixedcase_contenttype) {
                          std::string("gzip"),
                          std::string("Hello World"),
                          std::string("Text/Html; param1"),
-                         std::move(coral::IOBuf::copyBuffer("Hello World")));
+                         std::move(folly::IOBuf::copyBuffer("Hello World")));
   });
 }
 
@@ -267,7 +267,7 @@ TEST_F(ZlibServerFilterTest, multiple_accepted_encodings) {
                          std::string("gzip"),
                          std::string("Hello World"),
                          std::string("text/html"),
-                         std::move(coral::IOBuf::copyBuffer("Hello World")));
+                         std::move(folly::IOBuf::copyBuffer("Hello World")));
   });
 }
 
@@ -279,7 +279,7 @@ TEST_F(ZlibServerFilterTest, multiple_accepted_encodings_qvalues) {
                          std::string("gzip"),
                          std::string("Hello World"),
                          std::string("text/html"),
-                         std::move(coral::IOBuf::copyBuffer("Hello World")));
+                         std::move(folly::IOBuf::copyBuffer("Hello World")));
   });
 }
 
@@ -291,7 +291,7 @@ TEST_F(ZlibServerFilterTest, no_compressible_accepted_encodings) {
                          std::string(""),
                          std::string("Hello World"),
                          std::string("text/html"),
-                         std::move(coral::IOBuf::copyBuffer("Hello World")));
+                         std::move(folly::IOBuf::copyBuffer("Hello World")));
   });
 }
 
@@ -303,7 +303,7 @@ TEST_F(ZlibServerFilterTest, missing_accepted_encodings) {
                          std::string(""),
                          std::string("Hello World"),
                          std::string("text/html"),
-                         std::move(coral::IOBuf::copyBuffer("Hello World")));
+                         std::move(folly::IOBuf::copyBuffer("Hello World")));
   });
 }
 
@@ -316,7 +316,7 @@ TEST_F(ZlibServerFilterTest, uncompressible_contenttype) {
                          std::string(""),
                          std::string("Hello World"),
                          std::string("image/jpeg"),
-                         std::move(coral::IOBuf::copyBuffer("Hello World")));
+                         std::move(folly::IOBuf::copyBuffer("Hello World")));
   });
 }
 
@@ -328,7 +328,7 @@ TEST_F(ZlibServerFilterTest, uncompressible_contenttype_param) {
                          std::string(""),
                          std::string("Hello World"),
                          std::string("application/jpeg; param1"),
-                         std::move(coral::IOBuf::copyBuffer("Hello World")));
+                         std::move(folly::IOBuf::copyBuffer("Hello World")));
   });
 }
 
@@ -341,7 +341,7 @@ TEST_F(ZlibServerFilterTest, too_small_to_compress) {
                          std::string(""),
                          std::string("Hello World"),
                          std::string("text/html"),
-                         std::move(coral::IOBuf::copyBuffer("Hello World")),
+                         std::move(folly::IOBuf::copyBuffer("Hello World")),
                          4,
                          1000);
   });

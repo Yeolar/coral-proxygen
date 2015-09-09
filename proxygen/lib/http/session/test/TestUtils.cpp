@@ -9,9 +9,9 @@
  */
 #include <proxygen/lib/http/session/test/TestUtils.h>
 
-using coral::test::MockAsyncTransport;
+using folly::test::MockAsyncTransport;
 
-using namespace coral;
+using namespace folly;
 
 namespace proxygen {
 

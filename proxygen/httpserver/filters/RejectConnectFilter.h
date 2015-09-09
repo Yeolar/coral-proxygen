@@ -30,7 +30,7 @@ class RejectConnectFilter : public Filter {
     ResponseBuilder(downstream_).rejectUpgradeRequest();
   }
 
-  void onBody(std::unique_ptr<coral::IOBuf> body) noexcept override {
+  void onBody(std::unique_ptr<folly::IOBuf> body) noexcept override {
   }
 
   void onUpgrade(UpgradeProtocol protocol) noexcept override {
@@ -67,7 +67,7 @@ class RejectConnectFilter : public Filter {
   void sendChunkHeader(size_t len) noexcept override {
   }
 
-  void sendBody(std::unique_ptr<coral::IOBuf> body) noexcept override {
+  void sendBody(std::unique_ptr<folly::IOBuf> body) noexcept override {
   }
 
   void sendChunkTerminator() noexcept override {

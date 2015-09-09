@@ -9,8 +9,8 @@
  */
 #pragma once
 
-#include <coral/FBVector.h>
-#include <coral/Range.h>
+#include <folly/FBVector.h>
+#include <folly/Range.h>
 #include <proxygen/lib/http/HTTPCommonHeaders.h>
 #include <proxygen/lib/utils/UtilInl.h>
 
@@ -82,9 +82,9 @@ class HTTPHeaders {
    * Add the header 'name' with value 'value'; if other instances of this
    * header name exist, they will be retained.
    */
-  void add(coral::StringPiece name, coral::StringPiece value);
+  void add(folly::StringPiece name, folly::StringPiece value);
   template <typename T> // T = string
-  void add(coral::StringPiece name, T&& value);
+  void add(folly::StringPiece name, T&& value);
   template <typename T> // T = string
   void add(HTTPHeaderCode code, T&& value);
   void rawAdd(const std::string& name, const std::string& value);
@@ -95,7 +95,7 @@ class HTTPHeaders {
    * For the header 'name', set its value to the single header 'value',
    * removing any other instances of this header.
    */
-  void set(coral::StringPiece name, const std::string& value) {
+  void set(folly::StringPiece name, const std::string& value) {
     // this could be somewhat optimized but probably not an issue yet
     remove(name);
     add(name, value);
@@ -111,7 +111,7 @@ class HTTPHeaders {
   /**
    * Do we have an instance of the given header?
    */
-  bool exists(coral::StringPiece name) const;
+  bool exists(folly::StringPiece name) const;
   bool exists(HTTPHeaderCode code) const;
   bool rawExists(std::string& name) const {
     return exists(name);
@@ -183,7 +183,7 @@ class HTTPHeaders {
    * Get the number of values corresponding to a given header name.
    */
   size_t getNumberOfValues(HTTPHeaderCode code) const;
-  size_t getNumberOfValues(coral::StringPiece name) const;
+  size_t getNumberOfValues(folly::StringPiece name) const;
 
   /**
    * Process the ordered list of values for the given header name:
@@ -198,7 +198,7 @@ class HTTPHeaders {
    * true), and false otherwise.
    */
   template <typename LAMBDA> // const string & -> bool
-  inline bool forEachValueOfHeader(coral::StringPiece name, LAMBDA func) const;
+  inline bool forEachValueOfHeader(folly::StringPiece name, LAMBDA func) const;
   template <typename LAMBDA> // const string & -> bool
   inline bool forEachValueOfHeader(HTTPHeaderCode code, LAMBDA func) const;
 
@@ -206,7 +206,7 @@ class HTTPHeaders {
    * Remove all instances of the given header, returning true if anything was
    * removed and false if this header didn't exist in our set.
    */
-  bool remove(coral::StringPiece name);
+  bool remove(folly::StringPiece name);
   bool remove(HTTPHeaderCode code);
   void rawRemove(const std::string& name) {
     remove(name);
@@ -241,15 +241,15 @@ class HTTPHeaders {
 
  private:
   // vector storing the 1-byte hashes of header names
-  coral::fbvector<HTTPHeaderCode> codes_;
+  folly::fbvector<HTTPHeaderCode> codes_;
 
   /**
    * Vector storing pointers to header names; we own those pointers which
    * correspond to HTTP_HEADER_OTHER codes.
    */
-  coral::fbvector<const std::string *> headerNames_;
+  folly::fbvector<const std::string *> headerNames_;
 
-  coral::fbvector<std::string> headerValues_;
+  folly::fbvector<std::string> headerValues_;
 
   size_t deletedCount_;
 
@@ -264,7 +264,7 @@ class HTTPHeaders {
    * group.  No-op if the header doesn't exist.  Returns true if header(s) were
    * moved.
    */
-  bool transferHeaderIfPresent(coral::StringPiece name, HTTPHeaders& dest);
+  bool transferHeaderIfPresent(folly::StringPiece name, HTTPHeaders& dest);
 
   static void initGlobals() __attribute__ ((__constructor__));
 
@@ -275,7 +275,7 @@ class HTTPHeaders {
 // Implementation follows - it has to be in the .h because of the templates
 
 template <typename T> // T = string
-void HTTPHeaders::add(coral::StringPiece name, T&& value) {
+void HTTPHeaders::add(folly::StringPiece name, T&& value) {
   assert(name.size());
   const HTTPHeaderCode code = HTTPCommonHeaders::hash(name.data(), name.size());
   codes_.push_back(code);
@@ -332,7 +332,7 @@ void HTTPHeaders::forEachWithCode(LAMBDA func) const {
 }
 
 template <typename LAMBDA> // const string & -> bool
-bool HTTPHeaders::forEachValueOfHeader(coral::StringPiece name,
+bool HTTPHeaders::forEachValueOfHeader(folly::StringPiece name,
                                        LAMBDA func) const {
   const HTTPHeaderCode code = HTTPCommonHeaders::hash(name.data(), name.size());
   if (code != HTTP_HEADER_OTHER) {

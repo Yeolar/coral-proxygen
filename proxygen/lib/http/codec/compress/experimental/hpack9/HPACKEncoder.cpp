@@ -11,11 +11,11 @@
 
 #include <proxygen/lib/http/codec/compress/experimental/hpack9/HPACKConstants.h>
 
-#include <coral/io/IOBuf.h>
+#include <folly/io/IOBuf.h>
 
 namespace proxygen {
 
-std::unique_ptr<coral::IOBuf> HPACKEncoder09::encode(
+std::unique_ptr<folly::IOBuf> HPACKEncoder09::encode(
   const std::vector<HPACKHeader>& headers,
   uint32_t headroom) {
   if (headroom) {

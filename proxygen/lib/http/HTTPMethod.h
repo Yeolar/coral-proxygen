@@ -10,7 +10,7 @@
 #pragma once
 
 #include <boost/optional/optional.hpp>
-#include <coral/Range.h>
+#include <folly/Range.h>
 #include <string>
 
 namespace proxygen {
@@ -46,7 +46,7 @@ enum class HTTPMethod {
  * programmers probably really meant "GET" not "get". If the method is not
  * recognized, the return value will be None
  */
-extern boost::optional<HTTPMethod> stringToMethod(coral::StringPiece method);
+extern boost::optional<HTTPMethod> stringToMethod(folly::StringPiece method);
 
 /**
  * Returns a string representation of the method. If EXTENSION_METHOD is

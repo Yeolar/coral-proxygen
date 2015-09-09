@@ -9,7 +9,7 @@
  */
 #include <proxygen/lib/http/codec/SPDYUtil.h>
 
-#include <coral/ThreadLocal.h>
+#include <folly/ThreadLocal.h>
 #include <proxygen/lib/http/RFC2616.h>
 
 namespace proxygen {
@@ -59,7 +59,7 @@ const char SPDYUtil::http_tokens[256] = {
 
 bool SPDYUtil::hasGzipAndDeflate(const std::string& value, bool& hasGzip,
                                  bool& hasDeflate) {
-  static coral::ThreadLocal<std::vector<RFC2616::TokenQPair>> output;
+  static folly::ThreadLocal<std::vector<RFC2616::TokenQPair>> output;
   output->clear();
   hasGzip = false;
   hasDeflate = false;

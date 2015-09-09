@@ -9,8 +9,8 @@
  */
 #pragma once
 
-#include <coral/io/Cursor.h>
-#include <coral/io/IOBuf.h>
+#include <folly/io/Cursor.h>
+#include <folly/io/IOBuf.h>
 #include <proxygen/lib/http/codec/compress/HPACKConstants.h>
 #include <string>
 
@@ -108,7 +108,7 @@ class HuffTree {
    * @param buf where to append the encoded binary data
    */
   uint32_t encode(const std::string& literal,
-                  coral::io::QueueAppender& buf) const;
+                  folly::io::QueueAppender& buf) const;
 
   /**
    * get the encode size for a string literal, works as a dry-run for the encode

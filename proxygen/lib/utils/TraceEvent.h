@@ -10,7 +10,7 @@
 #pragma once
 
 #include <boost/variant.hpp>
-#include <coral/Conv.h>
+#include <folly/Conv.h>
 #include <map>
 #include <proxygen/lib/utils/Time.h>
 #include <proxygen/lib/utils/TraceEventType.h>
@@ -33,7 +33,7 @@ class TraceEvent {
               typename = typename std::enable_if<std::is_integral<T>::value,
                                                  void>::type>
     /* implicit */ MetaData(T value)
-        : value_(coral::to<int64_t>(value)) {}
+        : value_(folly::to<int64_t>(value)) {}
 
     /* implicit */ MetaData(const std::string& value) :
       value_(value) {
@@ -47,7 +47,7 @@ class TraceEvent {
       value_(std::string(value)) {
     }
 
-    /* implicit */ MetaData(const coral::fbstring& value) :
+    /* implicit */ MetaData(const folly::fbstring& value) :
       value_(value.toStdString()) {
     }
 
@@ -61,7 +61,7 @@ class TraceEvent {
      struct ConvVisitor : boost::static_visitor<T> {
       template<typename U>
        T operator()(U& operand) const {
-         return coral::to<T>(operand);
+         return folly::to<T>(operand);
        }
      };
 

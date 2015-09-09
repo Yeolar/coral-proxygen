@@ -9,10 +9,10 @@
  */
 #pragma once
 
-#include <coral/Range.h>
+#include <folly/Range.h>
 
 namespace proxygen {
 
-int8_t getChromeVersion(coral::StringPiece agent);
+int8_t getChromeVersion(folly::StringPiece agent);
 
 }

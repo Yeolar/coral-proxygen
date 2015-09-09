@@ -10,12 +10,12 @@
 #include <proxygen/lib/http/codec/compress/HPACKCodec.h>
 
 #include <algorithm>
-#include <coral/String.h>
-#include <coral/io/Cursor.h>
+#include <folly/String.h>
+#include <folly/io/Cursor.h>
 #include <proxygen/lib/http/codec/compress/HPACKHeader.h>
 
-using coral::IOBuf;
-using coral::io::Cursor;
+using folly::IOBuf;
+using folly::io::Cursor;
 using proxygen::compress::Header;
 using proxygen::compress::HeaderPiece;
 using proxygen::compress::HeaderPieceList;
@@ -37,8 +37,8 @@ HPACKCodec::HPACKCodec(TransportDirection direction) {
     decoderType = HPACK::MessageType::RESP;
     encoderType = HPACK::MessageType::REQ;
   }
-  encoder_ = coral::make_unique<HPACKEncoder>(encoderType, true);
-  decoder_ = coral::make_unique<HPACKDecoder>(decoderType, HPACK::kTableSize,
+  encoder_ = folly::make_unique<HPACKEncoder>(encoderType, true);
+  decoder_ = folly::make_unique<HPACKDecoder>(decoderType, HPACK::kTableSize,
                                               maxUncompressed_);
 }
 
@@ -52,7 +52,7 @@ unique_ptr<IOBuf> HPACKCodec::encode(vector<Header>& headers) noexcept {
     // of the string I'm assuming this is OK
     auto& header = converted.back();
     char* mutableName = const_cast<char*>(header.name.data());
-    coral::toLowerAscii(mutableName, header.name.size());
+    folly::toLowerAscii(mutableName, header.name.size());
 
     uncompressed += header.name.size() + header.value.size() + 2;
   }

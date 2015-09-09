@@ -13,7 +13,7 @@
 #include <zlib.h>
 #include <proxygen/lib/utils/ZlibStreamDecompressor.h>
 
-namespace coral {
+namespace folly {
 class IOBuf;
 }
 
@@ -38,7 +38,7 @@ class ZlibStreamCompressor {
 
   void init(ZlibCompressionType type, int level);
 
-  std::unique_ptr<coral::IOBuf> compress(const coral::IOBuf* in,
+  std::unique_ptr<folly::IOBuf> compress(const folly::IOBuf* in,
                                          bool trailer = true);
 
   int getStatus() { return status_; }

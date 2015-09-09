@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include <coral/IntrusiveList.h>
+#include <folly/IntrusiveList.h>
 #include <proxygen/lib/http/session/HTTPTransaction.h>
 #include <proxygen/lib/utils/AsyncTimeoutSet.h>
 #include <proxygen/lib/utils/Time.h>
@@ -31,7 +31,7 @@ class ByteEvent {
   virtual HTTPTransaction* getTransaction() { return nullptr; }
   virtual int64_t getLatency() { return -1; }
 
-  coral::IntrusiveListHook listHook;
+  folly::IntrusiveListHook listHook;
   EventType eventType_:3; // packed w/ byteOffset_
   size_t eomTracked_:1;
   uint64_t byteOffset_:(8*sizeof(uint64_t)-4);

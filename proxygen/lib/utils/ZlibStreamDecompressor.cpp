@@ -9,9 +9,9 @@
  */
 #include <proxygen/lib/utils/ZlibStreamDecompressor.h>
 
-#include <coral/io/Cursor.h>
+#include <folly/io/Cursor.h>
 
-using coral::IOBuf;
+using folly::IOBuf;
 using std::unique_ptr;
 
 // IOBuf uses 24 bytes of data for bookeeping purposes, so requesting for 480
@@ -63,7 +63,7 @@ ZlibStreamDecompressor::~ZlibStreamDecompressor() {
 
 std::unique_ptr<IOBuf> ZlibStreamDecompressor::decompress(const IOBuf* in) {
   auto out = IOBuf::create(FLAGS_zlib_buffer_growth);
-  auto appender = coral::io::Appender(out.get(),
+  auto appender = folly::io::Appender(out.get(),
       FLAGS_zlib_buffer_growth);
 
   const IOBuf* crtBuf = in;

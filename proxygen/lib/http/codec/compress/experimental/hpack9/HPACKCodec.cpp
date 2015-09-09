@@ -17,8 +17,8 @@ namespace proxygen {
 HPACKCodec09::HPACKCodec09(TransportDirection direction) :
     HPACKCodec(direction) {
   // the direction is not used in the latest spec
-  encoder_ = coral::make_unique<HPACKEncoder09>();
-  decoder_ = coral::make_unique<HPACKDecoder09>();
+  encoder_ = folly::make_unique<HPACKEncoder09>();
+  decoder_ = folly::make_unique<HPACKDecoder09>();
 }
 
 }

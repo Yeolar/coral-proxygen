@@ -48,7 +48,7 @@ HTTPHeaders::HTTPHeaders() :
   headerValues_.reserve(kInitialVectorReserve);
 }
 
-void HTTPHeaders::add(coral::StringPiece name, coral::StringPiece value) {
+void HTTPHeaders::add(folly::StringPiece name, folly::StringPiece value) {
   CHECK(name.size());
   const HTTPHeaderCode code = HTTPCommonHeaders::hash(name.data(), name.size());
   codes_.push_back(code);
@@ -71,7 +71,7 @@ void HTTPHeaders::addFromCodec(const char* str, size_t len, string&& value) {
   headerValues_.emplace_back(std::move(value));
 }
 
-bool HTTPHeaders::exists(coral::StringPiece name) const {
+bool HTTPHeaders::exists(folly::StringPiece name) const {
   const HTTPHeaderCode code = HTTPCommonHeaders::hash(name.data(),
                                                       name.size());
   if (code != HTTP_HEADER_OTHER) {
@@ -95,16 +95,16 @@ size_t HTTPHeaders::getNumberOfValues(HTTPHeaderCode code) const {
   return count;
 }
 
-size_t HTTPHeaders::getNumberOfValues(coral::StringPiece name) const {
+size_t HTTPHeaders::getNumberOfValues(folly::StringPiece name) const {
   size_t count = 0;
-  forEachValueOfHeader(name, [&] (coral::StringPiece value) -> bool {
+  forEachValueOfHeader(name, [&] (folly::StringPiece value) -> bool {
     ++count;
     return false;
   });
   return count;
 }
 
-bool HTTPHeaders::remove(coral::StringPiece name) {
+bool HTTPHeaders::remove(folly::StringPiece name) {
   const HTTPHeaderCode code = HTTPCommonHeaders::hash(name.data(),
                                                       name.size());
   if (code != HTTP_HEADER_OTHER) {
@@ -206,7 +206,7 @@ size_t HTTPHeaders::size() const {
 }
 
 bool
-HTTPHeaders::transferHeaderIfPresent(coral::StringPiece name,
+HTTPHeaders::transferHeaderIfPresent(folly::StringPiece name,
                                      HTTPHeaders& strippedHeaders) {
   bool transferred = false;
   const HTTPHeaderCode code = HTTPCommonHeaders::hash(name.data(),

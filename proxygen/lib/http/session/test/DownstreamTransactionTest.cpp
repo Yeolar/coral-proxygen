@@ -7,22 +7,22 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  *
  */
-#include <coral/io/async/EventBase.h>
+#include <folly/io/async/EventBase.h>
 #include <proxygen/lib/http/codec/SPDYConstants.h>
 #include <proxygen/lib/http/codec/test/MockHTTPCodec.h>
 #include <proxygen/lib/http/codec/test/TestUtils.h>
 #include <proxygen/lib/http/session/test/HTTPSessionMocks.h>
 #include <proxygen/lib/http/session/test/HTTPTransactionMocks.h>
 #include <proxygen/lib/test/TestAsyncTransport.h>
-#include <coral/io/async/test/MockAsyncTransport.h>
+#include <folly/io/async/test/MockAsyncTransport.h>
 
 
 
 using namespace proxygen;
 using namespace testing;
 
-using coral::IOBuf;
-using coral::IOBufQueue;
+using folly::IOBuf;
+using folly::IOBufQueue;
 using std::string;
 using std::unique_ptr;
 using std::vector;
@@ -52,7 +52,7 @@ class DownstreamTransactionTest : public testing::Test {
             EXPECT_EQ(headers.getStatusCode(), 200);
           }));
     EXPECT_CALL(transport_, sendBody(txn, _, false))
-      .WillRepeatedly(Invoke([=](Unused, std::shared_ptr<coral::IOBuf> body,
+      .WillRepeatedly(Invoke([=](Unused, std::shared_ptr<folly::IOBuf> body,
                                  Unused) {
                                auto cur = body->computeChainDataLength();
                                sent_ += cur;
@@ -66,7 +66,7 @@ class DownstreamTransactionTest : public testing::Test {
             return 5;
           }));
     EXPECT_CALL(handler_, onBody(_))
-      .WillRepeatedly(Invoke([=](std::shared_ptr<coral::IOBuf> body) {
+      .WillRepeatedly(Invoke([=](std::shared_ptr<folly::IOBuf> body) {
             received_ += body->computeChainDataLength();
           }));
     EXPECT_CALL(handler_, onEOM())
@@ -83,7 +83,7 @@ class DownstreamTransactionTest : public testing::Test {
   }
 
  protected:
-  coral::EventBase eventBase_;
+  folly::EventBase eventBase_;
   AsyncTimeoutSet::UniquePtr transactionTimeouts_{
     new AsyncTimeoutSet(&eventBase_, std::chrono::milliseconds(500))};
   MockHTTPTransactionTransport transport_;

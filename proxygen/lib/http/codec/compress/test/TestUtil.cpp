@@ -14,7 +14,7 @@
 #include <gtest/gtest.h>
 #include <proxygen/lib/http/codec/compress/Logging.h>
 
-using coral::IOBuf;
+using folly::IOBuf;
 using std::ofstream;
 using std::string;
 using std::unique_ptr;

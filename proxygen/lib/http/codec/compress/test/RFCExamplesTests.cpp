@@ -17,7 +17,7 @@
 #include <proxygen/lib/http/codec/compress/test/TestUtil.h>
 #include <vector>
 
-using namespace coral;
+using namespace folly;
 using namespace proxygen;
 using namespace std;
 using namespace testing;

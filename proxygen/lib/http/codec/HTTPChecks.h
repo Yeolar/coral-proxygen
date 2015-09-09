@@ -28,7 +28,7 @@ class HTTPChecks: public PassThroughHTTPCodecFilter {
 
   // HTTPCodec methods
 
-  void generateHeader(coral::IOBufQueue& writeBuf,
+  void generateHeader(folly::IOBufQueue& writeBuf,
                       StreamID stream,
                       const HTTPMessage& msg,
                       StreamID assocStream,

@@ -13,7 +13,7 @@
 #include <proxygen/lib/http/session/ByteEvents.h>
 #include <proxygen/lib/http/session/HTTPTransaction.h>
 #include <proxygen/lib/utils/Time.h>
-#include <coral/io/async/AsyncSocket.h>
+#include <folly/io/async/AsyncSocket.h>
 
 namespace proxygen {
 
@@ -65,7 +65,7 @@ class ByteEventTracker {
   virtual bool setMaxTcpAckTracked(
     uint32_t maxAckTracked,
     AsyncTimeoutSet* ackLatencyTimeouts,
-    coral::AsyncTransportWrapper* transport) { return false; }
+    folly::AsyncTransportWrapper* transport) { return false; }
 
   virtual void setTTLBAStats(TTLBAStats* stats) {}
 
@@ -73,7 +73,7 @@ class ByteEventTracker {
 
  private:
   // byteEvents_ is in the ascending order of ByteEvent::byteOffset_
-  coral::IntrusiveList<ByteEvent, &ByteEvent::listHook> byteEvents_;
+  folly::IntrusiveList<ByteEvent, &ByteEvent::listHook> byteEvents_;
 
  protected:
   Callback* callback_;

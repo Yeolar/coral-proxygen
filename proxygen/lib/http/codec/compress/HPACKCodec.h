@@ -17,7 +17,7 @@
 #include <string>
 #include <vector>
 
-namespace coral { namespace io {
+namespace folly { namespace io {
 class Cursor;
 }}
 
@@ -42,11 +42,11 @@ class HPACKCodec : public HeaderCodec, HeaderCodec::StreamingCallback {
   explicit HPACKCodec(TransportDirection direction);
   ~HPACKCodec() override {}
 
-  std::unique_ptr<coral::IOBuf> encode(
+  std::unique_ptr<folly::IOBuf> encode(
     std::vector<compress::Header>& headers) noexcept override;
 
   Result<HeaderDecodeResult, HeaderDecodeError>
-  decode(coral::io::Cursor& cursor, uint32_t length) noexcept override;
+  decode(folly::io::Cursor& cursor, uint32_t length) noexcept override;
 
   // Callbacks that handle Codec-level stats and errors
   void onHeader(const std::string& name, const std::string& value) override;
@@ -54,7 +54,7 @@ class HPACKCodec : public HeaderCodec, HeaderCodec::StreamingCallback {
   void onDecodeError(HeaderDecodeError decodeError) override;
 
   void decodeStreaming(
-      coral::io::Cursor& cursor,
+      folly::io::Cursor& cursor,
       uint32_t length,
       HeaderCodec::StreamingCallback* streamingCb) noexcept override;
 

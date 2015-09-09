@@ -7,15 +7,15 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  *
  */
-#include <coral/io/IOBuf.h>
-#include <coral/io/Cursor.h>
-#include <coral/Random.h>
+#include <folly/io/IOBuf.h>
+#include <folly/io/Cursor.h>
+#include <folly/Random.h>
 #include <glog/logging.h>
 #include <gtest/gtest.h>
 #include <proxygen/lib/utils/ZlibStreamCompressor.h>
 #include <proxygen/lib/utils/ZlibStreamDecompressor.h>
 
-using namespace coral;
+using namespace folly;
 using namespace proxygen;
 using namespace std;
 using namespace testing;
@@ -23,16 +23,16 @@ using namespace testing;
 class ZlibTests : public testing::Test {
 };
 
-std::unique_ptr<coral::IOBuf> makeBuf(uint32_t size) {
-  auto out = coral::IOBuf::create(size);
+std::unique_ptr<folly::IOBuf> makeBuf(uint32_t size) {
+  auto out = folly::IOBuf::create(size);
   out->append(size);
   // fill with random junk
-  coral::io::RWPrivateCursor cursor(out.get());
+  folly::io::RWPrivateCursor cursor(out.get());
   while (cursor.length() >= 8) {
-    cursor.write<uint64_t>(coral::Random::rand64());
+    cursor.write<uint64_t>(folly::Random::rand64());
   }
   while (cursor.length()) {
-    cursor.write<uint8_t>((uint8_t)coral::Random::rand32());
+    cursor.write<uint8_t>((uint8_t)folly::Random::rand32());
   }
   return out;
 }
