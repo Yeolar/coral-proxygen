@@ -1,4 +1,6 @@
-## Proxygen: Facebook's C++ HTTP Libraries
+## Coral-Proxygen
+
+Coral-Proxygen is a fork of Proxygen (Facebook's C++ HTTP Libraries).
 
 This project comprises the core C++ HTTP abstractions used at
 Facebook. Internally, it is used as the basis for building many HTTP
@@ -8,37 +10,40 @@ provide simple client APIs as well. The framework supports HTTP/1.1,
 SPDY/3, and SPDY/3.1. HTTP/2 support is in progress. The goal is to
 provide a simple, performant, and modern C++ HTTP library.
 
-We have a Google group for general discussions at https://groups.google.com/d/forum/facebook-proxygen.
+A Google group for general discussions at https://groups.google.com/d/forum/facebook-proxygen.
 
 The [original blog post](https://code.facebook.com/posts/1503205539947302)
 also has more background on the project.
 
 ### Installing
 
-Note that currently this project has only been tested on Ubuntu 14.04,
-although it likely works on many other platforms. Support for Mac OSX is
-incomplete.
+Coral-Proxygen is built with CMake.
 
-You will need at least 2 GiB of memory to compile proxygen and its
-dependencies.
+On Debian 8:
 
-##### Easy Install
+First install some dependencies:
 
-Just run `./deps.sh` from the `proxygen/` directory to get and build all
-the dependencies and proxygen. It will also run all the tests. Then run
-`./reinstall.sh` to install it. You can run `./deps.sh && ./reinstall.sh`
-whenever to rebase the dependencies, and then rebuild and reinstall proxygen.
+- libboost-all-dev (required 1.51.0+)
+- libdouble-conversion-dev
+- libgflags-dev
+- libgoogle-glog-dev
+- zlib1g-dev
+- libssl-dev
+- libcap-dev
+- gperf
+- coral-folly (https://github.com/Yeolar/coral-folly)
+- coral-wangle (https://github.com/Yeolar/coral-wangle)
 
-A note on compatibility: this project relies on system installed
-folly. If you rebase proxygen and `make` starts to fail, you likely
-need to update to the latest version of folly. Running
-`./deps.sh && ./reinstall.sh` will do this for you. We are still working
-on a solution to manage depencies more predictably.
+also install libgtest-dev and google-mock if you want enable test.
 
-##### Other Platforms
+Then
 
-If you are running on another platform, you may need to install several
-packages first. Proxygen and folly are all autotools based projects.
+```
+$ mkdir build && cd build
+$ cmake ..
+$ make
+# make install
+```
 
 ### Introduction
 
@@ -104,11 +109,12 @@ server. Try `cd`ing to the directory containing the echo server at
 `proxygen/httpserver/samples/echo/`. You can then build it with this one
 liner:
 
-<code>
-g++ -std=c++11 -o my_echo EchoServer.cpp EchoHandler.cpp -lproxygenhttpserver -lfolly -lglog -lgflags -pthread
-</code>
+```
+g++ -std=c++11 -o my_echo EchoServer.cpp EchoHandler.cpp -lproxygen -lfolly -lwangle -lglog -lgflags -pthread
+```
 
 After running `./my_echo`, we can verify it works using curl in a different terminal:
+
 ```shell
 $ curl -v http://localhost:11000/
 *   Trying 127.0.0.1...
@@ -134,12 +140,3 @@ copy of these docs by running `doxygen Doxyfile` from the project
 root. You'll want to look at `html/namespaceproxygen.html` to start. This
 will also generate folly documentation.
 
-### Contributing
-Contribututions to Proxygen are more than welcome. [Read the guidelines in CONTRIBUTING.md](CONTRIBUTING.md).
-Make sure you've [signed the CLA](https://code.facebook.com/cla) before sending in a pull request.
-
-### Whitehat
-
-Facebook has a [bounty program](https://www.facebook.com/whitehat/) for
-the safe disclosure of security bugs. If you find a vulnerability, please
-go through the process outlined on that page and do not file a public issue.
